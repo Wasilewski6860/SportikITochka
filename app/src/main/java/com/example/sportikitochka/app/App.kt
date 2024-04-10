@@ -3,6 +3,9 @@ package com.example.sportikitochka.app
 import android.app.Application
 import android.widget.Toast
 import com.example.sportikitochka.di.appModule
+import com.example.sportikitochka.di.dataModule
+import com.example.sportikitochka.di.domainModule
+import com.example.sportikitochka.di.presentationModule
 import com.yandex.mapkit.MapKitFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -16,7 +19,7 @@ class App: Application() {
         startKoin {
             androidContext(this@App)
             androidLogger(Level.DEBUG)
-            modules(listOf(appModule))
+            modules(listOf(appModule, dataModule, domainModule, presentationModule))
         }
     }
 
