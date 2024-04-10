@@ -1,15 +1,12 @@
-package com.example.sportikitochka.presentation.splash
+package com.example.sportikitochka.presentation.onboarding
 
 import androidx.lifecycle.ViewModel
-import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
 
-class SplashViewModel(
-    private val isOnboardingViewedUseCase: IsOnboardingViewedUseCase,
+class OnboardingViewModel(
     private val setOnboardingViewedUseCase: SetOnboardingViewedUseCase
 ) : ViewModel() {
 
-    fun isOnboardingViewed() : Boolean = isOnboardingViewedUseCase.execute()
     fun setOnboardingViewed() {
         setOnboardingViewedUseCase.execute(true)
     }
