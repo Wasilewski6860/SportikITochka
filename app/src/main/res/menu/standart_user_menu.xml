@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/mainFragment"
+        android:icon="@drawable/ic_menu"
+        android:title=""
+        />
+
+    <item
+        android:id="@+id/raitingFragment"
+        android:icon="@drawable/ic_achivements"
+        android:title=""
+        />
+
+    <item
+        android:id="@+id/statisticFragment"
+        android:icon="@drawable/ic_graph"
+        android:title=""
+        />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title=""
+        />
+</menu>

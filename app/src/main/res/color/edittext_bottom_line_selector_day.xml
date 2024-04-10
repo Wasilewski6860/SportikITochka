@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true" android:color="@color/bottom_nav_text_color_active" /> <!-- Цвет в активном состоянии -->
+    <item android:color="@color/bottom_nav_text_color_inactive" /> <!-- Цвет в неактивном состоянии -->
+</selector>

@@ -1,0 +1,81 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+<!-- Base application theme. -->
+<style name="Base.Theme.SportikITochka" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Customize your theme here. -->
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimary</item>
+    <item name="colorAccent">@color/colorPrimaryLite</item>
+    <item name="android:fontFamily">@font/inter</item>
+    <item name="fontFamily">@font/inter</item>
+    <item name="android:textColor">@color/black</item>
+    <item name="android:windowBackground">@color/colorWindowLightBackground</item>
+    <!--<item name="android:forceDarkAllowed">true</item> -->
+</style>
+
+<style name="SmallTextStyle" parent="android:Widget.TextView">
+    <item name="android:textColor">@color/black</item>
+    <item name="android:textSize">@dimen/small_size</item>
+    <item name="fontFamily">@font/inter</item>
+</style>
+
+<style name="NormalTextStyle" parent="android:Widget.TextView">
+    <item name="android:textColor">@color/black</item>
+    <item name="android:textSize">@dimen/normal_size</item>
+    <item name="fontFamily">@font/inter</item>
+</style>
+
+<style name="BigTextStyle" parent="android:Widget.TextView">
+    <item name="android:textColor">@color/black</item>
+    <item name="android:textSize">@dimen/big_size</item>
+    <item name="fontFamily">@font/inter</item>
+</style>
+
+<style name="BigBoldTextStyle" parent="android:Widget.TextView">
+    <item name="android:textColor">@color/black</item>
+    <item name="android:textSize">@dimen/big_size</item>
+    <item name="fontFamily">@font/inter_bold</item>
+</style>
+
+<style name="BottomNavViewStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+    <!--        <item name="itemBackground">@drawable/bottom_navigation_item_background</item>-->
+    <item name="itemIconSize">24dp</item>
+    <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+    <item name="itemTextAppearanceInactive">@style/BottomNavTextInactive</item>
+    <item name="itemTextAppearanceActive">@style/BottomNavTextActive</item>
+    <item name="android:background">@drawable/bottom_nav_shape_light</item>
+</style>
+
+<style name="BottomNavTextInactive" parent="Widget.Material3.BottomNavigationView">
+    <item name="android:textColor">@color/bottom_nav_icon_color</item>
+    <item name="android:textSize">12sp</item>
+</style>
+
+<style name="BottomNavTextActive" parent="Widget.Material3.BottomNavigationView">
+    <item name="android:textColor">@color/colorPrimary</item>
+    <item name="android:textSize">12sp</item>
+    <!--        <item name="android:fontFamily">@font/your_font</item> &lt;!&ndash; Шрифт для активного элемента &ndash;&gt;-->
+</style>
+
+<style name="TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <item name="hintTextAppearance">@style/HintText</item>
+</style>
+
+<style name="HintText" parent="TextAppearance.MaterialComponents.Subtitle1">
+    <item name="android:textColor">@color/colorPrimaryLite</item>
+</style>
+
+<style name="EditTextBottom" parent="Widget.Material3.BottomNavigationView">
+    <item name="android:backgroundTint">@color/edittext_bottom_line_selector_day</item>
+    <!--        <item name="android:fontFamily">@font/your_font</item> &lt;!&ndash; Шрифт для активного элемента &ndash;&gt;-->
+</style>
+
+<!--    <style name="CardViewStyle" parent="Widget.Material3.CardView.Elevated">-->
+<!--        app:cardCornerRadius="16dp"-->
+<!--        app:cardElevation="2dp"-->
+<!--        <item name="a">@color/colorPrimary</item>-->
+<!--        <item name="android:textSize">12sp</item>-->
+<!--        &lt;!&ndash;        <item name="android:fontFamily">@font/your_font</item> &lt;!&ndash; Шрифт для активного элемента &ndash;&gt;&ndash;&gt;-->
+<!--    </style>-->
+
+<style name="Theme.SportikITochka" parent="Base.Theme.SportikITochka" />
+</resources>
