@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentSignInBinding
+import com.example.sportikitochka.other.Validator.validateEmail
+import com.example.sportikitochka.other.Validator.validatePassword
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -38,11 +40,10 @@ class SignInFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         if (viewModel.isLogged()){
-            viewModel.getUserType()
-            findNavController().navigate(
-                R.id.action_signInFragment_to_raitingFragment,
-                savedInstanceState
-            )
+//            findNavController().navigate(
+//                R.id.action_signInFragment_to_raitingFragment,
+//                savedInstanceState
+//            )
         }
 
         binding.buttonLogin.setOnClickListener {
@@ -50,23 +51,28 @@ class SignInFragment : Fragment() {
         }
 
         binding.createAccountTv.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_signInFragment_to_signUpFragment,
-                savedInstanceState
-            )
+            showSnackbar("Попытка регистрации")
+//            findNavController().navigate(
+//                R.id.action_signInFragment_to_signUpFragment,
+//                savedInstanceState
+//            )
         }
 
         viewModel.screenState.observe(viewLifecycleOwner) {
             when(it){
-                ScreenState.Loading -> Unit
-                is ScreenState.Error -> showSnackbar(it.message.toString())
-                ScreenState.Success -> {
-                    viewModel.getUserType()
-                    findNavController().navigate(
-                        R.id.action_signInFragment_to_raitingFragment,
-                        savedInstanceState
-                    )
+                SignInScreenState.Loading -> Unit
+                SignInScreenState.UserBlockedError -> showSnackbar("Вы заблокированы. Связаться с нами: kakoi-to_email@gmail.com")
+                SignInScreenState.UserNotFoundError -> showSnackbar("Пользователь не найден. Связаться с нами: kakoi-to_email@gmail.com")
+                SignInScreenState.IncorrectPasswordError -> showSnackbar("Неверный пароль. Связаться с нами: kakoi-to_email@gmail.com")
+                SignInScreenState.Success -> {
+                    showSnackbar("Успешный вход")
+//                    viewModel.getUserType()
+//                    findNavController().navigate(
+//                        R.id.action_signInFragment_to_raitingFragment,
+//                        savedInstanceState
+//                    )
                 }
+                SignInScreenState.AnyError -> showSnackbar("Что-то пошло не так. Связаться с нами: kakoi-to_email@gmail.com")
                 else -> Unit
             }
         }
