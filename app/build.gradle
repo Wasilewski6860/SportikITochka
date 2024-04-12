@@ -71,7 +71,7 @@ dependencies {
     //Kotlin symbol processing for Room
     ksp "androidx.room:room-compiler:$room_version"
     //Koin
-    implementation "io.insert-koin:koin-core:$koin_version"
+    implementation "io.insert-koin:koin-core:$koin_version "
     implementation "io.insert-koin:koin-android:$koin_version"
     testImplementation "io.insert-koin:koin-test:$koin_version"
     //Splash screen

@@ -52,10 +52,10 @@ class SignInFragment : Fragment() {
 
         binding.createAccountTv.setOnClickListener {
             showSnackbar("Попытка регистрации")
-//            findNavController().navigate(
-//                R.id.action_signInFragment_to_signUpFragment,
-//                savedInstanceState
-//            )
+            findNavController().navigate(
+                R.id.action_signInFragment_to_signUpFragment,
+                savedInstanceState
+            )
         }
 
         viewModel.screenState.observe(viewLifecycleOwner) {
