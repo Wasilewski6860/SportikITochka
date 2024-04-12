@@ -13,4 +13,8 @@ object EndPoints {
     const val CHANGE_USER_DATA = "api/change_user_data"
 
     const val USER_PROFILE = "api/user_profile"
+
+    const val ADMIN_ACTION = "api/admin_action"
+
+    const val USERS = "api/users"
 }

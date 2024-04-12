@@ -8,35 +8,46 @@ import com.example.sportikitochka.data.db.SportActivitiesDatabase
 import com.example.sportikitochka.data.db.SportActivitiesStorage
 import com.example.sportikitochka.data.db.impl.SportActivityStorageImpl
 import com.example.sportikitochka.data.models.request.activities.AddActivityRequest
+import com.example.sportikitochka.data.models.request.admin_action.AdminAction
+import com.example.sportikitochka.data.models.request.admin_action.AdminActionRequest
 import com.example.sportikitochka.data.models.request.auth.LoginRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
+import com.example.sportikitochka.data.models.response.AchievementResponse
 import com.example.sportikitochka.data.models.response.ErrorResponse
 import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.AddActivityResponse
+import com.example.sportikitochka.data.models.response.admin_action.AdminActionResponse
 import com.example.sportikitochka.data.models.response.auth.LoginResponse
 import com.example.sportikitochka.data.models.response.auth.RegisterResponse
 import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
-import com.example.sportikitochka.data.models.response.profile.Achievement
 import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
+import com.example.sportikitochka.data.models.response.users.UserResponse
 import com.example.sportikitochka.data.network.ActivitiesApi
+import com.example.sportikitochka.data.network.AdminActionApi
 import com.example.sportikitochka.data.network.AuthApi
+import com.example.sportikitochka.data.network.UserApi
 import com.example.sportikitochka.data.network.UserProfileApi
 import com.example.sportikitochka.data.repositories.ActivitiesRepositoryImpl
+import com.example.sportikitochka.data.repositories.AdminActionRepositoryImpl
 import com.example.sportikitochka.data.repositories.AuthRepositoryImpl
 import com.example.sportikitochka.data.repositories.OnboardingRepositoryImpl
 import com.example.sportikitochka.data.repositories.PreferencesRepositoryImpl
 import com.example.sportikitochka.data.repositories.ProfileRepositoryImpl
 import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
+import com.example.sportikitochka.data.repositories.UsersRepositoryImpl
 import com.example.sportikitochka.domain.models.SportActivity
+import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.domain.repositories.ActivityRepository
+import com.example.sportikitochka.domain.repositories.AdminActionRepository
 import com.example.sportikitochka.domain.repositories.AuthRepository
 import com.example.sportikitochka.domain.repositories.OnboardingRepository
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.ProfileRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
+import com.example.sportikitochka.domain.repositories.UsersRepository
 import com.example.sportikitochka.other.ActivityType
 import com.example.sportikitochka.other.TrackingUtility.bitmapToString
 import com.example.sportikitochka.other.Validator
@@ -104,6 +115,68 @@ val dataModule = module {
         ),
     )
 
+    val users = listOf<User>(
+        User(
+            id = 0,
+            name = "User123412",
+            role = UserType.Premium,
+            image = "",
+            place = 1,
+            totalCount = 11,
+            totalDistanse = 15400F,
+            totalTime = 112414141L,
+            totalCalories = 1442L,
+            averageTime = 1000,
+            averageDistanse = 100F,
+            averageCalories = 100L,
+            isBlocked = false
+        ),
+        User(
+            id = 1,
+            name = "U1213",
+            role = UserType.Normal,
+            image = "",
+            place = 2,
+            totalCount = 15,
+            totalDistanse = 13400F,
+            totalTime = 1122414141L,
+            totalCalories = 1441L,
+            averageTime = 1000,
+            averageDistanse = 100F,
+            averageCalories = 100L,
+            isBlocked = false
+        ),
+        User(
+            id = 2,
+            name = "Andrew",
+            role = UserType.Normal,
+            image = "",
+            place = 3,
+            totalCount = 9,
+            totalDistanse = 14400F,
+            totalTime = 112471141L,
+            totalCalories = 1541L,
+            averageTime = 1000,
+            averageDistanse = 100F,
+            averageCalories = 100L,
+            isBlocked = true
+        ),
+        User(
+            id = 3,
+            name = "Test User",
+            role = UserType.Premium,
+            image = "",
+            place = 4,
+            totalCount = 10,
+            totalDistanse = 15600F,
+            totalTime = 442414141L,
+            totalCalories = 1332L,
+            averageTime = 1000,
+            averageDistanse = 100F,
+            averageCalories = 100L,
+            isBlocked = true
+        )
+    )
 
     val userTotalDistance: Long = activities.map { it.distanceInMeters }.sum()
     val userTotalTime: Long = activities.map { it.timeInMillis }.sum()
@@ -258,6 +331,128 @@ val dataModule = module {
         }
     }
 
+    single<AdminActionApi> {
+        object : AdminActionApi {
+            override suspend fun adminAction(
+                token: String,
+                adminActionRequest: AdminActionRequest
+            ): Response<AdminActionResponse> {
+                when(adminActionRequest.action) {
+                    AdminAction.GRANT_PREMIUM.action -> {
+                        for (user in users) {
+                            if (user.id == adminActionRequest.user_id.toInt()) {
+                                user.role = UserType.Premium
+                                return Response.success(
+                                    AdminActionResponse(
+                                        success = true,
+                                        action = AdminAction.GRANT_PREMIUM.action,
+                                        timestamp = 0L
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    AdminAction.REVOKE_PREMIUM.action -> {
+                        for (user in users) {
+                            if (user.id == adminActionRequest.user_id.toInt()) {
+                                user.role = UserType.Normal
+                                return Response.success(
+                                    AdminActionResponse(
+                                        success = true,
+                                        action = AdminAction.REVOKE_PREMIUM.action,
+                                        timestamp = 0L
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    AdminAction.BLOCK.action -> {
+                        for (user in users) {
+                            if (user.id == adminActionRequest.user_id.toInt()) {
+                                user.isBlocked = true
+                                Response.success(
+                                    AdminActionResponse(
+                                        success = true,
+                                        action = AdminAction.BLOCK.action,
+                                        timestamp = 0L
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    AdminAction.UNBLOCK.action -> {
+                        for (user in users) {
+                            if (user.id == adminActionRequest.user_id.toInt()) {
+                                user.isBlocked = false
+                                return Response.success(
+                                    AdminActionResponse(
+                                        success = true,
+                                        action = AdminAction.UNBLOCK.action,
+                                        timestamp = 0L
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {
+                        // Создаем объект ResponseBody для передачи ошибки
+                        val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
+                        // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
+                        val response = Response.error<AdminActionResponse>(400, errorResponseBody)
+                        return response
+                    }
+                }
+
+                // Создаем объект ResponseBody для передачи ошибки
+                val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
+                // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
+                val response = Response.error<AdminActionResponse>(400, errorResponseBody)
+                return response
+            }
+
+        }
+    }
+
+    single<UserApi> {
+        object :UserApi {
+            override suspend fun getUsers(token: String): Response<List<UserResponse>> {
+                Handler().postDelayed({},3000)
+                return Response.success(
+                    users.map {
+                            user ->
+                        UserResponse(
+                            id = user.id,
+                            name = user.name,
+                            role = user.role.toString(),
+                            image = user.image,
+                            rating = user.place,
+                            totalCount = user.totalCount,
+                            totalDistanse = user.totalDistanse,
+                            totalTime = user.totalTime,
+                            totalCalories = user.totalCalories,
+                            averageDistanse = user.averageDistanse,
+                            averageCalories = user.averageCalories,
+                            averageTime = user.averageTime,
+                            achievements = user.achievements.map {
+                                    it -> AchievementResponse(
+                                it.achievementId,
+                                it.achievementName,
+                                it.achievementImage,
+                                it.achievementDistance
+                            )
+                            },
+                            isBlocked = user.isBlocked,
+                            averageSpeed = user.averageDistanse/user.averageTime//TODO
+                        )
+                    }
+                )
+            }
+
+        }
+    }
+
+
 
     single<PreferencesRepository> { PreferencesRepositoryImpl(context = get()) }
     single<OnboardingRepository> { OnboardingRepositoryImpl(preferencesRepository = get()) }
@@ -267,6 +462,9 @@ val dataModule = module {
 
     single<ProfileRepository> { ProfileRepositoryImpl(userProfileApi = get(), sessionRepository = get()) }
     single<ActivityRepository> { ActivitiesRepositoryImpl(sportActivitiesStorage = get(), api = get(), sessionRepository = get()) }
+
+    single<AdminActionRepository> { AdminActionRepositoryImpl(adminActionApi = get(), sessionRepository = get()) }
+    single<UsersRepository> { UsersRepositoryImpl(api = get(), sessionRepository = get()) }
 
 
     single<SportActivitiesStorage> { SportActivityStorageImpl(sportActivitiesDatabase = get()) }
