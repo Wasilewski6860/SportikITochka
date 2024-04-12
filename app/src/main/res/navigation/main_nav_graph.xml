@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/ratingFragment">
+
+    <fragment
+        android:id="@+id/ratingFragment"
+        android:name="com.example.sportikitochka.presentation.main.rating.RatingFragment"
+        android:label="fragment_rating"
+        tools:layout="@layout/fragment_rating" />
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.sportikitochka.presentation.main.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_selectActivityTypeFragment"
+            app:destination="@id/selectActivityTypeFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_allActivitiesFragment"
+            app:destination="@id/allActivitiesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.sportikitochka.presentation.main.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/statisticFragment"
+        android:name="com.example.sportikitochka.presentation.main.statistics.StatisticFragment"
+        android:label="fragment_statistic"
+        tools:layout="@layout/fragment_statistic" />
+    <fragment
+        android:id="@+id/selectActivityTypeFragment"
+        android:name="com.example.sportikitochka.presentation.main.select_activity_type.SelectActivityTypeFragment"
+        android:label="fragment_select_activity_type"
+        tools:layout="@layout/fragment_select_activity_type" />
+    <fragment
+        android:id="@+id/allActivitiesFragment"
+        android:name="com.example.sportikitochka.presentation.main.all_activities.AllActivitiesFragment"
+        android:label="fragment_all_activities"
+        tools:layout="@layout/fragment_all_activities" />
+</navigation>

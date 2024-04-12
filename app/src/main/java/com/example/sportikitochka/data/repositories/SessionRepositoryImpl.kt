@@ -1,6 +1,8 @@
 package com.example.sportikitochka.data.repositories
 
 import com.example.sportikitochka.data.models.response.auth.LoginResponse
+import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.models.response.auth.UserType.Premium.getUserType
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
 import com.squareup.moshi.Moshi
@@ -32,5 +34,9 @@ class SessionRepositoryImpl(
         preferencesRepository.getStringOrNull(AUTH_SESSION)?.let {
             serializationSessionAdapter.fromJson(it)
         }
+
+    override fun getUserRole(): UserType? {
+        return getSession()?.getUserType()
+    }
 
 }

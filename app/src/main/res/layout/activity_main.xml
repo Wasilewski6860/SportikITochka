@@ -5,13 +5,13 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.MainActivity">
+    tools:context=".presentation.main.MainActivity">
 
     <FrameLayout
-        android:id="@+id/flFragment"
+        android:id="@+id/flMainFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/navViewContainer"
+        app:layout_constraintBottom_toTopOf="@+id/mainNavViewContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -19,17 +19,17 @@
 
 
         <fragment
-            android:id="@+id/navHostFragment"
+            android:id="@+id/navHostMainFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:name="androidx.navigation.fragment.NavHostFragment"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/nav_graph" />
+            app:navGraph="@navigation/main_nav_graph" />
 
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/navViewContainer"
+        android:id="@+id/mainNavViewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
