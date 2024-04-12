@@ -1,9 +1,10 @@
 package com.example.sportikitochka.di
 
-import com.example.sportikitochka.presentation.onboarding.OnboardingViewModel
-import com.example.sportikitochka.presentation.sign_in.SignInViewModel
-import com.example.sportikitochka.presentation.sign_up.SignUpViewModel
-import com.example.sportikitochka.presentation.splash.SplashViewModel
+import com.example.sportikitochka.presentation.auth.onboarding.OnboardingViewModel
+import com.example.sportikitochka.presentation.auth.sign_in.SignInViewModel
+import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
+import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
+import com.example.sportikitochka.presentation.main.main.MainViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -23,7 +24,8 @@ val presentationModule = module {
         SignInViewModel(
             isLoggedUseCase = get(),
             loginUseCase = get(),
-            saveSessionUseCase = get()
+            saveSessionUseCase = get(),
+            getUserRoleUseCase = get()
         )
     }
 
@@ -31,6 +33,15 @@ val presentationModule = module {
         SignUpViewModel(
             signUpUseCase = get(),
             validateEmailUseCase = get()
+        )
+    }
+
+    viewModel<MainViewModel> {
+        MainViewModel(
+            getUserProfileUseCase = get(),
+            addActivityLocalUseCase = get(),
+            getAllActivitiesRemoteUseCase = get(),
+            getAllActivitiesLocalUseCase = get()
         )
     }
 }

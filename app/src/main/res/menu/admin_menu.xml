@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/raitingFragment"
+        android:id="@+id/ratingFragment"
         android:icon="@drawable/ic_achivements"
         android:title=""
         />
