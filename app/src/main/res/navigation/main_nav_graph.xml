@@ -36,10 +36,28 @@
         android:id="@+id/selectActivityTypeFragment"
         android:name="com.example.sportikitochka.presentation.main.select_activity_type.SelectActivityTypeFragment"
         android:label="fragment_select_activity_type"
-        tools:layout="@layout/fragment_select_activity_type" />
+        tools:layout="@layout/fragment_select_activity_type" >
+        <action
+            android:id="@+id/action_selectActivityTypeFragment_to_trackingFragment"
+            app:destination="@id/trackingFragment" />
+
+    </fragment>
     <fragment
         android:id="@+id/allActivitiesFragment"
         android:name="com.example.sportikitochka.presentation.main.all_activities.AllActivitiesFragment"
         android:label="fragment_all_activities"
         tools:layout="@layout/fragment_all_activities" />
+    <fragment
+        android:id="@+id/trackingFragment"
+        android:name="com.example.sportikitochka.presentation.main.tracking.TrackingFragment"
+        android:label="fragment_tracking"
+        tools:layout="@layout/fragment_tracking" >
+        <action
+            android:id="@+id/action_trackingFragment_to_mainFragment2"
+            app:destination="@id/mainFragment" />
+        <argument
+            android:name="activityType"
+            android:defaultValue="running"
+            app:argType="string" />
+    </fragment>
 </navigation>
