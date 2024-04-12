@@ -18,4 +18,5 @@ class ProfileRepositoryImpl(val userProfileApi: UserProfileApi, val sessionRepos
         val token = sessionRepository.getSession()!!.accessToken
         return userProfileApi.getUserProfile(token, userProfileRequest)
     }
+
 }
