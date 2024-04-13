@@ -4,6 +4,7 @@ import com.example.sportikitochka.presentation.auth.onboarding.OnboardingViewMod
 import com.example.sportikitochka.presentation.auth.sign_in.SignInViewModel
 import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
 import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
+import com.example.sportikitochka.presentation.main.all_activities.AllActivitiesViewModel
 import com.example.sportikitochka.presentation.main.main.MainViewModel
 import com.example.sportikitochka.presentation.main.rating.RatingViewModel
 import com.example.sportikitochka.presentation.main.tracking.TrackingViewModel
@@ -66,6 +67,14 @@ val presentationModule = module {
         TrackingViewModel(
             addActivityRemoteUseCase = get(),
             getUserDataLocallyUseCase = get()
+        )
+    }
+
+    viewModel<AllActivitiesViewModel> {
+        AllActivitiesViewModel(
+           addActivityLocalUseCase = get(),
+            getAllActivitiesRemoteUseCase = get(),
+            getAllActivitiesLocalUseCase = get()
         )
     }
 }

@@ -46,7 +46,11 @@
         android:id="@+id/allActivitiesFragment"
         android:name="com.example.sportikitochka.presentation.main.all_activities.AllActivitiesFragment"
         android:label="fragment_all_activities"
-        tools:layout="@layout/fragment_all_activities" />
+        tools:layout="@layout/fragment_all_activities" >
+        <action
+            android:id="@+id/action_allActivitiesFragment_to_selectActivityTypeFragment"
+            app:destination="@id/selectActivityTypeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/trackingFragment"
         android:name="com.example.sportikitochka.presentation.main.tracking.TrackingFragment"
