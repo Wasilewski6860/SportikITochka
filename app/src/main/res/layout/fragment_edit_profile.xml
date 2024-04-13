@@ -3,11 +3,319 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.main.edit_profile.EditProfileFragment">
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/edit_profile_layout"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/profile_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="50dp"
+
+                android:scaleType="fitCenter"
+                app:riv_corner_radius="30dip"
+                app:riv_border_width="0dp"
+                app:riv_border_color="#333333"
+                app:riv_mutate_background="true"
+                app:riv_oval="true"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/profile_image"
+                />
+
+            <ImageView
+                android:id="@+id/editProfileNewImage"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@+id/profile_image"
+                app:layout_constraintStart_toEndOf="@+id/profile_image"
+                app:srcCompat="@drawable/ic_camera"
+                app:tint="@color/bottom_nav_text_color_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_thin"
+                android:text="Нажмите, чтобы изменить иконку профиля"
+                android:maxEms="10"
+                android:ems="15"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/bottom_nav_text_color_inactive"
+                app:layout_constraintEnd_toEndOf="@+id/editProfileNewImage"
+                app:layout_constraintStart_toStartOf="@+id/profile_image"
+                app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/header_layout"
+            android:layout_marginTop="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_sign_up_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:fontFamily="@font/inter_semibold"
+                android:hint="Имя"
+                android:layout_marginTop="20dp"
+                android:textColorHint="@color/dark_grey"
+                app:boxCornerRadiusBottomEnd="32dp"
+                app:boxCornerRadiusBottomStart="32dp"
+                app:boxCornerRadiusTopEnd="32dp"
+                app:boxCornerRadiusTopStart="32dp"
+                app:boxStrokeColor="@color/grey"
+                app:endIconCheckable="true"
+                app:endIconDrawable="@drawable/ic_delete_x"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperText="Введите Ваше имя"
+                app:helperTextEnabled="true"
+                app:helperTextTextColor="@color/dark_grey"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/dark_grey"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                >
+
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sign_up_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/inter_semibold"
+                    android:inputType="text"
+                    android:text="Андрей"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_sign_up_birthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:fontFamily="@font/inter_semibold"
+                android:hint="дд.мм.гг"
+                android:textColorHint="@color/dark_grey"
+                app:boxCornerRadiusBottomEnd="32dp"
+                app:boxCornerRadiusBottomStart="32dp"
+                app:boxCornerRadiusTopEnd="32dp"
+                app:boxCornerRadiusTopStart="32dp"
+                app:boxStrokeColor="@color/grey"
+                app:endIconCheckable="true"
+                app:endIconDrawable="@drawable/ic_delete_x"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperText="Введите дату Вашего дня рождения"
+                app:helperTextEnabled="true"
+                app:helperTextTextColor="@color/dark_grey"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/dark_grey"
+                android:inputType="datetime"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                >
+
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sign_up_birthday"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="12.09.98"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_sign_up_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:hint="Телефон"
+                android:textColorHint="@color/dark_grey"
+                app:boxCornerRadiusBottomEnd="32dp"
+                app:boxCornerRadiusBottomStart="32dp"
+                app:boxCornerRadiusTopEnd="32dp"
+                app:boxCornerRadiusTopStart="32dp"
+                app:boxStrokeColor="@color/grey"
+                app:endIconCheckable="true"
+                app:endIconDrawable="@drawable/ic_delete_x"
+                android:fontFamily="@font/inter_semibold"
+
+                android:inputType="phone"
+                android:gravity="center"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperText="Введите Ваш телефонный номер"
+                app:helperTextEnabled="true"
+                app:helperTextTextColor="@color/dark_grey"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/dark_grey">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sign_up_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:inputType="phone"
+                    android:text="+0 (123) 456-78-90"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_sign_up_calories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:hint="Вес"
+                android:textColorHint="@color/dark_grey"
+                app:boxCornerRadiusBottomEnd="32dp"
+                app:boxCornerRadiusBottomStart="32dp"
+                app:boxCornerRadiusTopEnd="32dp"
+                app:boxCornerRadiusTopStart="32dp"
+                app:boxStrokeColor="@color/grey"
+                app:endIconCheckable="true"
+                app:endIconDrawable="@drawable/ic_kg"
+                android:fontFamily="@font/inter_semibold"
+
+                android:inputType="phone"
+                android:gravity="center"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperText="Введите Ваш вес, кг"
+                app:helperTextEnabled="true"
+                app:helperTextTextColor="@color/dark_grey"
+                app:hintAnimationEnabled="true"
+                app:hintEnabled="true"
+                app:hintTextColor="@color/dark_grey">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sign_up_calories"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:inputType="number"
+                    android:text="87"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/next_btn_sign_up"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="32dp"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_bold"
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"
+                android:text="Сохранить"/>
+
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_gravity="center"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/error_layout"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/error_image"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="100dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/error_3d"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/error_layout_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/error_image"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:text="К сожалению, не можем загрузить данные о данных пользователя"
+            android:fontFamily="@font/inter_medium"
+            android:textSize="18sp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/error_layout_button"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_marginHorizontal="40dp"
+            android:background="@drawable/button_shape"
+            android:text="Попробовать снова"
+            android:textSize="18sp"
+            android:fontFamily="@font/inter_bold"
+            android:textStyle="bold"
+            android:layout_marginVertical="20dp"
+            />
+
+    </LinearLayout>
 
 </FrameLayout>

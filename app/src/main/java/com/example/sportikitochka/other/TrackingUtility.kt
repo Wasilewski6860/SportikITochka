@@ -3,7 +3,9 @@ package com.example.sportikitochka.other
 import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import android.view.View
@@ -14,6 +16,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
@@ -100,5 +104,26 @@ object TrackingUtility {
         val decimalFormat = DecimalFormat("#.${"#".repeat(decimalPlaces)}")
         val format= decimalFormat.format(value).replace(",",".")
         return format.toFloat()
+    }
+
+    fun uriToString(context: Context, imageUri: Uri?, view: View): String? {
+        var inputStream: InputStream? = null
+        var bitmap: Bitmap? = null
+        var string: String? =null
+
+        try {
+            inputStream = imageUri?.let { context.contentResolver.openInputStream(it) }
+            bitmap = BitmapFactory.decodeStream(inputStream)
+            string = bitmapToString(bitmap)
+        } catch (e: FileNotFoundException) {
+            showSnackbar("Файл не найден", view)
+        }
+        catch (e: Exception) {
+            showSnackbar("Что-то пошло не так", view)
+        }finally {
+            inputStream?.close()
+        }
+
+        return string
     }
 }

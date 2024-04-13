@@ -5,6 +5,7 @@ import com.example.sportikitochka.presentation.auth.sign_in.SignInViewModel
 import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
 import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
 import com.example.sportikitochka.presentation.main.all_activities.AllActivitiesViewModel
+import com.example.sportikitochka.presentation.main.edit_profile.EditProfileViewModel
 import com.example.sportikitochka.presentation.main.main.MainViewModel
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
 import com.example.sportikitochka.presentation.main.rating.RatingViewModel
@@ -85,6 +86,17 @@ val presentationModule = module {
             getUserRoleUseCase = get(),
             signOutUseCase = get(),
             getProfileUseCase = get()
+        )
+    }
+
+    viewModel<EditProfileViewModel> {
+        EditProfileViewModel(
+            getUserRoleUseCase = get(),
+            getUserDataLocallyUseCase = get(),
+            getUserDataUseCase = get(),
+            getAdminDataUseCase = get(),
+            changeUserDataUseCase = get(),
+            changeAdminDataUseCase = get()
         )
     }
 }
