@@ -13,6 +13,7 @@ import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
 import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
 import com.example.sportikitochka.domain.use_cases.auth.RegisterUseCase
 import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
+import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
@@ -22,6 +23,7 @@ import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyU
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.users.GetAllUsersUseCase
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -59,4 +61,6 @@ val domainModule = module {
     factory<AddActivityRemoteUseCase> { AddActivityRemoteUseCase(activityRepository = get()) }
 
     factory<GetProfileLocallyUseCase> { GetProfileLocallyUseCase(profileRepository = get()) }
+
+    factory<SignOutUseCase> { SignOutUseCase(sessionRepository = get(), activityRepository = get()) }
 }

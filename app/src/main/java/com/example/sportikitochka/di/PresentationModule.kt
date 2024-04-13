@@ -6,6 +6,7 @@ import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
 import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
 import com.example.sportikitochka.presentation.main.all_activities.AllActivitiesViewModel
 import com.example.sportikitochka.presentation.main.main.MainViewModel
+import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
 import com.example.sportikitochka.presentation.main.rating.RatingViewModel
 import com.example.sportikitochka.presentation.main.tracking.TrackingViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -76,6 +77,14 @@ val presentationModule = module {
            addActivityLocalUseCase = get(),
             getAllActivitiesRemoteUseCase = get(),
             getAllActivitiesLocalUseCase = get()
+        )
+    }
+
+    viewModel<ProfileViewModel> {
+        ProfileViewModel(
+            getUserRoleUseCase = get(),
+            signOutUseCase = get(),
+            getProfileUseCase = get()
         )
     }
 }

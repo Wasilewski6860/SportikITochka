@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.ByteArrayOutputStream
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
 typealias Polyline = MutableList<LatLng>
@@ -93,5 +94,11 @@ object TrackingUtility {
             text,
             Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    fun roundFloat(value: Float, decimalPlaces: Int): Float {
+        val decimalFormat = DecimalFormat("#.${"#".repeat(decimalPlaces)}")
+        val format= decimalFormat.format(value).replace(",",".")
+        return format.toFloat()
     }
 }
