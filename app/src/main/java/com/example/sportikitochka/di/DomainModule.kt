@@ -19,6 +19,9 @@ import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewed
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.ChangeAdminDataUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.ChangeUserDataUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.GetAdminDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
@@ -55,6 +58,9 @@ val domainModule = module {
     factory<RevokePremiumUseCase> { RevokePremiumUseCase(adminActionRepository = get()) }
 
     factory<GetUserDataUseCase> { GetUserDataUseCase(userDataRepository = get()) }
+    factory<GetAdminDataUseCase> { GetAdminDataUseCase(userDataRepository = get()) }
+    factory<ChangeUserDataUseCase> { ChangeUserDataUseCase(userDataRepository = get()) }
+    factory<ChangeAdminDataUseCase> { ChangeAdminDataUseCase(userDataRepository = get()) }
     factory<SaveUserDataUseCase> { SaveUserDataUseCase(sessionRepository = get()) }
     factory<GetUserDataLocallyUseCase> { GetUserDataLocallyUseCase(sessionRepository = get()) }
 

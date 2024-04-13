@@ -31,20 +31,32 @@ class DateFormatTextWatcher(private val editText: EditText) : TextWatcher {
         }
         if (onlyNumbers.length >= 2) {
             formattedString.append(onlyNumbers.substring(0, 2))
-            formattedString.append(".")
         }
         if (onlyNumbers.length == 3) {
+            formattedString.append(".")
             formattedString.append(onlyNumbers.substring(2, 3))
         }
+        else
         if (onlyNumbers.length >= 4) {
-            formattedString.append(onlyNumbers.substring(2, 4))
             formattedString.append(".")
+            formattedString.append(onlyNumbers.substring(2, 4))
         }
         if (onlyNumbers.length == 5) {
+            formattedString.append(".")
             formattedString.append(onlyNumbers.substring(4, 5))
         }
-        if (onlyNumbers.length >= 6) {
+        else
+        if (onlyNumbers.length == 6) {
+            formattedString.append(".")
             formattedString.append(onlyNumbers.substring(4, 6))
+        }
+        if (onlyNumbers.length == 7) {
+            formattedString.append(".")
+            formattedString.append(onlyNumbers.substring(4, 7))
+        }
+        if (onlyNumbers.length == 8) {
+            formattedString.append(".")
+            formattedString.append(onlyNumbers.substring(4, 8))
         }
 
         editText.removeTextChangedListener(this)

@@ -13,6 +13,7 @@ import com.example.sportikitochka.data.models.request.admin_action.AdminActionRe
 import com.example.sportikitochka.data.models.request.auth.LoginRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
+import com.example.sportikitochka.data.models.request.user_data.ChangeAdminDataRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
 import com.example.sportikitochka.data.models.response.AchievementResponse
 import com.example.sportikitochka.data.models.response.ErrorResponse
@@ -25,6 +26,7 @@ import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
 import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
+import com.example.sportikitochka.data.models.response.user_data.AdminDataResponse
 import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
 import com.example.sportikitochka.data.models.response.users.UserResponse
@@ -483,6 +485,17 @@ val dataModule = module {
                 )
             }
 
+            override suspend fun getAdminData(token: String): Response<AdminDataResponse> {
+                return Response.success(
+                    AdminDataResponse(
+                        name = userName,
+                        image = userImage,
+                        phone = userPhone,
+                        birthday = userBirthday
+                    )
+                )
+            }
+
             override suspend fun changeUserData(
                 token: String,
                 changeDataUserRequest: ChangeDataUserRequest
@@ -492,6 +505,21 @@ val dataModule = module {
                 userWeight = changeDataUserRequest.weight
                 userPhone = changeDataUserRequest.phone
                 userBirthday = changeDataUserRequest.birthday
+                return Response.success(
+                    ChangeDataUserResponse(
+                        success = true
+                    )
+                )
+            }
+
+            override suspend fun changeAdminData(
+                token: String,
+                changeAdminDataRequest: ChangeAdminDataRequest
+            ): Response<ChangeDataUserResponse> {
+                userName = changeAdminDataRequest.name
+                userImage = changeAdminDataRequest.image
+                userPhone = changeAdminDataRequest.phone
+                userBirthday = changeAdminDataRequest.birthday
                 return Response.success(
                     ChangeDataUserResponse(
                         success = true
