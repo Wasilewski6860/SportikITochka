@@ -13,6 +13,7 @@ import com.example.sportikitochka.data.models.request.admin_action.AdminActionRe
 import com.example.sportikitochka.data.models.request.auth.LoginRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
+import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
 import com.example.sportikitochka.data.models.response.AchievementResponse
 import com.example.sportikitochka.data.models.response.ErrorResponse
 import com.example.sportikitochka.data.models.response.activities.ActivityResponse
@@ -24,11 +25,14 @@ import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
 import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
+import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
+import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
 import com.example.sportikitochka.data.models.response.users.UserResponse
 import com.example.sportikitochka.data.network.ActivitiesApi
 import com.example.sportikitochka.data.network.AdminActionApi
 import com.example.sportikitochka.data.network.AuthApi
 import com.example.sportikitochka.data.network.UserApi
+import com.example.sportikitochka.data.network.UserDataApi
 import com.example.sportikitochka.data.network.UserProfileApi
 import com.example.sportikitochka.data.repositories.ActivitiesRepositoryImpl
 import com.example.sportikitochka.data.repositories.AdminActionRepositoryImpl
@@ -37,6 +41,7 @@ import com.example.sportikitochka.data.repositories.OnboardingRepositoryImpl
 import com.example.sportikitochka.data.repositories.PreferencesRepositoryImpl
 import com.example.sportikitochka.data.repositories.ProfileRepositoryImpl
 import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
+import com.example.sportikitochka.data.repositories.UserDataRepositoryImpl
 import com.example.sportikitochka.data.repositories.UsersRepositoryImpl
 import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.domain.models.User
@@ -47,6 +52,7 @@ import com.example.sportikitochka.domain.repositories.OnboardingRepository
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.ProfileRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
+import com.example.sportikitochka.domain.repositories.UserDataRepository
 import com.example.sportikitochka.domain.repositories.UsersRepository
 import com.example.sportikitochka.other.ActivityType
 import com.example.sportikitochka.other.TrackingUtility.bitmapToString
@@ -65,7 +71,10 @@ val dataModule = module {
     var userEmail: String = "trollivanovich6860@gmail.com"
     var userName: String = "Bob"
     var userImage: String = ""
+    var userWeight: Float = 81F
     var userRating: Int = 0
+    var userBirthday: Long = 0
+    var userPhone: String = "+7 (980) 343-86-78"
     var userPassword: String = "2143658709"
     var userAccessToken: String = "token"
     var uid: Int = 12345
@@ -238,6 +247,11 @@ val dataModule = module {
 
             override suspend fun register(registerRequest: RegisterRequest): Response<RegisterResponse> {
                 registerRequest.apply {
+                    userName = name
+                    userImage = image
+                    userWeight = weight.toFloat()
+                    userPhone = phone
+                    userBirthday = birthday
                     userEmail = email
                     userPassword = password
                     isBlocked = false
@@ -307,11 +321,14 @@ val dataModule = module {
                 token: String,
                 getUserProfileRequest: UserProfileRequest
             ): Response<UserProfileResponse> {
-                val drawable = getDrawable(get(), R.drawable.ic_bycicle)
-                var bitmap = (drawable as BitmapDrawable).bitmap
+//                val drawable = getDrawable(get(), R.drawable.ic_bycicle)
+//                var bitmap = (drawable as BitmapDrawable).bitmap
+//
+//                val encodedString = bitmapToString(bitmap)
+//                if (userImage==""){
+//                    userImage = encodedString
+//                }
 
-                val encodedString = bitmapToString(bitmap)
-                userImage = encodedString
                 Handler().postDelayed({},1000)
                 return Response.success(
                     UserProfileResponse(
@@ -452,6 +469,39 @@ val dataModule = module {
         }
     }
 
+    single<UserDataApi> {
+        object: UserDataApi {
+            override suspend fun getUserData(token: String): Response<UserDataResponse> {
+                return Response.success(
+                    UserDataResponse(
+                        name = userName,
+                        image = userImage,
+                        weight = userWeight,
+                        phone = userPhone,
+                        birthday = userBirthday
+                    )
+                )
+            }
+
+            override suspend fun changeUserData(
+                token: String,
+                changeDataUserRequest: ChangeDataUserRequest
+            ): Response<ChangeDataUserResponse> {
+                userName = changeDataUserRequest.name
+                userImage = changeDataUserRequest.image
+                userWeight = changeDataUserRequest.weight
+                userPhone = changeDataUserRequest.phone
+                userBirthday = changeDataUserRequest.birthday
+                return Response.success(
+                    ChangeDataUserResponse(
+                        success = true
+                    )
+                )
+            }
+
+        }
+    }
+
 
 
     single<PreferencesRepository> { PreferencesRepositoryImpl(context = get()) }
@@ -465,6 +515,8 @@ val dataModule = module {
 
     single<AdminActionRepository> { AdminActionRepositoryImpl(adminActionApi = get(), sessionRepository = get()) }
     single<UsersRepository> { UsersRepositoryImpl(api = get(), sessionRepository = get()) }
+
+    single<UserDataRepository> { UserDataRepositoryImpl(userDataApi = get(), sessionRepository = get()) }
 
 
     single<SportActivitiesStorage> { SportActivityStorageImpl(sportActivitiesDatabase = get()) }

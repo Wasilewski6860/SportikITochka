@@ -1,6 +1,7 @@
 package com.example.sportikitochka.di
 
 import com.example.sportikitochka.domain.use_cases.activity.AddActivityLocalUseCase
+import com.example.sportikitochka.domain.use_cases.activity.AddActivityRemoteUseCase
 import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesLocalUseCase
 import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesRemoteUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.BlockUserUseCase
@@ -16,6 +17,9 @@ import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.users.GetAllUsersUseCase
 import org.koin.dsl.module
 
@@ -46,4 +50,10 @@ val domainModule = module {
     factory<UnblockUserUseCase> { UnblockUserUseCase(adminActionRepository = get()) }
     factory<GrantPremiumUseCase> { GrantPremiumUseCase(adminActionRepository = get()) }
     factory<RevokePremiumUseCase> { RevokePremiumUseCase(adminActionRepository = get()) }
+
+    factory<GetUserDataUseCase> { GetUserDataUseCase(userDataRepository = get()) }
+    factory<SaveUserDataUseCase> { SaveUserDataUseCase(sessionRepository = get()) }
+    factory<GetUserDataLocallyUseCase> { GetUserDataLocallyUseCase(sessionRepository = get()) }
+
+    factory<AddActivityRemoteUseCase> { AddActivityRemoteUseCase(activityRepository = get()) }
 }

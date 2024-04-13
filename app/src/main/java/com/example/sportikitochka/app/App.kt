@@ -2,6 +2,7 @@ package com.example.sportikitochka.app
 
 import android.app.Application
 import android.widget.Toast
+import com.example.sportikitochka.R
 import com.example.sportikitochka.di.appModule
 import com.example.sportikitochka.di.dataModule
 import com.example.sportikitochka.di.domainModule
@@ -16,6 +17,11 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        val toString = resources.getString(R.string.yandex_maps_key);
+        println(toString)
+        MapKitFactory.setApiKey(toString)
+        MapKitFactory.initialize(this)
+
         startKoin {
             androidContext(this@App)
             androidLogger(Level.DEBUG)

@@ -1,7 +1,9 @@
 package com.example.sportikitochka.presentation.main.main
 
+import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -126,6 +128,10 @@ class MainFragment : Fragment() {
 
         viewModel.userProfile.observe(viewLifecycleOwner) {
             binding.profileName.text = it.name
+            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
+
+            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
+            binding.profileImage.setImageBitmap(bitmap)
         }
 
         binding.profileHello.text = "Привет, "

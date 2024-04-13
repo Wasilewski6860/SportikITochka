@@ -13,11 +13,15 @@ import com.example.sportikitochka.domain.use_cases.activity.AddActivityLocalUseC
 import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesLocalUseCase
 import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesRemoteUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
+import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class MainViewModel(
     private val getUserProfileUseCase: GetProfileUseCase,
+    private val getUserDataUseCase: GetUserDataUseCase,
+    private val saveUserDataUseCase: SaveUserDataUseCase,
     private val addActivityLocalUseCase: AddActivityLocalUseCase,
     private val getAllActivitiesRemoteUseCase: GetAllActivitiesRemoteUseCase,
     private val getAllActivitiesLocalUseCase: GetAllActivitiesLocalUseCase
@@ -72,11 +76,16 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 val userProfileResponse = getUserProfileUseCase.execute(UserProfileRequest("week"))
+                val userDataResponse = getUserDataUseCase.execute()
                 if (userProfileResponse.isSuccessful) {
                     var responseBody = userProfileResponse.body()
+                    var responseDataBody = userDataResponse.body()
 
                     if (responseBody != null) {
                         _userProfile.postValue(responseBody!!)
+                    }
+                    if (responseDataBody != null) {
+                        saveUserDataUseCase.execute(responseDataBody)
                     }
                     else _screenState.postValue(ScreenMainState.ProfileLoadingError)
 
