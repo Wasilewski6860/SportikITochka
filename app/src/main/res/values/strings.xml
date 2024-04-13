@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">SportikITochka</string>
 
+    <string-array name="time_options">
+        <item>За неделю</item>
+        <item>За месяц</item>
+        <item>За год</item>
+        <item>За все время</item>
+    </string-array>
+
     <string name="yandex_maps_key" templateMergeStrategy="preserve" translatable="true">bf9689cc-7bfa-4d6e-9baa-72d6d03a2337</string>
 </resources>
