@@ -53,13 +53,14 @@ val presentationModule = module {
 
     viewModel<RatingViewModel> {
         RatingViewModel(
-            getUserRoleUseCase = get(),
             getProfileUseCase = get(),
             getAllUsersUseCase = get(),
             blockUserUseCase = get(),
             unblockUserUseCase = get(),
-            grantPremiumUseCase = get(),
-            revokePremiumUseCase = get()
+            getProfileLocallyUseCase = get(),
+            setPremiumUseCase = get(),
+            removePremiumUseCase = get(),
+            getUserTypeUseCase = get()
         )
     }
 

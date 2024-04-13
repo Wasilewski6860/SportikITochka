@@ -16,6 +16,7 @@ import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
+import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
@@ -56,4 +57,6 @@ val domainModule = module {
     factory<GetUserDataLocallyUseCase> { GetUserDataLocallyUseCase(sessionRepository = get()) }
 
     factory<AddActivityRemoteUseCase> { AddActivityRemoteUseCase(activityRepository = get()) }
+
+    factory<GetProfileLocallyUseCase> { GetProfileLocallyUseCase(profileRepository = get()) }
 }

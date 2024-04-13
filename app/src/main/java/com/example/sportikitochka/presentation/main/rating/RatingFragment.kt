@@ -29,9 +29,6 @@ class RatingFragment : Fragment() {
     protected lateinit var connectionLiveData: ConnectionLiveData
     private var isOnline : Boolean = false
 
-    private var userRole : UserType = UserType.Normal
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectionLiveData = ConnectionLiveData(this.requireContext())
@@ -49,22 +46,25 @@ class RatingFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         setupRecyclerView()
 
-        userRole = viewModel.getUserRole() ?: UserType.Normal
-
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
             if (it) {
+                viewModel.fetchUsers()
                 viewModel.loadUserProfile()
             }
             else {
                 showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootView))
             }
+
         }
+
+        viewModel.loadUserProfile()
+        viewModel.fetchUsers()
 
         viewModel.userInfo.observe(viewLifecycleOwner) {
             binding.profileYou.text = "Вы, "
             binding.profileNameRaiting.text = it.name
-            when(userRole) {
+            when(viewModel.getType()) {
                 is UserType.Normal -> {
                     binding.isAdminTv.visibility = View.GONE
                     binding.raitingTv.visibility = View.VISIBLE
@@ -94,19 +94,26 @@ class RatingFragment : Fragment() {
                     binding.contentLayout.visibility = View.GONE
                     binding.errorLayout.visibility = View.GONE
                 }
-                ScreenRatingState.ProfileLoaded -> {
-                    viewModel.fetchUsers()
+                ScreenRatingState.SuccessRemote -> {
                     binding.loadingLayout.visibility = View.GONE
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
                 }
-                ScreenRatingState.ProfileError, ScreenRatingState.UsersLoadingError -> {
+                is ScreenRatingState.ErrorInfo -> {
+                    binding.loadingLayout.visibility = View.GONE
+                    binding.contentLayout.visibility = View.VISIBLE
+                    binding.errorLayout.visibility = View.GONE
+
+                    showSnackbar(it.message, requireActivity().findViewById(R.id.rootView))
+                }
+                is ScreenRatingState.ErrorBlock -> {
                     binding.loadingLayout.visibility = View.GONE
                     binding.contentLayout.visibility = View.GONE
                     binding.errorLayout.visibility = View.VISIBLE
-                    binding.errorLayoutTv.text = "Не удалось загрузить данные. Попробуйте еще раз"
+                    binding.errorLayoutTv.text = it.message
 
                     binding.errorLayoutButton.setOnClickListener {
+                        viewModel.fetchUsers()
                         viewModel.loadUserProfile()
                     }
                 }
@@ -114,12 +121,8 @@ class RatingFragment : Fragment() {
                     binding.loadingLayout.visibility = View.GONE
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
-                    showSnackbar("Тут пока ничего нет", requireActivity().findViewById(R.id.rootView))
+                    showSnackbar("Пустовато как-то(добавить экран)", requireActivity().findViewById(R.id.rootView))
                 }
-                ScreenRatingState.AdminActionError -> {
-                    showSnackbar("Не получилось выполнить операцию", requireActivity().findViewById(R.id.rootView))
-                }
-                else -> Unit
             }
         }
 
@@ -130,7 +133,7 @@ class RatingFragment : Fragment() {
 
     private fun setupRecyclerView() = binding.recycler.apply {
         ratingAdapter = RatingAdapter(
-            userRole == UserType.Admin,
+            viewModel.getType() == UserType.Admin,
             object : RatingAdapter.UserPremiumActionListener {
                 override fun onClickItem(user: User) {
                     if (isOnline){

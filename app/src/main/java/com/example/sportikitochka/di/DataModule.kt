@@ -78,7 +78,7 @@ val dataModule = module {
     var userPassword: String = "2143658709"
     var userAccessToken: String = "token"
     var uid: Int = 12345
-    var userRole: UserType = UserType. Normal
+    var userRole: UserType = UserType. Admin
     var isBlocked: Boolean = false
 
     var activities: MutableList<SportActivity> = mutableListOf(
