@@ -7,6 +7,7 @@ import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
 import com.example.sportikitochka.presentation.main.all_activities.AllActivitiesViewModel
 import com.example.sportikitochka.presentation.main.edit_profile.EditProfileViewModel
 import com.example.sportikitochka.presentation.main.main.MainViewModel
+import com.example.sportikitochka.presentation.main.payment.PaymentViewModel
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
 import com.example.sportikitochka.presentation.main.rating.RatingViewModel
 import com.example.sportikitochka.presentation.main.tracking.TrackingViewModel
@@ -97,6 +98,17 @@ val presentationModule = module {
             getAdminDataUseCase = get(),
             changeUserDataUseCase = get(),
             changeAdminDataUseCase = get()
+        )
+    }
+
+    viewModel<PaymentViewModel> {
+        PaymentViewModel(
+            addCardUseCase = get(),
+            buyPremiumUseCase = get(),
+            deleteCardUseCase = get(),
+            editCardUseCase = get(),
+            getAllCardsUseCase = get(),
+            changeUserTypeUseCase = get()
         )
     }
 }

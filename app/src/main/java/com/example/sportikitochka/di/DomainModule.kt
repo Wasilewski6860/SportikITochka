@@ -8,6 +8,7 @@ import com.example.sportikitochka.domain.use_cases.admin_action.BlockUserUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.GrantPremiumUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.RevokePremiumUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.UnblockUserUseCase
+import com.example.sportikitochka.domain.use_cases.auth.ChangeUserTypeUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
 import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
 import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
@@ -17,6 +18,11 @@ import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
+import com.example.sportikitochka.domain.use_cases.payment.AddCardUseCase
+import com.example.sportikitochka.domain.use_cases.payment.BuyPremiumUseCase
+import com.example.sportikitochka.domain.use_cases.payment.DeleteCardUseCase
+import com.example.sportikitochka.domain.use_cases.payment.EditCardUseCase
+import com.example.sportikitochka.domain.use_cases.payment.GetAllCardsUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.ChangeAdminDataUseCase
@@ -69,4 +75,13 @@ val domainModule = module {
     factory<GetProfileLocallyUseCase> { GetProfileLocallyUseCase(profileRepository = get()) }
 
     factory<SignOutUseCase> { SignOutUseCase(sessionRepository = get(), activityRepository = get()) }
+
+
+    factory<AddCardUseCase> { AddCardUseCase(paymentRepository = get()) }
+    factory<BuyPremiumUseCase> { BuyPremiumUseCase(paymentRepository = get()) }
+    factory<DeleteCardUseCase> { DeleteCardUseCase(paymentRepository = get()) }
+    factory<EditCardUseCase> { EditCardUseCase(paymentRepository = get()) }
+    factory<GetAllCardsUseCase> { GetAllCardsUseCase(paymentRepository = get()) }
+
+    factory<ChangeUserTypeUseCase> { ChangeUserTypeUseCase(authRepository = get(), sessionRepository = get()) }
 }

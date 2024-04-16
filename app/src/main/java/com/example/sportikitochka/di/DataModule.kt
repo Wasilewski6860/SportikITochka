@@ -12,6 +12,10 @@ import com.example.sportikitochka.data.models.request.admin_action.AdminAction
 import com.example.sportikitochka.data.models.request.admin_action.AdminActionRequest
 import com.example.sportikitochka.data.models.request.auth.LoginRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
+import com.example.sportikitochka.data.models.request.payment.AddCardRequest
+import com.example.sportikitochka.data.models.request.payment.BuyPremiumRequest
+import com.example.sportikitochka.data.models.request.payment.DeleteCardRequest
+import com.example.sportikitochka.data.models.request.payment.EditCardRequest
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeAdminDataRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
@@ -24,6 +28,10 @@ import com.example.sportikitochka.data.models.response.auth.LoginResponse
 import com.example.sportikitochka.data.models.response.auth.RegisterResponse
 import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
+import com.example.sportikitochka.data.models.response.payment.BuyPremiumResponse
+import com.example.sportikitochka.data.models.response.payment.CancelPremiumResponse
+import com.example.sportikitochka.data.models.response.payment.CardOperationResponse
+import com.example.sportikitochka.data.models.response.payment.CreditCardResponse
 import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
 import com.example.sportikitochka.data.models.response.user_data.AdminDataResponse
@@ -33,6 +41,7 @@ import com.example.sportikitochka.data.models.response.users.UserResponse
 import com.example.sportikitochka.data.network.ActivitiesApi
 import com.example.sportikitochka.data.network.AdminActionApi
 import com.example.sportikitochka.data.network.AuthApi
+import com.example.sportikitochka.data.network.PaymentApi
 import com.example.sportikitochka.data.network.UserApi
 import com.example.sportikitochka.data.network.UserDataApi
 import com.example.sportikitochka.data.network.UserProfileApi
@@ -40,6 +49,7 @@ import com.example.sportikitochka.data.repositories.ActivitiesRepositoryImpl
 import com.example.sportikitochka.data.repositories.AdminActionRepositoryImpl
 import com.example.sportikitochka.data.repositories.AuthRepositoryImpl
 import com.example.sportikitochka.data.repositories.OnboardingRepositoryImpl
+import com.example.sportikitochka.data.repositories.PaymentRepositoryImpl
 import com.example.sportikitochka.data.repositories.PreferencesRepositoryImpl
 import com.example.sportikitochka.data.repositories.ProfileRepositoryImpl
 import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
@@ -51,6 +61,7 @@ import com.example.sportikitochka.domain.repositories.ActivityRepository
 import com.example.sportikitochka.domain.repositories.AdminActionRepository
 import com.example.sportikitochka.domain.repositories.AuthRepository
 import com.example.sportikitochka.domain.repositories.OnboardingRepository
+import com.example.sportikitochka.domain.repositories.PaymentRepository
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.ProfileRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
@@ -126,6 +137,36 @@ val dataModule = module {
         ),
     )
 
+    val cards = mutableListOf<CreditCardResponse>(
+        CreditCardResponse(
+            "ARTIM BARYSHEV",
+            "2201700161794921",
+            11,
+            16,
+            1234
+        ),
+        CreditCardResponse(
+            "ARTIM IVANOV",
+            "2201700161794775",
+            11,
+            12,
+            1294
+        ),
+        CreditCardResponse(
+            "ARTIM PETROV",
+            "2201700161794777",
+            4,
+            11,
+            1134
+        ),
+        CreditCardResponse(
+            "ARTIM HANIN",
+            "2101775161794888",
+            11,
+            11,
+            1244
+        )
+    )
     val users = listOf<User>(
         User(
             id = 0,
@@ -530,6 +571,80 @@ val dataModule = module {
         }
     }
 
+    single<PaymentApi> {
+        object : PaymentApi {
+            override suspend fun getAllCards(token: String): Response<List<CreditCardResponse>> {
+                return Response.success(
+                    cards
+                )
+            }
+
+            override suspend fun addCard(
+                token: String,
+                addCardRequest: AddCardRequest
+            ): Response<CardOperationResponse> {
+                cards.add(CreditCardResponse(addCardRequest.cardName, addCardRequest.cardNumber, addCardRequest.month, addCardRequest.year, addCardRequest.cvv))
+                return Response.success(
+                    CardOperationResponse(true, 0L)
+                )
+            }
+
+            override suspend fun editCard(
+                token: String,
+                editCardRequest: EditCardRequest
+            ): Response<CardOperationResponse> {
+                for (card in cards) {
+                    if (card.cardNumber == editCardRequest.cardNumber) {
+                        card.cardName = editCardRequest.cardName
+                        card.cardNumber = editCardRequest.cardNumber
+                        card.month = editCardRequest.month
+                        card.year = editCardRequest.year
+                        card.cvv = editCardRequest.cvv
+                        return Response.success(
+                            CardOperationResponse(true, 0L)
+                        )
+                    }
+                }
+                val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
+                // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
+                val response = Response.error<CardOperationResponse>(400, errorResponseBody)
+                return response
+            }
+
+            override suspend fun deleteCard(
+                token: String,
+                deleteCardRequest: DeleteCardRequest
+            ): Response<CardOperationResponse> {
+                var i: Int =0
+                for (card in cards) {
+                    if (card.cardNumber == deleteCardRequest.cardNumber) {
+                        break
+                    }
+                    i++
+                }
+                cards.removeAt(i)
+                return Response.success(
+                    CardOperationResponse(true, 0L)
+                )
+            }
+
+            override suspend fun buyPremium(
+                token: String,
+                buyPremiumRequest: BuyPremiumRequest
+            ): Response<BuyPremiumResponse> {
+                userRole = UserType.Premium
+                return Response.success(
+                    BuyPremiumResponse(true, 0L)
+                )
+            }
+
+            override suspend fun cancelPremium(token: String): Response<CancelPremiumResponse> {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+    }
 
 
     single<PreferencesRepository> { PreferencesRepositoryImpl(context = get()) }
@@ -545,6 +660,8 @@ val dataModule = module {
     single<UsersRepository> { UsersRepositoryImpl(api = get(), sessionRepository = get()) }
 
     single<UserDataRepository> { UserDataRepositoryImpl(userDataApi = get(), sessionRepository = get()) }
+
+    single<PaymentRepository> { PaymentRepositoryImpl(paymentApi = get(), sessionRepository = get()) }
 
 
     single<SportActivitiesStorage> { SportActivityStorageImpl(sportActivitiesDatabase = get()) }

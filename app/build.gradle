@@ -117,4 +117,10 @@ dependencies {
     implementation 'io.github.infeez.kotlin-mock-server:mock-server-core:1.0.0'
     implementation 'io.github.infeez.kotlin-mock-server:mock-server-okhttp:1.0.0'
 
+
+    implementation "com.vinaygaba:creditcardview:1.0.4"
+    implementation "com.github.KunikaValecha:CreditCardView:1.0"
+
+
+
 }

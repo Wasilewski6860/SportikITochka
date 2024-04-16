@@ -17,4 +17,11 @@ object EndPoints {
     const val ADMIN_ACTION = "api/admin_action"
 
     const val USERS = "api/users"
+
+    const val GET_ALL_CARDS = "api/cards"
+    const val ADD_CARD = "api/add_card"
+    const val EDIT_CARD = "api/edit_card"
+    const val DELETE_CARD = "api/delete_card"
+    const val BUY_PREMIUM = "api/buy_premium"
+    const val CANCEL_PREMIUM = "api/cancel_premium"
 }
