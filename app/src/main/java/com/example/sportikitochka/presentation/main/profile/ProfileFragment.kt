@@ -119,6 +119,12 @@ class ProfileFragment : Fragment() {
                 savedInstanceState
             )
         }
+        binding.containerPremium.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_profileFragment_to_paymentFragment,
+                savedInstanceState
+            )
+        }
         binding.signOutButton.setOnClickListener {
             viewModel.signOut()
             val intent = Intent(activity, AuthActivity::class.java)

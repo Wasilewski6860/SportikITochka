@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 data class LoginResponse(
     @SerializedName("success")
-    val success: Boolean,
+    var success: Boolean,
     @SerializedName("access_token")
-    val accessToken: String,
+    var accessToken: String,
     @SerializedName("role")
-    val role: String,
+    var role: String,
     @SerializedName("user_id")
-    val userId: Int,
+    var userId: Int,
 )
 
 
