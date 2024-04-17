@@ -24,4 +24,7 @@ object EndPoints {
     const val DELETE_CARD = "api/delete_card"
     const val BUY_PREMIUM = "api/buy_premium"
     const val CANCEL_PREMIUM = "api/cancel_premium"
+
+    const val PREMIUM_STATISTIC = "api/premium_statistic"
+    const val ADMIN_STATISTIC = "api/admin_statistic"
 }
