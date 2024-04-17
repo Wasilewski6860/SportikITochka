@@ -1,7 +1,9 @@
 package com.example.sportikitochka.presentation.main.rating
 
+import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -64,6 +66,12 @@ class RatingFragment : Fragment() {
         viewModel.userInfo.observe(viewLifecycleOwner) {
             binding.profileYou.text = "Вы, "
             binding.profileNameRaiting.text = it.name
+
+            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
+
+            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
+            binding.profileImageRaiting.setImageBitmap(bitmap)
+
             when(viewModel.getType()) {
                 is UserType.Normal -> {
                     binding.isAdminTv.visibility = View.GONE
