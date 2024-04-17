@@ -17,6 +17,7 @@ import com.example.sportikitochka.data.models.request.payment.BuyPremiumRequest
 import com.example.sportikitochka.data.models.request.payment.DeleteCardRequest
 import com.example.sportikitochka.data.models.request.payment.EditCardRequest
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
+import com.example.sportikitochka.data.models.request.statistic.StatisticsRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeAdminDataRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
 import com.example.sportikitochka.data.models.response.AchievementResponse
@@ -34,6 +35,10 @@ import com.example.sportikitochka.data.models.response.payment.CardOperationResp
 import com.example.sportikitochka.data.models.response.payment.CreditCardResponse
 import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
+import com.example.sportikitochka.data.models.response.statistic.AdminStatisticsResponse
+import com.example.sportikitochka.data.models.response.statistic.GraphData
+import com.example.sportikitochka.data.models.response.statistic.PremiumStatisticsResponse
+import com.example.sportikitochka.data.models.response.statistic.SportActivityStatistic
 import com.example.sportikitochka.data.models.response.user_data.AdminDataResponse
 import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
@@ -42,6 +47,7 @@ import com.example.sportikitochka.data.network.ActivitiesApi
 import com.example.sportikitochka.data.network.AdminActionApi
 import com.example.sportikitochka.data.network.AuthApi
 import com.example.sportikitochka.data.network.PaymentApi
+import com.example.sportikitochka.data.network.StatisticsApi
 import com.example.sportikitochka.data.network.UserApi
 import com.example.sportikitochka.data.network.UserDataApi
 import com.example.sportikitochka.data.network.UserProfileApi
@@ -53,6 +59,7 @@ import com.example.sportikitochka.data.repositories.PaymentRepositoryImpl
 import com.example.sportikitochka.data.repositories.PreferencesRepositoryImpl
 import com.example.sportikitochka.data.repositories.ProfileRepositoryImpl
 import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
+import com.example.sportikitochka.data.repositories.StatisticRepositoryImpl
 import com.example.sportikitochka.data.repositories.UserDataRepositoryImpl
 import com.example.sportikitochka.data.repositories.UsersRepositoryImpl
 import com.example.sportikitochka.domain.models.SportActivity
@@ -65,6 +72,7 @@ import com.example.sportikitochka.domain.repositories.PaymentRepository
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.ProfileRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
+import com.example.sportikitochka.domain.repositories.StatisticRepository
 import com.example.sportikitochka.domain.repositories.UserDataRepository
 import com.example.sportikitochka.domain.repositories.UsersRepository
 import com.example.sportikitochka.other.ActivityType
@@ -230,6 +238,77 @@ val dataModule = module {
         )
     )
 
+    var premiumStatistic =  PremiumStatisticsResponse(
+        totalDistanceInMeters = 100000,
+        totalTime = 442414141L,
+        totalCalories = 1332L,
+        avgSpeed = 10F,
+        activities = mutableListOf(
+            SportActivityStatistic(
+                id = 0,
+                timestamp = Calendar.getInstance().timeInMillis,
+                avgSpeed = 14.4F,
+                distanceInMeters = 10321,
+                timeInMillis = (212141L)*20,
+                caloriesBurned = 101,
+                activityType = ActivityType.RUNNING.toString()
+            ),
+            SportActivityStatistic(
+                id = 1,
+                timestamp = Calendar.getInstance().timeInMillis - 10000000000,
+                avgSpeed = 13.4F,
+                distanceInMeters = 10380,
+                timeInMillis = 212141L*20,
+                caloriesBurned = 100,
+                activityType = ActivityType.BYCICLE.toString()
+            ),
+            SportActivityStatistic(
+                id = 2,
+                timestamp = Calendar.getInstance().timeInMillis-14000000000,
+                avgSpeed = 15.4F,
+                distanceInMeters = 9321,
+                timeInMillis = 112141L*20,
+                caloriesBurned = 120,
+                activityType = ActivityType.SWIMMING.toString()
+            ),
+            SportActivityStatistic(
+                id = 3,
+                timestamp = Calendar.getInstance().timeInMillis - 19000000000,
+                avgSpeed = 15.4F,
+                distanceInMeters = 8354,
+                timeInMillis = 112141L*20,
+                caloriesBurned = 132,
+                activityType = ActivityType.SWIMMING.toString()
+            )
+        )
+    )
+
+    var adminStatisticResponse = AdminStatisticsResponse(
+        totalUsers = 100,
+        premiumUsers = 20,
+        graphData = listOf(
+            GraphData(
+                timestamp = Calendar.getInstance().timeInMillis - 19000000000,
+                usersWithPremium = 20,
+                usersWithoutPremium = 2
+            ),
+            GraphData(
+                timestamp = Calendar.getInstance().timeInMillis - 14000000000,
+                usersWithPremium = 29,
+                usersWithoutPremium = 12
+            ),
+            GraphData(
+                timestamp = Calendar.getInstance().timeInMillis - 10000000000,
+                usersWithPremium = 68,
+                usersWithoutPremium = 17
+            ),
+            GraphData(
+                timestamp = Calendar.getInstance().timeInMillis,
+                usersWithPremium = 80,
+                usersWithoutPremium = 20
+            )
+        )
+    )
     val userTotalDistance: Long = activities.map { it.distanceInMeters }.sum()
     val userTotalTime: Long = activities.map { it.timeInMillis }.sum()
     val userTotalCalories: Long = activities.map { it.caloriesBurned }.sum()
@@ -646,6 +725,29 @@ val dataModule = module {
 
     }
 
+    single<StatisticsApi> {
+        object: StatisticsApi {
+            override suspend fun getPremiumStatistic(
+                token: String,
+                statisticsRequest: StatisticsRequest
+            ): Response<PremiumStatisticsResponse> {
+                return Response.success(
+                    premiumStatistic
+                )
+            }
+
+            override suspend fun getAdminStatistic(
+                token: String,
+                statisticsRequest: StatisticsRequest
+            ): Response<AdminStatisticsResponse> {
+                return Response.success(
+                    adminStatisticResponse
+                )
+            }
+
+        }
+    }
+
 
     single<PreferencesRepository> { PreferencesRepositoryImpl(context = get()) }
     single<OnboardingRepository> { OnboardingRepositoryImpl(preferencesRepository = get()) }
@@ -662,6 +764,8 @@ val dataModule = module {
     single<UserDataRepository> { UserDataRepositoryImpl(userDataApi = get(), sessionRepository = get()) }
 
     single<PaymentRepository> { PaymentRepositoryImpl(paymentApi = get(), sessionRepository = get()) }
+
+    single<StatisticRepository> { StatisticRepositoryImpl(statisticsApi = get(), sessionRepository = get()) }
 
 
     single<SportActivitiesStorage> { SportActivityStorageImpl(sportActivitiesDatabase = get()) }

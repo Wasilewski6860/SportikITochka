@@ -1,13 +1,428 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.main.statistics.StatisticFragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="statistic" />
 
-</FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerData"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerForStatisticContainers"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/containerStatistic"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_container_premium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalDistanceInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Суммарная дистанция"
+                    android:fontFamily="@font/inter_bold"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTotalDistance"
+                    app:layout_constraintEnd_toEndOf="@+id/tvTotalDistance"
+                    app:layout_constraintStart_toStartOf="@+id/tvTotalDistance"
+                    />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0km"
+                    android:textSize="40sp"
+                    android:layout_marginTop="60dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline_container_premium" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalTimeInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Суммарное время"
+                    android:fontFamily="@font/inter_bold"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTotalTime"
+                    app:layout_constraintEnd_toEndOf="@+id/tvTotalTime"
+                    app:layout_constraintStart_toStartOf="@+id/tvTotalTime"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginEnd="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/guideline_container_premium" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalCaloriesInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Суммарное кол-во калорий"
+                    android:fontFamily="@font/inter_bold"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTotalCalories"
+                    app:layout_constraintEnd_toEndOf="@+id/guideline_container_premium"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTotalCalories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0kcal"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="50dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTotalTimeInfo"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/guideline_container_premium"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvAverageSpeedInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Средняя скорость"
+                    android:fontFamily="@font/inter_bold"
+                    app:layout_constraintTop_toBottomOf="@+id/tvAverageSpeed"
+                    app:layout_constraintEnd_toEndOf="@+id/tvAverageSpeed"
+                    app:layout_constraintStart_toStartOf="@+id/tvAverageSpeed" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvAverageSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0km/h"
+                    android:textSize="40sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="50dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTotalDistanceInfo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline_container_premium"/>
+
+                <Spinner
+                    android:id="@+id/spTimeStatisticsPremium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/time_options"
+                    android:fontFamily="@font/inter"
+                    android:textSize="14sp"
+                    android:layout_marginTop="20dp"
+
+                    android:layout="@layout/spinner_item_layout"
+                    app:layout_constraintStart_toStartOf="@id/tvAverageSpeedInfo"
+                    app:layout_constraintTop_toBottomOf="@+id/tvAverageSpeedInfo"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/containerStatisticAdmin"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/totalUsersCountInfoTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Общее количество пользователей:"
+                    android:textSize="15sp"
+                    android:maxEms="15"
+                    android:ems="10"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginStart="20dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/totalUsersCountTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="132"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="30dp"
+                    app:layout_constraintTop_toTopOf="@+id/totalUsersCountInfoTv"
+                    app:layout_constraintBottom_toBottomOf="@+id/totalUsersCountInfoTv"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/totalPremiumUsersCountInfoTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Общее премиум количество пользователей:"
+                    android:textSize="15sp"
+                    android:maxEms="20"
+                    android:ems="15"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="20dp"
+                    app:layout_constraintTop_toBottomOf="@+id/totalUsersCountInfoTv"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/totalPremiumUsersCountTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="35"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="30dp"
+                    app:layout_constraintTop_toTopOf="@+id/totalPremiumUsersCountInfoTv"
+                    app:layout_constraintBottom_toBottomOf="@+id/totalPremiumUsersCountInfoTv"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/newPremiumUsersByTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Новое количество премиум-пользователей"
+                    android:textSize="15sp"
+                    android:maxEms="15"
+                    android:ems="15"
+                    android:fontFamily="@font/inter_bold"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="20dp"
+                    app:layout_constraintTop_toBottomOf="@+id/totalPremiumUsersCountInfoTv"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Spinner
+                    android:id="@+id/spTimeStatistics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/time_options"
+                    android:fontFamily="@font/inter"
+                    android:textSize="14sp"
+                    android:layout="@layout/spinner_item_layout"
+                    android:layout_marginEnd="20dp"
+                    app:layout_constraintStart_toStartOf="@+id/newPremiumUsersByTv"
+                    app:layout_constraintTop_toBottomOf="@+id/newPremiumUsersByTv"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/newPremiumUsersTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="7"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/inter_bold"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="30dp"
+                    app:layout_constraintTop_toTopOf="@+id/newPremiumUsersByTv"
+                    app:layout_constraintBottom_toBottomOf="@+id/newPremiumUsersByTv"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.7017784" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/containerForStatisticContainers" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/containerForStatisticContainers" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerNoAccess"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/icon_no_access"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/ic_no_access"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="180dp"
+            app:tint="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/noAccessTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon_no_access"
+            android:layout_marginTop="20dp"
+            android:text="У вас нет доступа к"
+            android:fontFamily="@font/inter_bold"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/noAccessTv"
+            android:layout_marginTop="2dp"
+            android:text="Экрану Статистики"
+            android:fontFamily="@font/inter_bold"
+            android:textStyle="bold"
+            android:textSize="16sp"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins_thin"
+            android:text="Для получения доступа необходимо"
+            android:textSize="12sp"
+            android:textColor="@color/bottom_nav_text_color_inactive"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/tv_GetPremiumStatistic" />
+
+        <TextView
+            android:id="@+id/tv_GetPremiumStatistic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:text="Купить премиум-подписку"
+            android:textColor="#1C57AF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loading_layout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/error_layout"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/error_image"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="100dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/error_3d"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/error_layout_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/error_image"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:text="К сожалению, не можем загрузить данные о статистике"
+            android:fontFamily="@font/inter_medium"
+            android:textSize="18sp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/error_layout_button"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_marginHorizontal="40dp"
+            android:background="@drawable/button_shape"
+            android:text="Попробовать снова"
+            android:textSize="18sp"
+            android:fontFamily="@font/inter_bold"
+            android:textStyle="bold"
+            android:layout_marginVertical="20dp"
+            />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

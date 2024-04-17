@@ -110,7 +110,7 @@ class SignUpViewModel(
         }
     }
     fun isInputDateValid(text: String?): Boolean {
-        val regex = Regex("^\\d{2}\\.\\d{2}\\.\\d{2}$")
+        val regex = Regex("^\\d{2}\\.\\d{2}\\.\\d{4}$")
         return !text.isNullOrBlank() && regex.matches(text)
     }
 

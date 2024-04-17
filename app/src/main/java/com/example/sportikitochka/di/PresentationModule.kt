@@ -10,6 +10,7 @@ import com.example.sportikitochka.presentation.main.main.MainViewModel
 import com.example.sportikitochka.presentation.main.payment.PaymentViewModel
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
 import com.example.sportikitochka.presentation.main.rating.RatingViewModel
+import com.example.sportikitochka.presentation.main.statistics.StatisticsViewModel
 import com.example.sportikitochka.presentation.main.tracking.TrackingViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -109,6 +110,14 @@ val presentationModule = module {
             editCardUseCase = get(),
             getAllCardsUseCase = get(),
             changeUserTypeUseCase = get()
+        )
+    }
+
+    viewModel<StatisticsViewModel> {
+        StatisticsViewModel(
+           getUserTypeUseCase = get(),
+            getAdminStatisticUseCase = get(),
+            getPremiumStatisticUseCase = get()
         )
     }
 }

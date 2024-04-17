@@ -25,6 +25,8 @@ import com.example.sportikitochka.domain.use_cases.payment.EditCardUseCase
 import com.example.sportikitochka.domain.use_cases.payment.GetAllCardsUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.domain.use_cases.statistic.GetAdminStatisticUseCase
+import com.example.sportikitochka.domain.use_cases.statistic.GetPremiumStatisticUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.ChangeAdminDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.ChangeUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetAdminDataUseCase
@@ -84,4 +86,7 @@ val domainModule = module {
     factory<GetAllCardsUseCase> { GetAllCardsUseCase(paymentRepository = get()) }
 
     factory<ChangeUserTypeUseCase> { ChangeUserTypeUseCase(authRepository = get(), sessionRepository = get()) }
+
+    factory<GetAdminStatisticUseCase> { GetAdminStatisticUseCase(statisticRepository = get()) }
+    factory<GetPremiumStatisticUseCase> { GetPremiumStatisticUseCase(statisticRepository = get()) }
 }
