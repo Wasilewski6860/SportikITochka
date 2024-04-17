@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SportikITochka</string>
+    <string name="app_name">Спортик и Точка(Админ)</string>
 
     <string-array name="time_options">
         <item>За неделю</item>
