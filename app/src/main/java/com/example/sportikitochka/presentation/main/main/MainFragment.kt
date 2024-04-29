@@ -92,7 +92,7 @@ class MainFragment : Fragment() {
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
                     binding.emptyLayout.visibility = View.GONE
-                    showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootView))
+                    showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootViewMain))
                 }
                 ScreenMainState.ErrorActivities -> {
                     binding.loadingLayout.visibility = View.GONE
@@ -149,7 +149,7 @@ class MainFragment : Fragment() {
                     )
                 }
             }
-            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootView))
+            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
         }
         binding.allActivities.setOnClickListener {
             findNavController().navigate(

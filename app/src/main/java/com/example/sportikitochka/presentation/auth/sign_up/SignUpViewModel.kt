@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
+import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.domain.use_cases.auth.RegisterUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.other.Validator
@@ -31,7 +32,8 @@ class SignUpViewModel(
         birthday : String,
         phone : String,
         weight : String,
-        image: String
+        image: String,
+        isAdmin: Boolean
     ){
         _screenState.value = SignUpScreenState.Loading
         viewModelScope.launch {
@@ -48,7 +50,8 @@ class SignUpViewModel(
                         birthday = timestamp,
                         email = email,
                         password = password,
-                        phone = phone
+                        phone = phone,
+                        role = if(isAdmin) UserType.Admin.toString() else UserType.Normal.toString()
                     )
                 )
                 if (registerResponse.isSuccessful) {

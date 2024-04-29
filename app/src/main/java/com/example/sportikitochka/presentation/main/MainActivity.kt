@@ -15,6 +15,7 @@ import com.example.sportikitochka.data.models.response.auth.UserType.Premium.toU
 import com.example.sportikitochka.databinding.ActivityMainBinding
 import com.example.sportikitochka.other.TrackingUtility.USER_TYPE_KEY
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.appmetrica.analytics.AppMetrica
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val deviceModel = Build.MODEL
+        AppMetrica.reportEvent("Device model", deviceModel)
 //        val window: Window = getWindow()
 //        window.setBackgroundDrawableResource(R.drawable.background_image)
 

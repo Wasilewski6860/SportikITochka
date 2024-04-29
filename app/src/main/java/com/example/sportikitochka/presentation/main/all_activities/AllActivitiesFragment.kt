@@ -52,7 +52,7 @@ class AllActivitiesFragment : Fragment() {
             viewModel.fetchActivities()
 
             if (!it) {
-                showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
             }
         }
 
@@ -75,7 +75,7 @@ class AllActivitiesFragment : Fragment() {
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
                     binding.emptyLayout.visibility = View.GONE
-                    showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootView))
+                    showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootViewMain))
                 }
                 is ScreenAllActivitiesState.Error -> {
                     binding.loadingLayout.visibility = View.GONE
@@ -102,7 +102,7 @@ class AllActivitiesFragment : Fragment() {
                                 )
                             }
                         }
-                        else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootView))
+                        else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
                     }
                 }
             }

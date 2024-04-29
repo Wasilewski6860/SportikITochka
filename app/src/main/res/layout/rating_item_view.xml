@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.example.sportikitochka.ui.RatingItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/rating_view"
+        app:image_res="@drawable/ic_rating_icon_1"
+        app:name="Best runner"
+        app:total_count="100"
+        app:is_premium="true"
+        app:is_blocked="false"
+        app:is_buttons_visible="false"
+        app:rating="10"
+        app:calories="1000"
+        app:average_calories="100"
+        app:time="100000000"
+        app:average_time="1000000"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

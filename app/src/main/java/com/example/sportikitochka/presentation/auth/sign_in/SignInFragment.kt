@@ -9,12 +9,14 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import com.example.sportikitochka.R
+import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.databinding.FragmentSignInBinding
 import com.example.sportikitochka.other.TrackingUtility.USER_TYPE_KEY
 import com.example.sportikitochka.other.Validator.validateEmail
 import com.example.sportikitochka.other.Validator.validatePassword
 import com.example.sportikitochka.presentation.main.MainActivity
 import com.google.android.material.snackbar.Snackbar
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignInFragment : Fragment() {
@@ -45,6 +47,7 @@ class SignInFragment : Fragment() {
         if (viewModel.isLogged()){
             val data = viewModel.getUserRole()
             if (data!=null) {
+                AppMetrica.reportEvent("Sign in", data.toString())
                 val intent = Intent(activity, MainActivity::class.java)
                 intent.putExtra(USER_TYPE_KEY, data.toString())
                 startActivity(intent) // запускаем новую активность
@@ -77,6 +80,8 @@ class SignInFragment : Fragment() {
 
                     val data = viewModel.getUserRole()
                     if (data!=null) {
+                        AppMetrica.reportEvent("Sign in", data.toString())
+
                         val intent = Intent(activity, MainActivity::class.java)
                         intent.putExtra(USER_TYPE_KEY, data.toString())
                         startActivity(intent) // запускаем новую активность

@@ -71,7 +71,7 @@ class PaymentFragment : Fragment() {
                         errorLayout.visibility = View.GONE
                         contentLayout.visibility = View.GONE
                         cardLayout.visibility = View.VISIBLE
-                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootView))
+                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootViewMain))
                     }
                 }
                 ScreenPaymentState.BuyingSuccess -> {
@@ -86,7 +86,7 @@ class PaymentFragment : Fragment() {
                         errorLayout.visibility = View.GONE
                         contentLayout.visibility = View.GONE
                         cardLayout.visibility = View.VISIBLE
-                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootView))
+                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootViewMain))
                     }
                 }
                 ScreenPaymentState.CardOperationSuccess -> {

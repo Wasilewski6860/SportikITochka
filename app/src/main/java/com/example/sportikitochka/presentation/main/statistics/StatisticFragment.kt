@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.round
 
@@ -50,6 +51,7 @@ class StatisticFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
 
         userType = viewModel.getType()
         setContentVisible()
@@ -88,6 +90,7 @@ class StatisticFragment : Fragment() {
         binding.errorLayout.visibility = View.GONE
         when(userType) {
             UserType.Admin -> {
+                AppMetrica.reportEvent("Statistics admin viewed")
                 binding.containerStatisticAdmin.visibility = View.VISIBLE
                 binding.containerStatistic.visibility = View.GONE
                 binding.containerData.visibility = View.VISIBLE
@@ -96,12 +99,14 @@ class StatisticFragment : Fragment() {
                 binding.containerNoAccess.visibility = View.GONE
             }
             UserType.Normal -> {
+                AppMetrica.reportEvent("Statistics block viewed")
                 binding.containerStatisticAdmin.visibility = View.GONE
                 binding.containerStatistic.visibility = View.GONE
                 binding.containerData.visibility = View.GONE
                 binding.containerNoAccess.visibility = View.VISIBLE
             }
             UserType.Premium -> {
+                AppMetrica.reportEvent("Statistics premium viewed")
                 binding.containerStatisticAdmin.visibility = View.GONE
                 binding.containerStatistic.visibility = View.VISIBLE
                 binding.containerData.visibility = View.VISIBLE

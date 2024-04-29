@@ -9,4 +9,5 @@
     </string-array>
 
     <string name="yandex_maps_key" templateMergeStrategy="preserve" translatable="true">bf9689cc-7bfa-4d6e-9baa-72d6d03a2337</string>
+    <string name="vk_maps_key" templateMergeStrategy="preserve" translatable="true">459c17e7459c17e7459c17e7eb46843dc14459c459c17e723ac12338eba07eab1f0d6b0</string>
 </resources>

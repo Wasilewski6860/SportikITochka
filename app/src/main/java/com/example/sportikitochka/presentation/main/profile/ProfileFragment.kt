@@ -17,6 +17,7 @@ import com.example.sportikitochka.databinding.FragmentProfileBinding
 import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.roundFloat
 import com.example.sportikitochka.presentation.auth.AuthActivity
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ProfileFragment : Fragment() {
@@ -44,6 +45,7 @@ class ProfileFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.loadProfileForWeek()
+        AppMetrica.reportEvent("Profile viewed")
         binding.spTimeProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 

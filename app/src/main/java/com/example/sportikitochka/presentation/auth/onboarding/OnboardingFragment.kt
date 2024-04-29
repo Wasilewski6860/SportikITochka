@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentOnboardingBinding
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 class OnboardingFragment : Fragment() {
 
@@ -29,6 +30,7 @@ class OnboardingFragment : Fragment() {
 
         binding.nextOnboardingButton.setOnClickListener{
             viewModel.setOnboardingViewed()
+            AppMetrica.reportEvent("Onboarding viewed")
             findNavController().navigate(
                 R.id.action_onboardingFragment_to_signInFragment,
                 savedInstanceState

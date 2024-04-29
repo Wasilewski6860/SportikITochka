@@ -62,6 +62,7 @@ import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
 import com.example.sportikitochka.data.repositories.StatisticRepositoryImpl
 import com.example.sportikitochka.data.repositories.UserDataRepositoryImpl
 import com.example.sportikitochka.data.repositories.UsersRepositoryImpl
+import com.example.sportikitochka.domain.models.Achievement
 import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.domain.repositories.ActivityRepository
@@ -204,7 +205,12 @@ val dataModule = module {
             averageTime = 1000,
             averageDistanse = 100F,
             averageCalories = 100L,
-            isBlocked = false
+            isBlocked = false,
+            achievements = listOf(
+                    Achievement(0,"Best runner", "", 10000L),
+                    Achievement(1,"Best swimmer", "", 10000L),
+                    Achievement(2,"Best cycler", "", 10000L),
+                )
         ),
         User(
             id = 2,
@@ -219,7 +225,11 @@ val dataModule = module {
             averageTime = 1000,
             averageDistanse = 100F,
             averageCalories = 100L,
-            isBlocked = true
+            isBlocked = true,
+            achievements = listOf(
+                Achievement(1,"Best swimmer", "", 10000L),
+                Achievement(2,"Best cycler", "", 10000L),
+            )
         ),
         User(
             id = 3,
@@ -234,7 +244,11 @@ val dataModule = module {
             averageTime = 1000,
             averageDistanse = 100F,
             averageCalories = 100L,
-            isBlocked = true
+            isBlocked = true,
+            achievements = listOf(
+                Achievement(0,"Best runner", "", 10000L),
+                Achievement(1,"Best swimmer", "", 10000L),
+                 )
         )
     )
 
@@ -377,6 +391,7 @@ val dataModule = module {
                     userEmail = email
                     userPassword = password
                     isBlocked = false
+                    userRole = if (role==UserType.Admin.toString()) UserType.Admin else UserType.Normal
                 }
                 return Response.success(
                     RegisterResponse (

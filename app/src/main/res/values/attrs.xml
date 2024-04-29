@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RatingItemView">
+        <attr name="image_res" format="reference" />
+        <attr name="name" format="string"/>
+        <attr name="total_count" format="integer"/>
+        <attr name="is_premium" format="boolean"/>
+        <attr name="is_blocked" format="boolean"/>
+        <attr name="is_buttons_visible" format="boolean"/>
+        <attr name="rating" format="integer"/>
+
+        <attr name="distanse" format="float"/>
+        <attr name="average_distanse" format="float"/>
+        <attr name="calories" format="integer"/>
+        <attr name="average_calories" format="float"/>
+        <attr name="time" format="integer"/>
+        <attr name="average_time" format="integer"/>
+    </declare-styleable>
+
+</resources>

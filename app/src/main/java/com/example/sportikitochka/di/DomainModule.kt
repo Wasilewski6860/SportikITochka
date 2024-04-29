@@ -76,7 +76,7 @@ val domainModule = module {
 
     factory<GetProfileLocallyUseCase> { GetProfileLocallyUseCase(profileRepository = get()) }
 
-    factory<SignOutUseCase> { SignOutUseCase(sessionRepository = get(), activityRepository = get()) }
+    factory<SignOutUseCase> { SignOutUseCase(sessionRepository = get(), activityRepository = get(), onboardingRepository = get()) }
 
 
     factory<AddCardUseCase> { AddCardUseCase(paymentRepository = get()) }

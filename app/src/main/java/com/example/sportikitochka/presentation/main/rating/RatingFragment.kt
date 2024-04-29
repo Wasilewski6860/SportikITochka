@@ -15,6 +15,7 @@ import com.example.sportikitochka.databinding.FragmentRatingBinding
 import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RatingFragment : Fragment() {
@@ -47,7 +48,7 @@ class RatingFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupRecyclerView()
-
+        AppMetrica.reportEvent("Rating screen viewed")
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
             if (it) {
@@ -55,7 +56,7 @@ class RatingFragment : Fragment() {
                 viewModel.loadUserProfile()
             }
             else {
-                showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootViewMain))
             }
 
         }
@@ -112,7 +113,7 @@ class RatingFragment : Fragment() {
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
 
-                    showSnackbar(it.message, requireActivity().findViewById(R.id.rootView))
+                    showSnackbar(it.message, requireActivity().findViewById(R.id.rootViewMain))
                 }
                 is ScreenRatingState.ErrorBlock -> {
                     binding.loadingLayout.visibility = View.GONE
@@ -129,7 +130,7 @@ class RatingFragment : Fragment() {
                     binding.loadingLayout.visibility = View.GONE
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
-                    showSnackbar("Пустовато как-то(добавить экран)", requireActivity().findViewById(R.id.rootView))
+                    showSnackbar("Пустовато как-то(добавить экран)", requireActivity().findViewById(R.id.rootViewMain))
                 }
             }
         }
@@ -149,14 +150,14 @@ class RatingFragment : Fragment() {
                         else viewModel.removePremium(user.id)
                     }
                     else {
-                        showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootView))
+                        showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
                     }
                 }
             },
             object : RatingAdapter.UserBlockActionListener {
                 override fun onClickItem(user: User) {
                     if (isOnline) viewModel.blockUser(user)
-                    else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootView))
+                    else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
                 }
             }
         )

@@ -35,6 +35,7 @@ import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.BoundingBox
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -87,7 +88,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MapKitFactory.initialize(requireContext());
-
+        AppMetrica.reportEvent("Tracking screen viewed")
         binding.tvTrackingTimeInfo.text = when(activityType) {
             ActivityType.RUNNING -> "Время пробежки"
             ActivityType.BYCICLE -> "Время велозаезда"
@@ -112,7 +113,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             when(it) {
                 ScreenTrackingState.Success -> Unit
                 is ScreenTrackingState.Error -> {
-                    showSnackbar(it.message.toString(), requireActivity().findViewById(R.id.rootView))
+                    showSnackbar(it.message.toString(), requireActivity().findViewById(R.id.rootViewMain))
                 }
                 else -> Unit
             }
@@ -270,7 +271,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         )
         viewModel.stopActivity(run)
         Snackbar.make(
-            requireActivity().findViewById(R.id.rootView),
+            requireActivity().findViewById(R.id.rootViewMain),
             "Run saved successfully",
             Snackbar.LENGTH_LONG
         ).show()

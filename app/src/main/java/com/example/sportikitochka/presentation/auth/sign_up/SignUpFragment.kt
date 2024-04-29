@@ -8,27 +8,30 @@ import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Base64
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.example.sportactivityapp.other.DateFormatTextWatcher
 import com.example.sportactivityapp.other.PhoneFormatTextWatcher
 import com.example.sportikitochka.R
+import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.databinding.FragmentSignUpBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.WeightTextWatcher
+import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
-import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class SignUpFragment : Fragment() {
 
@@ -51,6 +54,7 @@ class SignUpFragment : Fragment() {
 
     private var isEmailPassed = false
 
+    private var isAdmin: Boolean = false
     private var name: String? = null
     private var email: String? = null
     private var password: String? = null
@@ -124,6 +128,14 @@ class SignUpFragment : Fragment() {
                     SignUpNavigationState.ThirdScreen
                 )
                 SignUpScreenState.Success -> {
+                    val eventParameters: MutableMap<String, Any> = HashMap()
+                    eventParameters["name"] = name.toString()
+                    eventParameters["role"] = if (isAdmin) UserType.Admin.toString() else UserType.Normal.toString()
+//
+                    AppMetrica.reportEvent("New user", eventParameters)
+
+//                    YandexMetrica.reportEvent("New user", eventParameters)
+
                     showSnackbar("Регистрация прошла успешно", requireActivity().findViewById(R.id.rootView))
                     findNavController().navigate(
                         R.id.action_signUpFragment_to_signInFragment,
@@ -190,6 +202,7 @@ class SignUpFragment : Fragment() {
         birthday = signUpBirthday.text.toString()
         phone = signUpPhone.text.toString()
         weight = signUpCalories.text.toString()
+        isAdmin = isAdminCheckBox.isChecked()
 
         if (imageString==null){
             showSnackbar("Выберите фото профиля", requireActivity().findViewById(R.id.rootView))
@@ -236,7 +249,7 @@ class SignUpFragment : Fragment() {
         }
         else {
             viewModel.signUp(
-                name!!, email!!, password!!, birthday!!, phone!!, weight!!, imageString!!
+                name!!, email!!, password!!, birthday!!, phone!!, weight!!, imageString!!, isAdmin
             )
         }
     }

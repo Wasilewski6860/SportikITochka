@@ -50,7 +50,7 @@ class EditProfileFragment : Fragment() {
     private var isOnline : Boolean = false
 
     val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()){
-        image.postValue(uriToString(requireContext(), it, requireActivity().findViewById(R.id.rootView)))
+        image.postValue(uriToString(requireContext(), it, requireActivity().findViewById(R.id.rootViewMain)))
     }
 
     override fun onCreateView(
@@ -107,7 +107,7 @@ class EditProfileFragment : Fragment() {
                     binding.errorLayout.visibility = View.GONE
                     TrackingUtility.showSnackbar(
                         "Не удалось сохранить изменения",
-                        requireActivity().findViewById(R.id.rootView)
+                        requireActivity().findViewById(R.id.rootViewMain)
                     )
                 }
                 ScreenEditProfileState.Loading -> {
@@ -131,7 +131,7 @@ class EditProfileFragment : Fragment() {
                     binding.errorLayout.visibility = View.GONE
                     TrackingUtility.showSnackbar(
                         "Не удалось сохранить данные из сети",
-                        requireActivity().findViewById(R.id.rootView)
+                        requireActivity().findViewById(R.id.rootViewMain)
                     )
                 }
                 ScreenEditProfileState.Success -> {
@@ -165,20 +165,20 @@ class EditProfileFragment : Fragment() {
         weight = signUpCalories.text.toString()
 
         if (imageString.isNullOrEmpty()){
-            showSnackbar("Выберите фото профиля", requireActivity().findViewById(R.id.rootView))
+            showSnackbar("Выберите фото профиля", requireActivity().findViewById(R.id.rootViewMain))
         }
         else
             if (!viewModel.isInputNameValid(name)){
-                showSnackbar("Неверно введено имя", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Неверно введено имя", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (!viewModel.isInputDateValid(birthday)) {
-                showSnackbar("Неверно введена дата рождения", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Неверно введена дата рождения", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (!viewModel.isInputPhoneValid(phone)) {
-                showSnackbar("Неверно введен телефонный номер", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Неверно введен телефонный номер", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (!viewModel.isInputWeightValid(weight) || viewModel.getUserRole() == UserType.Admin) {
-                showSnackbar("Неверно введен вес", requireActivity().findViewById(R.id.rootView))
+                showSnackbar("Неверно введен вес", requireActivity().findViewById(R.id.rootViewMain))
             }
             else {
                 viewModel.changeUserData(
