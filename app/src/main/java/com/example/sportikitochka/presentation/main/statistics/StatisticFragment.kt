@@ -90,7 +90,7 @@ class StatisticFragment : Fragment() {
         binding.errorLayout.visibility = View.GONE
         when(userType) {
             UserType.Admin -> {
-                AppMetrica.reportEvent("Statistics admin viewed")
+//                AppMetrica.reportEvent("Statistics admin viewed")
                 binding.containerStatisticAdmin.visibility = View.VISIBLE
                 binding.containerStatistic.visibility = View.GONE
                 binding.containerData.visibility = View.VISIBLE
@@ -99,14 +99,14 @@ class StatisticFragment : Fragment() {
                 binding.containerNoAccess.visibility = View.GONE
             }
             UserType.Normal -> {
-                AppMetrica.reportEvent("Statistics block viewed")
+//                AppMetrica.reportEvent("Statistics block viewed")
                 binding.containerStatisticAdmin.visibility = View.GONE
                 binding.containerStatistic.visibility = View.GONE
                 binding.containerData.visibility = View.GONE
                 binding.containerNoAccess.visibility = View.VISIBLE
             }
             UserType.Premium -> {
-                AppMetrica.reportEvent("Statistics premium viewed")
+//                AppMetrica.reportEvent("Statistics premium viewed")
                 binding.containerStatisticAdmin.visibility = View.GONE
                 binding.containerStatistic.visibility = View.VISIBLE
                 binding.containerData.visibility = View.VISIBLE

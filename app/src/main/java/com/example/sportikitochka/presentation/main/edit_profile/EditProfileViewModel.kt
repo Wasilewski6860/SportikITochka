@@ -56,11 +56,12 @@ class EditProfileViewModel(
 
                         if (responseBody != null) {
                             val body = UserDataResponse(
+                                id = 0,//TODO
                                 name = responseBody.name,
                                 image = responseBody.image,
                                 weight = -100F,
                                 phone = responseBody.phone,
-                                birthday = responseBody.birthday
+                                birthday = responseBody.birthday.toString()
                             )
                             _userInfo.postValue(body)
                             _screenState.postValue(ScreenEditProfileState.LoadingSuccess)
@@ -137,9 +138,9 @@ class EditProfileViewModel(
                         ChangeDataUserRequest(
                             name = name,
                             image = image,
-                            weight = weight!!,
+                            weight = weight!!.toInt(), //TODO
                             phone = phone,
-                            birthday = timestamp
+                            birthday = timestamp.toString() //TODO
                         )
                     )
                 }

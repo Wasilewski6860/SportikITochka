@@ -9,9 +9,9 @@ enum class ActivityType(val image: Int, val activityName: String, val id: Int){
 
     override fun toString(): String {
         return when(this) {
-            RUNNING -> "running"
-            SWIMMING -> "swimming"
-            BYCICLE -> "cycle"
+            RUNNING -> "RUNNING"
+            SWIMMING -> "SWIMMING"
+            BYCICLE -> "CYCLE"
         }
     }
 

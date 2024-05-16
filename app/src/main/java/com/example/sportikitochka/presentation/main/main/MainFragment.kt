@@ -126,6 +126,16 @@ class MainFragment : Fragment() {
             }
         }
 
+        binding.emptyLayoutButton.setOnClickListener {
+            if (isOnline) {
+                findNavController().navigate(
+                    R.id.action_mainFragment_to_selectActivityTypeFragment,
+                    savedInstanceState
+                )
+            }
+            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
+        }
+
         viewModel.userProfile.observe(viewLifecycleOwner) {
             binding.profileName.text = it.name
             val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)

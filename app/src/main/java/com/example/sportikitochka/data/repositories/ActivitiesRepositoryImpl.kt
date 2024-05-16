@@ -3,6 +3,7 @@ package com.example.sportikitochka.data.repositories
 import com.example.sportikitochka.data.db.SportActivitiesStorage
 import com.example.sportikitochka.data.db.dto.SportActivityDto
 import com.example.sportikitochka.data.models.request.activities.AddActivityRequest
+import com.example.sportikitochka.data.models.response.activities.ActivitiesResponse
 import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.AddActivityResponse
 import com.example.sportikitochka.data.network.ActivitiesApi
@@ -30,12 +31,12 @@ class ActivitiesRepositoryImpl(
     override suspend fun addActivityRemote(
         sportActivity: SportActivity
     ): Response<AddActivityResponse> {
-        return api.addActivity(token, sportActivity.mapToRequest())
+        return api.addActivity("Bearer "+token, sportActivity.mapToRequest())
     }
 
 
-    override suspend fun getAllActivitiesRemote(): Response<List<ActivityResponse>> {
-        return api.getAllActivities(token)
+    override suspend fun getAllActivitiesRemote(): Response<ActivitiesResponse> {
+        return api.getAllActivities("Bearer "+token)
     }
 
     val userId: Int

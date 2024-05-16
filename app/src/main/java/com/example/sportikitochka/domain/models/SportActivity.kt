@@ -6,7 +6,7 @@ data class SportActivity(
     var id : Int =0,
     var activityType: ActivityType,
     var img: String,
-    var timestamp: Long,
+    var timestamp: String,
     var avgSpeed: Float,
     var distanceInMeters: Long,
     var timeInMillis: Long,

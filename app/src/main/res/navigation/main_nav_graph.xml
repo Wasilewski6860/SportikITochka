@@ -48,6 +48,7 @@
             android:id="@+id/action_selectActivityTypeFragment_to_trackingFragment"
             app:destination="@id/trackingFragment" />
 
+
     </fragment>
     <fragment
         android:id="@+id/allActivitiesFragment"

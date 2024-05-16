@@ -16,7 +16,7 @@ class ProfileRepositoryImpl(val userProfileApi: UserProfileApi, val sessionRepos
     ProfileRepository {
     override suspend fun getUserProfileRemote(userProfileRequest: UserProfileRequest): Response<UserProfileResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userProfileApi.getUserProfile(token, userProfileRequest)
+        return userProfileApi.getUserProfile("Bearer "+token, userProfileRequest.period)
     }
 
 }

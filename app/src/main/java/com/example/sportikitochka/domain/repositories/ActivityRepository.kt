@@ -1,5 +1,6 @@
 package com.example.sportikitochka.domain.repositories
 
+import com.example.sportikitochka.data.models.response.activities.ActivitiesResponse
 import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.AddActivityResponse
 import com.example.sportikitochka.domain.models.SportActivity
@@ -14,5 +15,5 @@ interface ActivityRepository {
 
     suspend fun addActivityRemote(sportActivity: SportActivity) : Response<AddActivityResponse>
     //    suspend fun deleteActivityRemote(token: String, addActivityRequest: AddActivityRequest) : Response<TaskResponse>
-    suspend fun getAllActivitiesRemote()  : Response<List<ActivityResponse>>
+    suspend fun getAllActivitiesRemote()  : Response<ActivitiesResponse>
 }

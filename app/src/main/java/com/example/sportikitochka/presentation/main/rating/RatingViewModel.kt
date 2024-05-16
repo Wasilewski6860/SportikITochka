@@ -47,7 +47,7 @@ class RatingViewModel(
     fun loadUserProfile() {
         viewModelScope.launch {
             try {
-                val userProfileResponse = getProfileUseCase.execute(UserProfileRequest("all time"))
+                val userProfileResponse = getProfileUseCase.execute(UserProfileRequest("all_time"))
                 if (userProfileResponse.isSuccessful) {
                     var responseBody = userProfileResponse.body()
 
@@ -56,7 +56,7 @@ class RatingViewModel(
                     }
                     else {
                         //TODO Переделать
-                       // _userInfo.postValue(getProfileLocallyUseCase.execute(UserProfileRequest("all time")))
+                       // _userInfo.postValue(getProfileLocallyUseCase.execute(UserProfileRequest("all_time")))
                         _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
                     }
                 } else {

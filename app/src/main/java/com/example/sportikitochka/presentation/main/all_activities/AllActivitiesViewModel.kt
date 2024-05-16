@@ -34,7 +34,7 @@ class AllActivitiesViewModel(
                     val responseBody = activitiesRemoteResponse.body()
 
                     if (responseBody!=null){
-                        var list = responseBody.map { activityResponse -> activityResponse.mapToSportActivity() }
+                        var list = responseBody.activities.activities.map { activityResponse -> activityResponse.mapToSportActivity() }
                         _activities.postValue(list)
                         for (activity in list){
                             addActivityLocalUseCase.execute(activity)

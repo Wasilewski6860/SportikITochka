@@ -13,7 +13,7 @@ interface UserApi {
 
     @POST(EndPoints.USERS)
     suspend fun getUsers(
-        @Header("аuthorization") token: String
+        @Header("Authorization") token: String
     ): Response<List<UserResponse>>
 
 }

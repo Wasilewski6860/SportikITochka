@@ -12,6 +12,7 @@ import com.example.sportikitochka.domain.use_cases.activity.AddActivityRemoteUse
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 
 class TrackingViewModel(
@@ -37,7 +38,16 @@ class TrackingViewModel(
                 if (result.isSuccessful){
                     _screenState.value = ScreenTrackingState.Success
                 }
-                else _screenState.value = ScreenTrackingState.Error("Произошла ошибка")
+                else{
+                    val error = result.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("SAVE TRACKING", it) }
+                    _screenState.value = ScreenTrackingState.Error("Произошла ошибка")
+                }
 
             } catch (httpException: HttpException) {
                 Log.e("TAG", httpException.toString())

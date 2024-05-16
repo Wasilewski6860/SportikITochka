@@ -132,7 +132,7 @@ class SignUpFragment : Fragment() {
                     eventParameters["name"] = name.toString()
                     eventParameters["role"] = if (isAdmin) UserType.Admin.toString() else UserType.Normal.toString()
 //
-                    AppMetrica.reportEvent("New user", eventParameters)
+//                    AppMetrica.reportEvent("New user", eventParameters)
 
 //                    YandexMetrica.reportEvent("New user", eventParameters)
 

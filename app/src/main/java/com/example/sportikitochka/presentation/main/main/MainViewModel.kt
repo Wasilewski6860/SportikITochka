@@ -16,6 +16,7 @@ import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 
 class MainViewModel(
@@ -46,16 +47,31 @@ class MainViewModel(
                     val responseBody = activitiesRemoteResponse.body()
 
                     if (responseBody!=null){
-                        var list = responseBody.map { activityResponse -> activityResponse.mapToSportActivity() }
-                        _activities.postValue(list)
-                        for (activity in list){
-                            addActivityLocalUseCase.execute(activity)
+                        if (responseBody.activities==null){
+                            _screenState.value = ScreenMainState.Empty
                         }
-                        _screenState.value =
-                            if (activities.value?.isEmpty() == true) ScreenMainState.Empty else ScreenMainState.ActivitiesLoadedRemote
+                        else {
+                            var list = responseBody.activities.activities.map { activityResponse -> activityResponse.mapToSportActivity() }
+                            _activities.postValue(list)
+                            for (activity in list){
+                                addActivityLocalUseCase.execute(activity)
+                            }
+                            _screenState.value =
+                                if (activities.value?.isEmpty() == true) ScreenMainState.Empty else ScreenMainState.ActivitiesLoadedRemote
+                        }
+
                     }
                 }
                 else {
+
+                    val error = activitiesRemoteResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("GET ACTIVITIES", it) }
+
                     _activities.value = getAllActivitiesLocalUseCase.execute()
 
                     _screenState.value =
@@ -63,10 +79,10 @@ class MainViewModel(
                 }
             }
             catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
+                Log.e("FETCH ACTIVITIES HTTP EXCEPTION", httpException.toString())
                 _screenState.postValue(ScreenMainState.ErrorActivities)
             } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
+                Log.e("FETCH ACTIVITIES EXCEPTION", exception.toString())
                 _screenState.postValue(ScreenMainState.ErrorActivities)
             }
         }
@@ -90,6 +106,20 @@ class MainViewModel(
                     else _screenState.postValue(ScreenMainState.ProfileLoadingError)
 
                 } else {
+                    var error = userProfileResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("LOAD PROFILE", it) }
+                    error = userDataResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("LOAD USER DATA", it) }
                     _screenState.postValue(ScreenMainState.ProfileLoadingError)
                 }
             } catch (httpException: HttpException) {

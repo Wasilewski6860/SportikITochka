@@ -11,7 +11,7 @@ interface AuthRepository {
 
     suspend fun login(loginRequest: LoginRequest) : Response<LoginResponse>
     suspend fun validateEmail(email: String) : Response<ValidateEmailResponse>
-    suspend fun register(registerRequest: RegisterRequest) : Response<RegisterResponse>
+    suspend fun register(email: String,registerRequest: RegisterRequest) : Response<RegisterResponse>
     fun saveSession(loginResponse: LoginResponse): Boolean
 
 }

@@ -1,7 +1,9 @@
 package com.example.sportikitochka.data.network
 
+import com.example.sportikitochka.data.models.request.auth.AdminRegisterRequest
 import com.example.sportikitochka.data.models.request.auth.LoginRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
+import com.example.sportikitochka.data.models.response.auth.AdminRegisterResponse
 import com.example.sportikitochka.data.models.response.auth.LoginResponse
 import com.example.sportikitochka.data.models.response.auth.RegisterResponse
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
@@ -19,5 +21,14 @@ interface AuthApi {
     suspend fun validateEmail(@Header("check_email_accessibility") email: String): Response<ValidateEmailResponse>
 
     @POST(EndPoints.REGISTER)
-    suspend fun register(@Body registerRequest: RegisterRequest): Response<RegisterResponse>
+    suspend fun register(
+        @Header("email") email: String,
+        @Body registerRequest: RegisterRequest
+    ): Response<RegisterResponse>
+
+    @POST(EndPoints.ADMIN_REGISTER)
+    suspend fun adminRegister(
+        @Header("email") email: String,
+        @Body registerRequest: AdminRegisterRequest
+    ): Response<AdminRegisterResponse>
 }

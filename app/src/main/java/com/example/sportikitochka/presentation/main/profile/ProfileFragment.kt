@@ -45,7 +45,7 @@ class ProfileFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.loadProfileForWeek()
-        AppMetrica.reportEvent("Profile viewed")
+//        AppMetrica.reportEvent("Profile viewed")
         binding.spTimeProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 
@@ -126,6 +126,10 @@ class ProfileFragment : Fragment() {
                 R.id.action_profileFragment_to_paymentFragment,
                 savedInstanceState
             )
+        }
+
+        binding.errorLayoutButton.setOnClickListener {
+            viewModel.loadProfileForWeek()
         }
         binding.signOutButton.setOnClickListener {
             viewModel.signOut()

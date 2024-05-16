@@ -10,30 +10,32 @@ import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserR
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 
 interface UserDataApi {
 
-    @POST(EndPoints.USER_DATA)
+    @GET(EndPoints.USER_DATA)
     suspend fun getUserData(
-        @Header("аuthorization") token: String
+        @Header("Authorization") token: String
     ): Response<UserDataResponse>
 
     @POST(EndPoints.USER_DATA)
     suspend fun getAdminData(
-        @Header("аuthorization") token: String
+        @Header("Authorization") token: String
     ): Response<AdminDataResponse>
 
-    @POST(EndPoints.CHANGE_USER_DATA)
+    @PUT(EndPoints.USER_DATA)
     suspend fun changeUserData(
-        @Header("аuthorization") token: String,
+        @Header("Authorization") token: String,
         @Body changeDataUserRequest: ChangeDataUserRequest
     ): Response<ChangeDataUserResponse>
 
     @POST(EndPoints.CHANGE_USER_DATA)
     suspend fun changeAdminData(
-        @Header("аuthorization") token: String,
+        @Header("Authorization") token: String,
         @Body changeAdminDataRequest: ChangeAdminDataRequest
     ): Response<ChangeDataUserResponse>
 

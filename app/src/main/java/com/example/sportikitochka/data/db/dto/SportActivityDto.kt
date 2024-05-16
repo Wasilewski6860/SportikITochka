@@ -15,7 +15,7 @@ data class SportActivityDto(
     @ColumnInfo(name = "img")
     var img: String,
     @ColumnInfo(name = "timestamp")
-    var timestamp: Long,
+    var timestamp: String,
     @ColumnInfo(name = "avgSpeedInKMH")
     var avgSpeedInKMH: Float,
     @ColumnInfo(name = "distanceInMeters")

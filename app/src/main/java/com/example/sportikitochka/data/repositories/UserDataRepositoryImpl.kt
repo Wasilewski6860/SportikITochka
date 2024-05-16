@@ -13,21 +13,21 @@ import retrofit2.Response
 class UserDataRepositoryImpl(val userDataApi: UserDataApi,val sessionRepository: SessionRepository): UserDataRepository {
     override suspend fun getAdminData(): Response<AdminDataResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userDataApi.getAdminData(token)
+        return userDataApi.getAdminData("Bearer "+token)
     }
 
     override suspend fun getUserData(): Response<UserDataResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userDataApi.getUserData(token)
+        return userDataApi.getUserData("Bearer "+token)
     }
 
     override suspend fun changeUserData(changeDataUserRequest: ChangeDataUserRequest): Response<ChangeDataUserResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userDataApi.changeUserData(token, changeDataUserRequest)
+        return userDataApi.changeUserData("Bearer "+token, changeDataUserRequest)
     }
 
     override suspend fun changeAdminData(changeAdminDataRequest: ChangeAdminDataRequest): Response<ChangeDataUserResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userDataApi.changeAdminData(token, changeAdminDataRequest)
+        return userDataApi.changeAdminData("Bearer "+token, changeAdminDataRequest)
     }
 }

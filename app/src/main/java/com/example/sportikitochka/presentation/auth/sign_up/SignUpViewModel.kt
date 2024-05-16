@@ -12,6 +12,7 @@ import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.other.Validator
 import com.example.sportikitochka.other.Validator.validatePassword
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -42,23 +43,31 @@ class SignUpViewModel(
                 val date = dateFormat.parse(birthday) // парсинг даты из строки
                 val timestamp = date.time // получение времени в миллисекундах
 
+                val convertedBirthday = convertDateFormat(birthday)
                 val registerResponse = signUpUseCase.execute(
+                    email = email,
                     RegisterRequest(
                         name = name,
                         weight = weight.toInt(),
                         image = image,
-                        birthday = timestamp,
-                        email = email,
+                        birthday = convertedBirthday,
                         password = password,
                         phone = phone,
-                        role = if(isAdmin) UserType.Admin.toString() else UserType.Normal.toString()
+
                     )
                 )
                 if (registerResponse.isSuccessful) {
                     _screenState.value = SignUpScreenState.Success
                 }
                 else {
-                    Log.e("REGISTER_ERROR", "REGISTER_ERROR")
+                    val error = registerResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    Log.e("REGISTER_ERROR", error!!)
+                    Log.e("BIRTHDAY", convertedBirthday)
                     _screenState.postValue(SignUpScreenState.AnyError)
                 }
             } catch (httpException: HttpException) {
@@ -83,33 +92,34 @@ class SignUpViewModel(
     fun validateEmail(email: String) {
         _screenState.value = SignUpScreenState.Loading
         viewModelScope.launch {
-            try {
-                val validateResponse = validateEmailUseCase.execute(
-                    email = email
-                )
-                if (validateResponse.isSuccessful) {
-                    val validateResponseBody = validateResponse.body()
-                    validateResponseBody?.let {
-                        if (it.free) {
-                            _screenState.postValue(SignUpScreenState.ValidationSuccess)
-                        }
-                        else {
-                            _screenState.postValue(SignUpScreenState.ValidationError)
-                        }
-                    }
-                }
-                else {
-                    Log.e("VALIDATION_EMAIL_ERROR", "validation_email_error")
-                    _screenState.postValue(SignUpScreenState.ValidationError)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("HTTP-EXCEPTION", httpException.toString())
-                _screenState.postValue(SignUpScreenState.ValidationError)
-
-            } catch (exception: Exception) {
-                Log.e("EXCEPTION", exception.toString())
-                _screenState.postValue(SignUpScreenState.ValidationError)
-            }
+            _screenState.postValue(SignUpScreenState.ValidationSuccess)
+//            try {
+//                val validateResponse = validateEmailUseCase.execute(
+//                    email = email
+//                )
+//                if (validateResponse.isSuccessful) {
+//                    val validateResponseBody = validateResponse.body()
+//                    validateResponseBody?.let {
+//                        if (it.free) {
+//                            _screenState.postValue(SignUpScreenState.ValidationSuccess)
+//                        }
+//                        else {
+//                            _screenState.postValue(SignUpScreenState.ValidationError)
+//                        }
+//                    }
+//                }
+//                else {
+//                    Log.e("VALIDATION_EMAIL_ERROR", "validation_email_error")
+//                    _screenState.postValue(SignUpScreenState.ValidationError)
+//                }
+//            } catch (httpException: HttpException) {
+//                Log.e("HTTP-EXCEPTION", httpException.toString())
+//                _screenState.postValue(SignUpScreenState.ValidationError)
+//
+//            } catch (exception: Exception) {
+//                Log.e("EXCEPTION", exception.toString())
+//                _screenState.postValue(SignUpScreenState.ValidationError)
+//            }
         }
     }
     fun isInputDateValid(text: String?): Boolean {
@@ -123,5 +133,13 @@ class SignUpViewModel(
     }
     fun isInputWeightValid(text: String?): Boolean {
         return !text.isNullOrBlank()
+    }
+
+    fun convertDateFormat(date: String): String {
+        val inputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val parsedDate = inputFormat.parse(date)
+        return outputFormat.format(parsedDate)
     }
 }

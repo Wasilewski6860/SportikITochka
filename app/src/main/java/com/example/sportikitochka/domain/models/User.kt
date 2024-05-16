@@ -16,5 +16,5 @@ data class User(
     val averageTime: Long,
     val averageCalories: Long,
     val achievements: List<Achievement> = listOf(),
-    var isBlocked: Boolean
+    var isBlocked: Boolean = false
 )

@@ -30,11 +30,6 @@ import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.mapToActivityType
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.snackbar.Snackbar
-import com.yandex.mapkit.Animation
-import com.yandex.mapkit.MapKitFactory
-import com.yandex.mapkit.geometry.BoundingBox
-import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraPosition
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -44,6 +39,15 @@ import java.text.DecimalFormat
 import java.util.Calendar
 import kotlin.math.round
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import world.mappable.mapkit.Animation
+import world.mappable.mapkit.MapKitFactory
+import world.mappable.mapkit.geometry.BoundingBox
+import world.mappable.mapkit.geometry.Geometry
+import world.mappable.mapkit.geometry.Point
+import world.mappable.mapkit.map.CameraPosition
+import world.mappable.mapkit.map.MapObjectCollection
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
@@ -65,6 +69,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     var weight = 80f
 
+    private lateinit var collection: MapObjectCollection
+
     private  var activityType: ActivityType = ActivityType.RUNNING
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,10 +91,16 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         return binding.root
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        // Add a nested map objects collection
+        collection = binding.mapView.map.mapObjects.addCollection()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MapKitFactory.initialize(requireContext());
-        AppMetrica.reportEvent("Tracking screen viewed")
+//        AppMetrica.reportEvent("Tracking screen viewed")
         binding.tvTrackingTimeInfo.text = when(activityType) {
             ActivityType.RUNNING -> "Время пробежки"
             ActivityType.BYCICLE -> "Время велозаезда"
@@ -183,8 +195,19 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     }
 
     private fun moveCameraToUser() {
+
+
+
         if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
 
+//            val cameraPosition = CameraPosition(Point(pathPoints.last().last().latitude,pathPoints.last().last().longitude), MAP_ZOOM, 0.0F, 0.0F)
+//            // Создаем анимацию перемещения камеры
+//            val mapAnimations = Animation(Animation.Type.SMOOTH, 1F)
+//
+//            // Focus camera on polyline
+//            binding.mapView.map.move(cameraPosition, mapAnimations) {
+//
+//            }
 
             binding.mapView.map?.move(
                 CameraPosition(
@@ -210,7 +233,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         var southwest = bounds.build().southwest
 
         var boundingBox = BoundingBox(Point(southwest.latitude,southwest.longitude), Point(northeast.latitude,northeast.longitude)) // getting BoundingBox between two points
-        var cameraPosition = binding.mapView.map?.cameraPosition(boundingBox) // getting cameraPosition
+        var geometry: Geometry = Geometry.fromBoundingBox(boundingBox)
+        var cameraPosition = binding.mapView.map?.cameraPosition(geometry) // getting cameraPosition
         var target = cameraPosition?.target ?: Point(pathPoints.last().last().latitude,pathPoints.last().last().longitude)
         cameraPosition = CameraPosition(target, (cameraPosition?.zoom ?: MAP_ZOOM) - 0.8f,
             cameraPosition?.azimuth ?: 0.0F, cameraPosition?.tilt ?: 0.0F) // Zoom 80%
@@ -248,7 +272,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 //        val b: Bitmap = Bitmap.createBitmap(binding.mapView.getDrawingCache())
 //        binding.mapView.setDrawingCacheEnabled(false) // clear drawing cache
 
-        val bitmap = takeScreenshotOfView(binding.mapContainer)
+        val bitmap = binding.mapView.screenshot
         val string = bitmapToString(bitmap?: throw Exception(""))
 
 
@@ -260,10 +284,16 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         val avgSpeed = round((distanceInMeters / 1000f) / (timeInMillis / 1000f / 60 / 60) * 10) / 10f
         val dateTimestamp = Calendar.getInstance().timeInMillis
         val caloriesBurned = ((distanceInMeters / 1000f) * weight).toLong()
+
+        val calendar = Calendar.getInstance().apply {
+                timeInMillis = dateTimestamp
+        }
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
         val run = SportActivity(
             activityType = ActivityType.RUNNING,
             img = string,
-            timestamp = dateTimestamp,
+            timestamp = dateFormat.format(calendar.time),
             avgSpeed = avgSpeed,
             distanceInMeters = distanceInMeters,
             timeInMillis = timeInMillis,
@@ -285,7 +315,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             for (latlng in polyline){
                 points.add(Point(latlng.latitude,latlng.longitude))
             }
-            val polyline = com.yandex.mapkit.geometry.Polyline(points)
+            val polyline = world.mappable.mapkit.geometry.Polyline(points)
             val polylineObject = binding.mapView.map.mapObjects.addPolyline(polyline)
             polylineObject.apply {
                 strokeWidth = 5f
@@ -304,7 +334,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             var prelastPoint = Point(preLastLatLng.latitude,preLastLatLng.longitude)
             var lastPoint = Point(lastLatLng.latitude,lastLatLng.longitude)
             var points = listOf<Point>(prelastPoint,lastPoint)
-            val polyline = com.yandex.mapkit.geometry.Polyline(points)
+            val polyline = world.mappable.mapkit.geometry.Polyline(points)
             val polylineObject = binding.mapView.map.mapObjects.addPolyline(polyline)
             polylineObject.apply {
                 strokeWidth = 5f
@@ -374,18 +404,16 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     }
 
-    override fun onStop() {
-        // Вызов onStop нужно передавать инстансам MapView и MapKit.
-        binding.mapView.onStop()
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
-    }
-
     override fun onStart() {
-        // Вызов onStart нужно передавать инстансам MapView и MapKit.
         super.onStart()
         MapKitFactory.getInstance().onStart()
         binding.mapView.onStart()
+    }
+
+    override fun onStop() {
+        binding.mapView.onStop()
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
     }
 
     override fun onPause() {

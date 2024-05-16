@@ -48,7 +48,7 @@ class RatingFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupRecyclerView()
-        AppMetrica.reportEvent("Rating screen viewed")
+//        AppMetrica.reportEvent("Rating screen viewed")
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
             if (it) {

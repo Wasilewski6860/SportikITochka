@@ -17,4 +17,8 @@
         <attr name="average_time" format="integer"/>
     </declare-styleable>
 
+    <declare-styleable name="PlatformView">
+        <attr name="movable" format="boolean" />
+    </declare-styleable>
+
 </resources>

@@ -97,7 +97,6 @@ dependencies {
     //https://airbnb.io/lottie/#/android
     implementation "com.airbnb.android:lottie:$lottieVersion"
 
-    implementation "com.yandex.android:maps.mobile:4.1.0-lite"
 
 
     // MPAndroidChart
@@ -122,5 +121,10 @@ dependencies {
     implementation "com.github.KunikaValecha:CreditCardView:1.0"
 
     implementation 'io.appmetrica.analytics:analytics:6.5.0'
+
+
+    implementation "world.mappable.android:maps.mobile:1.2.1-lite"
+
+    implementation("com.squareup.okio:okio:3.9.0")
 
 }

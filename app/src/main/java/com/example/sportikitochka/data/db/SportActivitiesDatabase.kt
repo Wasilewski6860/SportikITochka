@@ -10,7 +10,7 @@ import com.example.sportikitochka.data.db.dto.SportActivityDto
     entities = [
         SportActivityDto::class
     ],
-    version = 1
+    version = 2
 )
 abstract class SportActivitiesDatabase : RoomDatabase() {
 

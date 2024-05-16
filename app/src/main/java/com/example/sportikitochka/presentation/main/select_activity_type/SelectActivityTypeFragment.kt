@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentSelectActivityTypeBinding
 import com.example.sportikitochka.other.ActivityType
 import com.example.sportikitochka.other.Constants.REQUEST_CODE_LOCATION_PERMISSION
@@ -56,7 +57,6 @@ class SelectActivityTypeFragment : Fragment(), EasyPermissions.PermissionCallbac
                     activityType = activityType
                 )
             findNavController().navigate(action)
-
         }
 
         setupRecyclerViewHorizontal()

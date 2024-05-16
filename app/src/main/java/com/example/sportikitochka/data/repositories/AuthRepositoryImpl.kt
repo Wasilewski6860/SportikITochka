@@ -16,7 +16,7 @@ class AuthRepositoryImpl(private val authApi: AuthApi, private val sessionReposi
     override suspend fun login(loginRequest: LoginRequest) = authApi.login(loginRequest)
     override suspend fun validateEmail(email: String): Response<ValidateEmailResponse> = authApi.validateEmail(email)
 
-    override suspend fun register(registerRequest: RegisterRequest): Response<RegisterResponse> = authApi.register(registerRequest)
+    override suspend fun register(email: String,registerRequest: RegisterRequest): Response<RegisterResponse> = authApi.register(email, registerRequest)
 
     override fun saveSession(loginResponse: LoginResponse): Boolean {
         sessionRepository.saveSession(loginResponse)
