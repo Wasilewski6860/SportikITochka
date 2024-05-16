@@ -19,4 +19,8 @@ class ProfileRepositoryImpl(val userProfileApi: UserProfileApi, val sessionRepos
         return userProfileApi.getUserProfile("Bearer "+token, userProfileRequest.period)
     }
 
+    override suspend fun getAdminProfileUseCase(userProfileRequest: UserProfileRequest): Response<UserProfileResponse> {
+        TODO("Not yet implemented")
+    }
+
 }

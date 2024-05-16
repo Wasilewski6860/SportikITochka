@@ -17,6 +17,7 @@ interface AuthApi {
 
     @POST(EndPoints.LOGIN)
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
+
     @POST(EndPoints.VERIFY_EMAIL)
     suspend fun validateEmail(@Header("check_email_accessibility") email: String): Response<ValidateEmailResponse>
 

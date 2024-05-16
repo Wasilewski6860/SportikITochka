@@ -12,6 +12,7 @@ import com.example.sportikitochka.domain.use_cases.auth.ChangeUserTypeUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
 import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
 import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
+import com.example.sportikitochka.domain.use_cases.auth.RegisterAdminUseCase
 import com.example.sportikitochka.domain.use_cases.auth.RegisterUseCase
 import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
 import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
@@ -23,6 +24,7 @@ import com.example.sportikitochka.domain.use_cases.payment.BuyPremiumUseCase
 import com.example.sportikitochka.domain.use_cases.payment.DeleteCardUseCase
 import com.example.sportikitochka.domain.use_cases.payment.EditCardUseCase
 import com.example.sportikitochka.domain.use_cases.payment.GetAllCardsUseCase
+import com.example.sportikitochka.domain.use_cases.profile.GetAdminProfileUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
 import com.example.sportikitochka.domain.use_cases.statistic.GetAdminStatisticUseCase
@@ -89,4 +91,6 @@ val domainModule = module {
 
     factory<GetAdminStatisticUseCase> { GetAdminStatisticUseCase(statisticRepository = get()) }
     factory<GetPremiumStatisticUseCase> { GetPremiumStatisticUseCase(statisticRepository = get()) }
+    factory<RegisterAdminUseCase> { RegisterAdminUseCase(authRepository = get()) }
+    factory<GetAdminProfileUseCase> { GetAdminProfileUseCase(profileRepository = get()) }
 }

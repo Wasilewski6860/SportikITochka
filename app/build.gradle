@@ -109,7 +109,7 @@ dependencies {
 
     implementation "io.appmetrica.analytics:analytics:6.2.1"
 
-    implementation 'com.github.fevziomurtekin:PayView:1.0.3'
+//    implementation 'com.github.fevziomurtekin:PayView:1.0.3'
     // Easy Permissions
     implementation 'pub.devrel:easypermissions:3.0.0'
 

@@ -90,8 +90,8 @@ class EditProfileFragment : Fragment() {
                 image.postValue(it.image)
                 signUpName.setText(it.name)
                 val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                val dateString = dateFormat.format(it.birthday)
-                signUpBirthday.setText(dateString)
+//                val dateString = dateFormat.format(it.birthday)
+                signUpBirthday.setText(it.birthday)
                 signUpPhone.setText(it.phone)
                 signUpCalories.setText(it.weight.toString())
             }

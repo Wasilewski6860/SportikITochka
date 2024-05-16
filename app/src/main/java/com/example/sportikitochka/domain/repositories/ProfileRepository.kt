@@ -7,4 +7,5 @@ import retrofit2.Response
 interface ProfileRepository {
 
     suspend fun getUserProfileRemote(userProfileRequest: UserProfileRequest): Response<UserProfileResponse>
+    suspend fun getAdminProfileUseCase(userProfileRequest: UserProfileRequest): Response<UserProfileResponse>
 }

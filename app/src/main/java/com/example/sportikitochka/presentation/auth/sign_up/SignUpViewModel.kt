@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sportikitochka.data.models.request.auth.AdminRegisterRequest
 import com.example.sportikitochka.data.models.request.auth.RegisterRequest
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.domain.use_cases.auth.RegisterAdminUseCase
 import com.example.sportikitochka.domain.use_cases.auth.RegisterUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.other.Validator
@@ -19,6 +21,7 @@ import java.util.Locale
 
 class SignUpViewModel(
     private val signUpUseCase: RegisterUseCase,
+    private val signUpAdminUseCase: RegisterAdminUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
 ) : ViewModel() {
 
@@ -44,32 +47,68 @@ class SignUpViewModel(
                 val timestamp = date.time // получение времени в миллисекундах
 
                 val convertedBirthday = convertDateFormat(birthday)
-                val registerResponse = signUpUseCase.execute(
-                    email = email,
-                    RegisterRequest(
-                        name = name,
-                        weight = weight.toInt(),
-                        image = image,
-                        birthday = convertedBirthday,
-                        password = password,
-                        phone = phone,
+                if(!isAdmin) {
+                    val registerResponse = signUpUseCase.execute(
+                        email = email,
+                        RegisterRequest(
+                            name = name,
+                            weight = weight.toInt(),
+                            image = image,
+                            birthday = convertedBirthday,
+                            password = password,
+                            phone = phone,
 
+                            )
                     )
-                )
-                if (registerResponse.isSuccessful) {
-                    _screenState.value = SignUpScreenState.Success
-                }
-                else {
-                    val error = registerResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
+
+                    if (registerResponse.isSuccessful) {
+                        _screenState.value = SignUpScreenState.Success
                     }
-                    Log.e("REGISTER_ERROR", error!!)
-                    Log.e("BIRTHDAY", convertedBirthday)
-                    _screenState.postValue(SignUpScreenState.AnyError)
+                    else {
+                        val error = registerResponse.errorBody()?.source()?.let { source ->
+                            Buffer().use { buffer ->
+                                source.readAll(buffer)
+                                buffer.readUtf8()
+                            }
+                        }
+                        Log.e("REGISTER_ERROR", error!!)
+                        Log.e("BIRTHDAY", convertedBirthday)
+                        _screenState.postValue(SignUpScreenState.AnyError)
+                    }
                 }
+
+                else {
+                    val registerAdminResponse = signUpAdminUseCase.execute(
+                        email = email,
+                        AdminRegisterRequest(
+                            name = name,
+                            image = image,
+                            birthday = convertedBirthday,
+                            password = password,
+                            phone = phone,
+
+                            )
+                    )
+
+                    if (registerAdminResponse.isSuccessful) {
+                        _screenState.value = SignUpScreenState.Success
+                    }
+                    else {
+                        val error = registerAdminResponse.errorBody()?.source()?.let { source ->
+                            Buffer().use { buffer ->
+                                source.readAll(buffer)
+                                buffer.readUtf8()
+                            }
+                        }
+                        Log.e("REGISTER_ERROR", error!!)
+                        Log.e("BIRTHDAY", convertedBirthday)
+                        _screenState.postValue(SignUpScreenState.AnyError)
+                    }
+                }
+
+
+
+
             } catch (httpException: HttpException) {
                 Log.e("HTTP-EXCEPTION", httpException.toString())
                 _screenState.postValue(SignUpScreenState.AnyError)

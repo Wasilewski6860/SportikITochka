@@ -39,7 +39,8 @@ val presentationModule = module {
     viewModel<SignUpViewModel> {
         SignUpViewModel(
             signUpUseCase = get(),
-            validateEmailUseCase = get()
+            validateEmailUseCase = get(),
+            signUpAdminUseCase = get()
         )
     }
 
@@ -51,7 +52,9 @@ val presentationModule = module {
             getAllActivitiesLocalUseCase = get(),
 
             getUserDataUseCase = get(),
-            saveUserDataUseCase = get()
+            saveUserDataUseCase = get(),
+            getUserRoleUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 

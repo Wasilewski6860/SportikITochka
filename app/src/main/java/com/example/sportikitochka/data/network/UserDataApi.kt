@@ -22,7 +22,7 @@ interface UserDataApi {
         @Header("Authorization") token: String
     ): Response<UserDataResponse>
 
-    @POST(EndPoints.USER_DATA)
+    @GET(EndPoints.USER_DATA)
     suspend fun getAdminData(
         @Header("Authorization") token: String
     ): Response<AdminDataResponse>
@@ -33,7 +33,7 @@ interface UserDataApi {
         @Body changeDataUserRequest: ChangeDataUserRequest
     ): Response<ChangeDataUserResponse>
 
-    @POST(EndPoints.CHANGE_USER_DATA)
+    @PUT(EndPoints.CHANGE_USER_DATA)
     suspend fun changeAdminData(
         @Header("Authorization") token: String,
         @Body changeAdminDataRequest: ChangeAdminDataRequest
