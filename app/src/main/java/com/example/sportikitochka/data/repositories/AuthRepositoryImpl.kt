@@ -21,6 +21,7 @@ class AuthRepositoryImpl(private val authApi: AuthApi, private val sessionReposi
     override suspend fun register(email: String,registerRequest: RegisterRequest): Response<RegisterResponse> = authApi.register(email, registerRequest)
     override suspend fun register(
         email: String,
+
         registerRequest: AdminRegisterRequest
     ): Response<AdminRegisterResponse> = authApi.adminRegister(email, registerRequest)
 
