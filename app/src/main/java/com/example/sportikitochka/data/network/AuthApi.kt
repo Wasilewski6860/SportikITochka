@@ -7,6 +7,7 @@ import com.example.sportikitochka.data.models.response.auth.AdminRegisterRespons
 import com.example.sportikitochka.data.models.response.auth.LoginResponse
 import com.example.sportikitochka.data.models.response.auth.RegisterResponse
 import com.example.sportikitochka.data.models.response.auth.ValidateEmailResponse
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,7 +25,7 @@ interface AuthApi {
     @POST(EndPoints.REGISTER)
     suspend fun register(
         @Header("email") email: String,
-        @Body registerRequest: RegisterRequest
+        @Body userData: RequestBody
     ): Response<RegisterResponse>
 
     @POST(EndPoints.ADMIN_REGISTER)
