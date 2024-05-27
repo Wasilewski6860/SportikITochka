@@ -2,6 +2,7 @@ package com.example.sportikitochka.data.repositories
 
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
+import com.example.sportikitochka.data.models.response.profile.AdminProfileResponse
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
 import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
@@ -19,8 +20,9 @@ class ProfileRepositoryImpl(val userProfileApi: UserProfileApi, val sessionRepos
         return userProfileApi.getUserProfile("Bearer "+token, userProfileRequest.period)
     }
 
-    override suspend fun getAdminProfileUseCase(userProfileRequest: UserProfileRequest): Response<UserProfileResponse> {
-        TODO("Not yet implemented")
+    override suspend fun getAdminProfileUseCase(): Response<AdminProfileResponse> {
+        val token = sessionRepository.getSession()!!.accessToken
+        return userProfileApi.getAdminProfile("Bearer "+token)
     }
 
 }

@@ -62,7 +62,7 @@ class ActivitiesRepositoryImpl(
     }
 
 
-    override suspend fun getAllActivitiesRemote(): Response<ActivitiesResponse> {
+    override suspend fun getAllActivitiesRemote(): Response<List<ActivityResponse>> {
         return api.getAllActivities("Bearer "+token)
     }
 

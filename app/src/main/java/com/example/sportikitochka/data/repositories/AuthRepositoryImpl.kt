@@ -22,7 +22,7 @@ class AuthRepositoryImpl(private val authApi: AuthApi, private val sessionReposi
     override suspend fun login(loginRequest: LoginRequest) = authApi.login(loginRequest)
     override suspend fun validateEmail(email: String): Response<ValidateEmailResponse> = authApi.validateEmail(email)
 
-    override suspend fun register(email: String,registerRequest: RegisterRequest, image: File): Response<RegisterResponse> {
+    override suspend fun register(email: String,registerRequest: RegisterRequest): Response<RegisterResponse> {
 
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
@@ -33,8 +33,8 @@ class AuthRepositoryImpl(private val authApi: AuthApi, private val sessionReposi
             .addFormDataPart("password_hash", registerRequest.password)
             .addFormDataPart(
                 "avatar",
-                image.name,
-                image.asRequestBody("image/*".toMediaTypeOrNull())
+                registerRequest.image.name,
+                registerRequest.image.asRequestBody("image/*".toMediaTypeOrNull())
             )
             .build()
         return authApi.register(email, requestBody)
@@ -42,7 +42,22 @@ class AuthRepositoryImpl(private val authApi: AuthApi, private val sessionReposi
     override suspend fun register(
         email: String,
         registerRequest: AdminRegisterRequest
-    ): Response<AdminRegisterResponse> = authApi.adminRegister(email, registerRequest)
+    ): Response<AdminRegisterResponse> {
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("name", registerRequest.name)
+            .addFormDataPart("phone", registerRequest.phone)
+            .addFormDataPart("birthday", registerRequest.birthday)
+            .addFormDataPart("password_hash", registerRequest.password)
+            .addFormDataPart(
+                "avatar",
+                registerRequest.image.name,
+                registerRequest.image.asRequestBody("image/*".toMediaTypeOrNull())
+            )
+            .build()
+
+        return authApi.adminRegister(email, requestBody)
+    }
 
     override fun saveSession(loginResponse: LoginResponse): Boolean {
         sessionRepository.saveSession(loginResponse)

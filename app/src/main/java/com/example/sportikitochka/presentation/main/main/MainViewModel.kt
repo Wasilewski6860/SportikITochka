@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
+import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.mapToSportActivity
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.models.response.profile.Statistics
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
 import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.domain.use_cases.activity.AddActivityLocalUseCase
@@ -49,14 +51,14 @@ class MainViewModel(
                 val activitiesRemoteResponse = getAllActivitiesRemoteUseCase.execute()
                 if (activitiesRemoteResponse.isSuccessful){
 
-                    val responseBody = activitiesRemoteResponse.body()
+                    val responseBody: List<ActivityResponse>? = activitiesRemoteResponse.body()
 
                     if (responseBody!=null){
-                        if (responseBody.activities==null){
+                        if (responseBody==null){
                             _screenState.value = ScreenMainState.Empty
                         }
                         else {
-                            var list = responseBody.activities.activities.map { activityResponse -> activityResponse.mapToSportActivity() }
+                            var list = responseBody.map { activityResponse -> activityResponse.mapToSportActivity() }
                             _activities.postValue(list)
                             for (activity in list){
                                 addActivityLocalUseCase.execute(activity)
@@ -88,7 +90,14 @@ class MainViewModel(
                 _screenState.postValue(ScreenMainState.ErrorActivities)
             } catch (exception: Exception) {
                 Log.e("FETCH ACTIVITIES EXCEPTION", exception.toString())
-                _screenState.postValue(ScreenMainState.ErrorActivities)
+                if(exception.toString().startsWith("java.lang.IllegalStateException: Expected BEGIN_ARRAY but was BEGIN_OBJECT at line 1 column 2 path")) {
+                    _screenState.postValue(ScreenMainState.Empty)
+                    _activities.postValue(listOf())
+                }
+                else {
+                    _screenState.postValue(ScreenMainState.ErrorActivities)
+                }
+
             }
         }
     }
@@ -101,14 +110,22 @@ class MainViewModel(
                 if (role != null) {
                     when(role) {
                         UserType.Admin -> {
-                            val userProfileResponse = getAdminProfileUseCase.execute(UserProfileRequest("week"))
+                            val userProfileResponse = getAdminProfileUseCase.execute()
                             val userDataResponse = getUserDataUseCase.execute()
                             if (userProfileResponse.isSuccessful) {
                                 var responseBody = userProfileResponse.body()
                                 var responseDataBody = userDataResponse.body()
 
                                 if (responseBody != null) {
-                                    _userProfile.postValue(responseBody!!)
+                                    _userProfile.postValue(
+                                        UserProfileResponse(
+                                            responseBody.name,
+                                            responseBody.image,
+                                            0,
+                                            Statistics(0L,0L,0L),
+                                            listOf()
+                                        )
+                                    )
                                 }
                                 if (responseDataBody != null) {
                                     saveUserDataUseCase.execute(responseDataBody)

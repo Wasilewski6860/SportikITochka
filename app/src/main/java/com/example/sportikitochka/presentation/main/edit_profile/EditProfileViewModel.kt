@@ -23,6 +23,7 @@ import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -123,7 +124,7 @@ class EditProfileViewModel(
 
     fun changeUserData(
         name: String,
-        image: String,
+        image: File,
         weight: Float?,
         phone: String,
         birthday: String

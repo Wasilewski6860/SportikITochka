@@ -13,6 +13,7 @@ data class PremiumStatisticsResponse(
 data class SportActivityStatistic(
     @SerializedName("id") val id: Int,
     @SerializedName("activity_type") val activityType: String,
+    @SerializedName("date") val date: String,
     @SerializedName("avg_speed") val avgSpeed: Float,
     @SerializedName("timestamp") val timestamp: Long,
     @SerializedName("distance_in_meters") val distanceInMeters: Int,

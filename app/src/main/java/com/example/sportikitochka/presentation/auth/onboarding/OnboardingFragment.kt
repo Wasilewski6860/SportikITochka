@@ -30,7 +30,7 @@ class OnboardingFragment : Fragment() {
 
         binding.nextOnboardingButton.setOnClickListener{
             viewModel.setOnboardingViewed()
-//            AppMetrica.reportEvent("Onboarding viewed")
+            AppMetrica.reportEvent("Onboarding viewed")
             findNavController().navigate(
                 R.id.action_onboardingFragment_to_signInFragment,
                 savedInstanceState

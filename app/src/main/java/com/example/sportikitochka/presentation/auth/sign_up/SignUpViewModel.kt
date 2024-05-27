@@ -16,6 +16,7 @@ import com.example.sportikitochka.other.Validator.validatePassword
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -36,7 +37,7 @@ class SignUpViewModel(
         birthday : String,
         phone : String,
         weight : String,
-        image: String,
+        image: File,
         isAdmin: Boolean
     ){
         _screenState.value = SignUpScreenState.Loading

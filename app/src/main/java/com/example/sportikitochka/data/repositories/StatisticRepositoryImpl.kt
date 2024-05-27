@@ -11,11 +11,11 @@ import retrofit2.Response
 class StatisticRepositoryImpl(private val sessionRepository: SessionRepository, private val statisticsApi: StatisticsApi): StatisticRepository {
     override suspend fun getPremiumStatistic(statisticsRequest: StatisticsRequest): Response<PremiumStatisticsResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return statisticsApi.getPremiumStatistic(token, statisticsRequest)
+        return statisticsApi.getPremiumStatistic("Bearer "+token, statisticsRequest.period)
     }
 
     override suspend fun getAdminStatistic(statisticsRequest: StatisticsRequest): Response<AdminStatisticsResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return statisticsApi.getAdminStatistic(token, statisticsRequest)
+        return statisticsApi.getAdminStatistic("Bearer "+token, statisticsRequest.period)
     }
 }

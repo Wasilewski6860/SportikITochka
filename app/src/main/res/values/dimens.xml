@@ -7,6 +7,7 @@
 
     <dimen name="margin_24">14dp</dimen>
     <dimen name="margin_40">40dp</dimen>
+    <dimen name="corner_radius">30dp</dimen>
 
     <dimen name="card_number_text_size">12sp</dimen>        //Default value:16sp
     <dimen name="card_name_text_size">12sp</dimen>          //Default value:14sp

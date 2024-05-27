@@ -12,8 +12,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.domain.models.Achievement
 import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.other.TrackingUtility
@@ -197,18 +203,27 @@ class RatingItemView @JvmOverloads constructor(
 
     fun setData(item: User, isAdmin: Boolean, premiumActionListener: RatingAdapter.UserPremiumActionListener, blockActionListener: RatingAdapter.UserBlockActionListener
                 ) {
-        profileImageRatingItem.setImageResource(R.drawable.profile_image_2)
+//        profileImageRatingItem.setImageResource(R.drawable.profile_image_2)
+
+        Glide.with(context)
+            .load(BASE_URL+item.image)
+            .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+            .circleCrop()
+            .into(profileImageRatingItem)
+
+
         nameView.text = item.name
+        val tC = if(item.totalCount != 0) item.totalCount else 1
         totalCountView.text="Общее кол-во: "+item.totalCount.toString()
         ratingTv.text = "#"+item.place
         distanseTv.text = "${item.totalDistanse / 1000f}"
-        avDistanseTv.text = "${roundFloat((item.totalDistanse / 1000f)/item.totalCount, 3)} км"
+        avDistanseTv.text = "${roundFloat((item.totalDistanse / 1000f)/tC, 3)} км"
 
         totalKcalBurnedTv.text = "${item.totalCalories}"
-        avKcalBurnedTv.text = "${(item.totalCalories)/item.totalCount} ккал"
+        avKcalBurnedTv.text = "${(item.totalCalories)/tC} ккал"
 
         totalTimeTv.text = TrackingUtility.getFormattedStopWatchTime(item.totalTime)
-        avTimeTv.text = TrackingUtility.getFormattedStopWatchTime(item.totalTime/item.totalCount)
+        avTimeTv.text = TrackingUtility.getFormattedStopWatchTime(item.totalTime/tC)
 
 
         increaseDecreaseButton.setOnClickListener {

@@ -1,5 +1,6 @@
 package com.example.sportikitochka.presentation.main.main
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.view.LayoutInflater
@@ -8,6 +9,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.sportikitochka.R
+import com.example.sportikitochka.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.databinding.RunItemBinding
 import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.other.TrackingUtility
@@ -17,6 +23,7 @@ import java.util.Calendar
 import java.util.Locale
 
 class MainAdapter(
+    val context: Context
 ) : ListAdapter<SportActivity, MainAdapter.MainViewHolder>(DiffCallBack), View.OnClickListener {
 
     class MainViewHolder(val binding: RunItemBinding) :
@@ -58,13 +65,20 @@ class MainAdapter(
             val caloriesBurned = "${item.caloriesBurned}ккал"
             tvCalories.text = caloriesBurned
 
+//
+//            val decodedString: ByteArray? = Base64.decode(item.img, Base64.DEFAULT)
+//
+//            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
+//
+//// Установка Bitmap в ImageView
+//            imageView1.setImageBitmap(bitmap)
 
-            val decodedString: ByteArray? = Base64.decode(item.img, Base64.DEFAULT)
-
-            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-
-// Установка Bitmap в ImageView
-            imageView1.setImageBitmap(bitmap)
+            val radius = context.resources.getDimensionPixelSize(R.dimen.corner_radius)
+            Glide.with(context)
+                .load(BASE_URL + item.img)
+                .transform(RoundedCorners(radius))
+                // Alternative: .transforms(CenterCrop(), RoundedCorners(radius))
+                .transition(DrawableTransitionOptions.withCrossFade()).into(imageView1)
         }
     }
 

@@ -11,8 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.databinding.FragmentProfileBinding
 import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.roundFloat
@@ -44,12 +48,19 @@ class ProfileFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.loadProfileForWeek()
-//        AppMetrica.reportEvent("Profile viewed")
+        viewModel.getUserRole()
+        if (viewModel.getRole() == UserType.Admin) {
+            viewModel.loadAdminProfile()
+        }
+        else {
+            viewModel.loadProfileForWeek()
+        }
+        AppMetrica.reportEvent("Profile viewed")
         binding.spTimeProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 
             override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                if (viewModel.getRole() != UserType.Admin)
                 when(pos) {
                     0 -> viewModel.loadProfileForWeek()
                     1 -> viewModel.loadProfileForMonth()
@@ -80,56 +91,76 @@ class ProfileFragment : Fragment() {
         }
 
         viewModel.userInfo.observe(viewLifecycleOwner) {
-            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
-            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-            binding.profileImageProfileFragment.setImageBitmap(bitmap)
+            Glide.with(this@ProfileFragment)
+                .load(BASE_URL +it.image)
+                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                .circleCrop()
+                .into(binding.profileImageProfileFragment)
 
             binding.usernameTv.text = it.name
             binding.distanseTv.text = roundFloat(it.statistics.totalDistanceInMeters.toFloat()/1000f, 3).toString()
             binding.totalKcalBurnedTv.text = it.statistics.totalCalories.toString()
             binding.totalTimeValueTv.text = TrackingUtility.getFormattedStopWatchTime(it.statistics.totalTime)
         }
-        when(viewModel.getUserRole()) {
-            UserType.Admin -> {
-                binding.premiumIconRatingItemIv.visibility = View.GONE
-                binding.adminIconRatingItemIv.visibility = View.VISIBLE
-                binding.containerCardProfile.visibility = View.GONE
-                binding.containerPremium.visibility = View.GONE
-                binding.borderView.visibility = View.GONE
-            }
-            UserType.Premium -> {
-                binding.premiumIconRatingItemIv.visibility = View.VISIBLE
-                binding.adminIconRatingItemIv.visibility = View.GONE
-                binding.containerCardProfile.visibility = View.VISIBLE
-                binding.containerPremium.visibility = View.VISIBLE
-                binding.tvGetPremium.text = "Отменить премиум"
-            }
-            UserType.Normal -> {
-                binding.premiumIconRatingItemIv.visibility = View.GONE
-                binding.adminIconRatingItemIv.visibility = View.GONE
-                binding.containerCardProfile.visibility = View.VISIBLE
-                binding.containerPremium.visibility = View.VISIBLE
-                binding.tvGetPremium.text = "Купить премиум-подписку"
-            }
-            else -> Unit
+
+        viewModel.adminInfo.observe(viewLifecycleOwner) {
+            Glide.with(this@ProfileFragment)
+                .load(BASE_URL +it.image)
+                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                .circleCrop()
+                .into(binding.profileImageProfileFragment)
+
+            binding.usernameTv.text = it.name
         }
 
-        binding.tvGetPremium.text = if (isPremium) "Отменить премиум" else "Купить премиум-подписку"
+        viewModel.userRole.observe(viewLifecycleOwner) {
+            when(it) {
+                UserType.Admin -> {
+                    binding.premiumIconRatingItemIv.visibility = View.GONE
+                    binding.adminIconRatingItemIv.visibility = View.VISIBLE
+                    binding.containerCardProfile.visibility = View.GONE
+                    binding.containerPremium.visibility = View.GONE
+                    binding.borderView.visibility = View.GONE
+                }
+                UserType.Premium -> {
+                    binding.premiumIconRatingItemIv.visibility = View.VISIBLE
+                    binding.adminIconRatingItemIv.visibility = View.GONE
+                    binding.containerCardProfile.visibility = View.VISIBLE
+                    binding.containerPremium.visibility = View.VISIBLE
+                    binding.tvGetPremium.text = "Отменить премиум"
+                    binding.containerPremium.setOnClickListener {
+                        viewModel.cancelPremium()
+                    }
+                }
+                UserType.Normal -> {
+                    binding.premiumIconRatingItemIv.visibility = View.GONE
+                    binding.adminIconRatingItemIv.visibility = View.GONE
+                    binding.containerCardProfile.visibility = View.VISIBLE
+                    binding.containerPremium.visibility = View.VISIBLE
+                    binding.tvGetPremium.text = "Купить премиум-подписку"
+                    binding.containerPremium.setOnClickListener {
+                        findNavController().navigate(
+                            R.id.action_profileFragment_to_paymentFragment,
+                            savedInstanceState
+                        )
+                    }
+                }
+                else -> Unit
+            }
+        }
+
+
         binding.personalDataContainer.setOnClickListener {
             findNavController().navigate(
                 R.id.action_profileFragment_to_editProfileFragment,
                 savedInstanceState
             )
         }
-        binding.containerPremium.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_profileFragment_to_paymentFragment,
-                savedInstanceState
-            )
-        }
+
 
         binding.errorLayoutButton.setOnClickListener {
             viewModel.loadProfileForWeek()
+            viewModel.getUserRole()
         }
         binding.signOutButton.setOnClickListener {
             viewModel.signOut()

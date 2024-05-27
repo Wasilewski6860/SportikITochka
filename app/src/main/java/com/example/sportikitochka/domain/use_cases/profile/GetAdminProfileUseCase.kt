@@ -5,5 +5,5 @@ import com.example.sportikitochka.domain.repositories.ProfileRepository
 
 class GetAdminProfileUseCase(private val profileRepository: ProfileRepository) {
 
-    suspend fun execute(userProfileRequest: UserProfileRequest) = profileRepository.getUserProfileRemote(userProfileRequest)
+    suspend fun execute() = profileRepository.getAdminProfileUseCase()
 }

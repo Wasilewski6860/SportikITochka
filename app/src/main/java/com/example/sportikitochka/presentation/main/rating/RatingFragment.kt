@@ -9,8 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentRatingBinding
 import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.other.ConnectionLiveData
@@ -48,7 +52,7 @@ class RatingFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupRecyclerView()
-//        AppMetrica.reportEvent("Rating screen viewed")
+        AppMetrica.reportEvent("Rating screen viewed")
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
             if (it) {
@@ -68,10 +72,12 @@ class RatingFragment : Fragment() {
             binding.profileYou.text = "Вы, "
             binding.profileNameRaiting.text = it.name
 
-            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
 
-            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-            binding.profileImageRaiting.setImageBitmap(bitmap)
+            Glide.with(this@RatingFragment)
+                .load(EndPoints.BASE_URL +it.image)
+                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                .circleCrop()
+                .into(binding.profileImageRaiting)
 
             when(viewModel.getType()) {
                 is UserType.Normal -> {

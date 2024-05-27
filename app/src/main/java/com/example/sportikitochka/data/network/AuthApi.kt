@@ -31,6 +31,6 @@ interface AuthApi {
     @POST(EndPoints.ADMIN_REGISTER)
     suspend fun adminRegister(
         @Header("email") email: String,
-        @Body registerRequest: AdminRegisterRequest
+        @Body userData: RequestBody
     ): Response<AdminRegisterResponse>
 }

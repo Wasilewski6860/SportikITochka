@@ -16,5 +16,5 @@ interface ActivityRepository {
 
     suspend fun addActivityRemote(sportActivity: SportActivity,  image: File) : Response<AddActivityResponse>
     //    suspend fun deleteActivityRemote(token: String, addActivityRequest: AddActivityRequest) : Response<TaskResponse>
-    suspend fun getAllActivitiesRemote()  : Response<ActivitiesResponse>
+    suspend fun getAllActivitiesRemote()  : Response<List<ActivityResponse>>
 }

@@ -90,7 +90,11 @@ val presentationModule = module {
         ProfileViewModel(
             getUserRoleUseCase = get(),
             signOutUseCase = get(),
-            getProfileUseCase = get()
+            getProfileUseCase = get(),
+            cancelPremiumUseCase = get(),
+            saveSessionUseCase = get(),
+            getSessionUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 
@@ -107,12 +111,11 @@ val presentationModule = module {
 
     viewModel<PaymentViewModel> {
         PaymentViewModel(
-            addCardUseCase = get(),
             buyPremiumUseCase = get(),
-            deleteCardUseCase = get(),
-            editCardUseCase = get(),
             getAllCardsUseCase = get(),
-            changeUserTypeUseCase = get()
+            changeUserTypeUseCase = get(),
+            saveSessionUseCase = get(),
+            getSessionUseCase = get()
         )
     }
 

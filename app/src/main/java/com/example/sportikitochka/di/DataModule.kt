@@ -151,36 +151,6 @@ val dataModule = module {
         ),
     )
 
-    val cards = mutableListOf<CreditCardResponse>(
-        CreditCardResponse(
-            "ARTIM BARYSHEV",
-            "2201700161794921",
-            11,
-            16,
-            1234
-        ),
-        CreditCardResponse(
-            "ARTIM IVANOV",
-            "2201700161794775",
-            11,
-            12,
-            1294
-        ),
-        CreditCardResponse(
-            "ARTIM PETROV",
-            "2201700161794777",
-            4,
-            11,
-            1134
-        ),
-        CreditCardResponse(
-            "ARTIM HANIN",
-            "2101775161794888",
-            11,
-            11,
-            1244
-        )
-    )
     val users = listOf<User>(
         User(
             id = 0,
@@ -257,50 +227,50 @@ val dataModule = module {
         )
     )
 
-    var premiumStatistic =  PremiumStatisticsResponse(
-        totalDistanceInMeters = 100000,
-        totalTime = 442414141L,
-        totalCalories = 1332L,
-        avgSpeed = 10F,
-        activities = mutableListOf(
-            SportActivityStatistic(
-                id = 0,
-                timestamp = Calendar.getInstance().timeInMillis,
-                avgSpeed = 14.4F,
-                distanceInMeters = 10321,
-                timeInMillis = (212141L)*20,
-                caloriesBurned = 101,
-                activityType = ActivityType.RUNNING.toString()
-            ),
-            SportActivityStatistic(
-                id = 1,
-                timestamp = Calendar.getInstance().timeInMillis - 10000000000,
-                avgSpeed = 13.4F,
-                distanceInMeters = 10380,
-                timeInMillis = 212141L*20,
-                caloriesBurned = 100,
-                activityType = ActivityType.BYCICLE.toString()
-            ),
-            SportActivityStatistic(
-                id = 2,
-                timestamp = Calendar.getInstance().timeInMillis-14000000000,
-                avgSpeed = 15.4F,
-                distanceInMeters = 9321,
-                timeInMillis = 112141L*20,
-                caloriesBurned = 120,
-                activityType = ActivityType.SWIMMING.toString()
-            ),
-            SportActivityStatistic(
-                id = 3,
-                timestamp = Calendar.getInstance().timeInMillis - 19000000000,
-                avgSpeed = 15.4F,
-                distanceInMeters = 8354,
-                timeInMillis = 112141L*20,
-                caloriesBurned = 132,
-                activityType = ActivityType.SWIMMING.toString()
-            )
-        )
-    )
+//    var premiumStatistic =  PremiumStatisticsResponse(
+//        totalDistanceInMeters = 100000,
+//        totalTime = 442414141L,
+//        totalCalories = 1332L,
+//        avgSpeed = 10F,
+//        activities = mutableListOf(
+//            SportActivityStatistic(
+//                id = 0,
+//                timestamp = Calendar.getInstance().timeInMillis,
+//                avgSpeed = 14.4F,
+//                distanceInMeters = 10321,
+//                timeInMillis = (212141L)*20,
+//                caloriesBurned = 101,
+//                activityType = ActivityType.RUNNING.toString()
+//            ),
+//            SportActivityStatistic(
+//                id = 1,
+//                timestamp = Calendar.getInstance().timeInMillis - 10000000000,
+//                avgSpeed = 13.4F,
+//                distanceInMeters = 10380,
+//                timeInMillis = 212141L*20,
+//                caloriesBurned = 100,
+//                activityType = ActivityType.BYCICLE.toString()
+//            ),
+//            SportActivityStatistic(
+//                id = 2,
+//                timestamp = Calendar.getInstance().timeInMillis-14000000000,
+//                avgSpeed = 15.4F,
+//                distanceInMeters = 9321,
+//                timeInMillis = 112141L*20,
+//                caloriesBurned = 120,
+//                activityType = ActivityType.SWIMMING.toString()
+//            ),
+//            SportActivityStatistic(
+//                id = 3,
+//                timestamp = Calendar.getInstance().timeInMillis - 19000000000,
+//                avgSpeed = 15.4F,
+//                distanceInMeters = 8354,
+//                timeInMillis = 112141L*20,
+//                caloriesBurned = 132,
+//                activityType = ActivityType.SWIMMING.toString()
+//            )
+//        )
+//    )
 
     var adminStatisticResponse = AdminStatisticsResponse(
         totalUsers = 100,
@@ -376,6 +346,46 @@ val dataModule = module {
             .build()
             .create(UserDataApi::class.java)
     }
+
+    single<UserApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setLenient()
+                        .create()
+                ))
+            .build()
+            .create(UserApi::class.java)
+    }
+
+    single<AdminActionApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setLenient()
+                        .create()
+                ))
+            .build()
+            .create(AdminActionApi::class.java)
+    }
+
+    single<StatisticsApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setLenient()
+                        .create()
+                ))
+            .build()
+            .create(StatisticsApi::class.java)
+    }
+
 //    single<AuthApi> {
 //        object : AuthApi {
 //            override suspend fun login(loginRequest: LoginRequest): Response<LoginResponse> {
@@ -529,126 +539,128 @@ val dataModule = module {
 //        }
 //    }
 
-    single<AdminActionApi> {
-        object : AdminActionApi {
-            override suspend fun adminAction(
-                token: String,
-                adminActionRequest: AdminActionRequest
-            ): Response<AdminActionResponse> {
-                when(adminActionRequest.action) {
-                    AdminAction.GRANT_PREMIUM.action -> {
-                        for (user in users) {
-                            if (user.id == adminActionRequest.user_id.toInt()) {
-                                user.role = UserType.Premium
-                                return Response.success(
-                                    AdminActionResponse(
-                                        success = true,
-                                        action = AdminAction.GRANT_PREMIUM.action,
-                                        timestamp = 0L
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    AdminAction.REVOKE_PREMIUM.action -> {
-                        for (user in users) {
-                            if (user.id == adminActionRequest.user_id.toInt()) {
-                                user.role = UserType.Normal
-                                return Response.success(
-                                    AdminActionResponse(
-                                        success = true,
-                                        action = AdminAction.REVOKE_PREMIUM.action,
-                                        timestamp = 0L
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    AdminAction.BLOCK.action -> {
-                        for (user in users) {
-                            if (user.id == adminActionRequest.user_id.toInt()) {
-                                user.isBlocked = true
-                                Response.success(
-                                    AdminActionResponse(
-                                        success = true,
-                                        action = AdminAction.BLOCK.action,
-                                        timestamp = 0L
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    AdminAction.UNBLOCK.action -> {
-                        for (user in users) {
-                            if (user.id == adminActionRequest.user_id.toInt()) {
-                                user.isBlocked = false
-                                return Response.success(
-                                    AdminActionResponse(
-                                        success = true,
-                                        action = AdminAction.UNBLOCK.action,
-                                        timestamp = 0L
-                                    )
-                                )
-                            }
-                        }
-                    }
+//    single<AdminActionApi> {
+//        object : AdminActionApi {
+//            override suspend fun adminAction(
+//                token: String,
+//                adminActionRequest: AdminActionRequest
+//            ): Response<AdminActionResponse> {
+//                when(adminActionRequest.action) {
+//                    AdminAction.GRANT_PREMIUM.action -> {
+//                        for (user in users) {
+//                            if (user.id == adminActionRequest.user_id.toInt()) {
+//                                user.role = UserType.Premium
+//                                return Response.success(
+//                                    AdminActionResponse(
+//                                        success = true,
+//                                        action = AdminAction.GRANT_PREMIUM.action,
+//                                        timestamp = 0L
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                    AdminAction.REVOKE_PREMIUM.action -> {
+//                        for (user in users) {
+//                            if (user.id == adminActionRequest.user_id.toInt()) {
+//                                user.role = UserType.Normal
+//                                return Response.success(
+//                                    AdminActionResponse(
+//                                        success = true,
+//                                        action = AdminAction.REVOKE_PREMIUM.action,
+//                                        timestamp = 0L
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                    AdminAction.BLOCK.action -> {
+//                        for (user in users) {
+//                            if (user.id == adminActionRequest.user_id.toInt()) {
+//                                user.isBlocked = true
+//                                Response.success(
+//                                    AdminActionResponse(
+//                                        success = true,
+//                                        action = AdminAction.BLOCK.action,
+//                                        timestamp = 0L
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                    AdminAction.UNBLOCK.action -> {
+//                        for (user in users) {
+//                            if (user.id == adminActionRequest.user_id.toInt()) {
+//                                user.isBlocked = false
+//                                return Response.success(
+//                                    AdminActionResponse(
+//                                        success = true,
+//                                        action = AdminAction.UNBLOCK.action,
+//                                        timestamp = 0L
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                    else -> {
+//                        // Создаем объект ResponseBody для передачи ошибки
+//                        val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
+//                        // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
+//                        val response = Response.error<AdminActionResponse>(400, errorResponseBody)
+//                        return response
+//                    }
+//                }
+//
+//                // Создаем объект ResponseBody для передачи ошибки
+//                val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
+//                // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
+//                val response = Response.error<AdminActionResponse>(400, errorResponseBody)
+//                return response
+//            }
+//
+//        }
+//    }
 
-                    else -> {
-                        // Создаем объект ResponseBody для передачи ошибки
-                        val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
-                        // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
-                        val response = Response.error<AdminActionResponse>(400, errorResponseBody)
-                        return response
-                    }
-                }
 
-                // Создаем объект ResponseBody для передачи ошибки
-                val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
-                // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
-                val response = Response.error<AdminActionResponse>(400, errorResponseBody)
-                return response
-            }
 
-        }
-    }
-
-    single<UserApi> {
-        object :UserApi {
-            override suspend fun getUsers(token: String): Response<List<UserResponse>> {
-                Handler().postDelayed({},3000)
-                return Response.success(
-                    users.map {
-                            user ->
-                        UserResponse(
-                            id = user.id,
-                            name = user.name,
-                            role = user.role.toString(),
-                            image = user.image,
-                            rating = user.place,
-                            totalCount = user.totalCount,
-                            totalDistanse = user.totalDistanse,
-                            totalTime = user.totalTime,
-                            totalCalories = user.totalCalories,
-                            averageDistanse = user.averageDistanse,
-                            averageCalories = user.averageCalories,
-                            averageTime = user.averageTime,
-                            achievements = user.achievements.map {
-                                    it -> AchievementResponse(
-                                it.achievementId,
-                                it.achievementName,
-                                it.achievementImage,
-                                it.achievementDistance
-                            )
-                            },
-                            isBlocked = user.isBlocked,
-                            averageSpeed = user.averageDistanse/user.averageTime//TODO
-                        )
-                    }
-                )
-            }
-
-        }
-    }
+//    single<UserApi> {
+//        object :UserApi {
+//            override suspend fun getUsers(token: String): Response<List<UserResponse>> {
+//                Handler().postDelayed({},3000)
+//                return Response.success(
+//                    users.map {
+//                            user ->
+//                        UserResponse(
+//                            id = user.id,
+//                            name = user.name,
+//                            role = user.role.toString(),
+//                            image = user.image,
+//                            rating = user.place,
+//                            totalCount = user.totalCount,
+//                            totalDistanse = user.totalDistanse,
+//                            totalTime = user.totalTime,
+//                            totalCalories = user.totalCalories,
+//                            averageDistanse = user.averageDistanse,
+//                            averageCalories = user.averageCalories,
+//                            averageTime = user.averageTime,
+//                            achievements = user.achievements.map {
+//                                    it -> AchievementResponse(
+//                                it.achievementId,
+//                                it.achievementName,
+//                                it.achievementImage,
+//                                it.achievementDistance
+//                            )
+//                            },
+//                            isBlocked = user.isBlocked,
+//                            averageSpeed = user.averageDistanse/user.averageTime//TODO
+//                        )
+//                    }
+//                )
+//            }
+//
+//        }
+//    }
 
     single<UserDataApi> {
         Retrofit.Builder()
@@ -676,6 +688,18 @@ val dataModule = module {
             .create(ActivitiesApi::class.java)
     }
 
+    single<PaymentApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setLenient()
+                        .create()
+                ))
+            .build()
+            .create(PaymentApi::class.java)
+    }
 //    single<UserDataApi> {
 //        object: UserDataApi {
 //            override suspend fun getUserData(token: String): Response<UserDataResponse> {
@@ -737,103 +761,29 @@ val dataModule = module {
 //        }
 //    }
 
-    single<PaymentApi> {
-        object : PaymentApi {
-            override suspend fun getAllCards(token: String): Response<List<CreditCardResponse>> {
-                return Response.success(
-                    cards
-                )
-            }
 
-            override suspend fun addCard(
-                token: String,
-                addCardRequest: AddCardRequest
-            ): Response<CardOperationResponse> {
-                cards.add(CreditCardResponse(addCardRequest.cardName, addCardRequest.cardNumber, addCardRequest.month, addCardRequest.year, addCardRequest.cvv))
-                return Response.success(
-                    CardOperationResponse(true, 0L)
-                )
-            }
-
-            override suspend fun editCard(
-                token: String,
-                editCardRequest: EditCardRequest
-            ): Response<CardOperationResponse> {
-                for (card in cards) {
-                    if (card.cardNumber == editCardRequest.cardNumber) {
-                        card.cardName = editCardRequest.cardName
-                        card.cardNumber = editCardRequest.cardNumber
-                        card.month = editCardRequest.month
-                        card.year = editCardRequest.year
-                        card.cvv = editCardRequest.cvv
-                        return Response.success(
-                            CardOperationResponse(true, 0L)
-                        )
-                    }
-                }
-                val errorResponseBody = ResponseBody.create("application/json".toMediaTypeOrNull(), "Error message")
-                // Создаем неуспешный Response с кодом ошибки и объектом ResponseBody
-                val response = Response.error<CardOperationResponse>(400, errorResponseBody)
-                return response
-            }
-
-            override suspend fun deleteCard(
-                token: String,
-                deleteCardRequest: DeleteCardRequest
-            ): Response<CardOperationResponse> {
-                var i: Int =0
-                for (card in cards) {
-                    if (card.cardNumber == deleteCardRequest.cardNumber) {
-                        break
-                    }
-                    i++
-                }
-                cards.removeAt(i)
-                return Response.success(
-                    CardOperationResponse(true, 0L)
-                )
-            }
-
-            override suspend fun buyPremium(
-                token: String,
-                buyPremiumRequest: BuyPremiumRequest
-            ): Response<BuyPremiumResponse> {
-                userRole = UserType.Premium
-                return Response.success(
-                    BuyPremiumResponse(true, 0L)
-                )
-            }
-
-            override suspend fun cancelPremium(token: String): Response<CancelPremiumResponse> {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-    }
-
-    single<StatisticsApi> {
-        object: StatisticsApi {
-            override suspend fun getPremiumStatistic(
-                token: String,
-                statisticsRequest: StatisticsRequest
-            ): Response<PremiumStatisticsResponse> {
-                return Response.success(
-                    premiumStatistic
-                )
-            }
-
-            override suspend fun getAdminStatistic(
-                token: String,
-                statisticsRequest: StatisticsRequest
-            ): Response<AdminStatisticsResponse> {
-                return Response.success(
-                    adminStatisticResponse
-                )
-            }
-
-        }
-    }
+//    single<StatisticsApi> {
+//        object: StatisticsApi {
+//            override suspend fun getPremiumStatistic(
+//                token: String,
+//                statisticsRequest: StatisticsRequest
+//            ): Response<PremiumStatisticsResponse> {
+//                return Response.success(
+//                    premiumStatistic
+//                )
+//            }
+//
+//            override suspend fun getAdminStatistic(
+//                token: String,
+//                statisticsRequest: StatisticsRequest
+//            ): Response<AdminStatisticsResponse> {
+//                return Response.success(
+//                    adminStatisticResponse
+//                )
+//            }
+//
+//        }
+//    }
 
 
     single<PreferencesRepository> { PreferencesRepositoryImpl(context = get()) }

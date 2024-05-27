@@ -47,7 +47,7 @@ class SignInFragment : Fragment() {
         if (viewModel.isLogged()){
             val data = viewModel.getUserRole()
             if (data!=null) {
-//                AppMetrica.reportEvent("Sign in", data.toString())
+                AppMetrica.reportEvent("Sign in", data.toString())
                 val intent = Intent(activity, MainActivity::class.java)
                 intent.putExtra(USER_TYPE_KEY, data.toString())
                 startActivity(intent) // запускаем новую активность

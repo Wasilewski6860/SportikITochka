@@ -27,10 +27,10 @@ class App: Application() {
 //        com.yandex.mapkit.MapKitFactory.setApiKey(toString)
 //        com.yandex.mapkit.MapKitFactory.initialize(this)
 ////        0ee9624d-3997-4356-94d4-052ff53bb44d
-//        val config = AppMetricaConfig.newConfigBuilder("0ee9624d-3997-4356-94d4-052ff53bb44d").build()
+        val config = AppMetricaConfig.newConfigBuilder("0ee9624d-3997-4356-94d4-052ff53bb44d").build()
 //        // Initializing the AppMetrica SDK.
-//        AppMetrica.activate(this, config)
-//        AppMetrica.enableActivityAutoTracking(this)
+        AppMetrica.activate(this, config)
+        AppMetrica.enableActivityAutoTracking(this)
 
 //        VK
 //        MapGlobalConfig.setMapGlobalConfig(

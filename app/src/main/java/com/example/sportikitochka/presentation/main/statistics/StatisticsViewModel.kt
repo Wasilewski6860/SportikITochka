@@ -17,6 +17,7 @@ import com.example.sportikitochka.domain.use_cases.statistic.GetPremiumStatistic
 import com.example.sportikitochka.presentation.main.profile.ScreenProfileState
 import com.example.sportikitochka.presentation.main.rating.ScreenRatingState
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 import java.time.Period
 
@@ -51,13 +52,20 @@ class StatisticsViewModel(
                     else _screenState.postValue(StatisticScreenState.Error)
 
                 } else {
+                    var error = getPremiumStatisticsResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("PREMIUM_STATISTIC", it) }
                     _screenState.postValue(StatisticScreenState.Error)
                 }
             } catch (httpException: HttpException) {
-                Log.e("GET_PROFILE_HTTP_EXCEPTION", httpException.toString())
+                Log.e("PREMIUM_STATISTIC", httpException.toString())
                 _screenState.postValue(StatisticScreenState.Error)
             } catch (exception: Exception) {
-                Log.e("GET_PROFILE_EXCEPTION", exception.toString())
+                Log.e("PREMIUM_STATISTIC", exception.toString())
                 _screenState.postValue(StatisticScreenState.Error)
             }
         }
@@ -78,13 +86,20 @@ class StatisticsViewModel(
                     else _screenState.postValue(StatisticScreenState.Error)
 
                 } else {
+                    var error = getAdminStatisticsResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("ADMIN_STATISTIC", it) }
                     _screenState.postValue(StatisticScreenState.Error)
                 }
             } catch (httpException: HttpException) {
-                Log.e("GET_PROFILE_HTTP_EXCEPTION", httpException.toString())
+                Log.e("ADMIN_STATISTIC", httpException.toString())
                 _screenState.postValue(StatisticScreenState.Error)
             } catch (exception: Exception) {
-                Log.e("GET_PROFILE_EXCEPTION", exception.toString())
+                Log.e("ADMIN_STATISTIC", exception.toString())
                 _screenState.postValue(StatisticScreenState.Error)
             }
         }

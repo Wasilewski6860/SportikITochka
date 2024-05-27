@@ -10,7 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
+import com.example.sportikitochka.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.databinding.FragmentMainBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
@@ -138,10 +142,12 @@ class MainFragment : Fragment() {
 
         viewModel.userProfile.observe(viewLifecycleOwner) {
             binding.profileName.text = it.name
-            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
 
-            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-            binding.profileImage.setImageBitmap(bitmap)
+            Glide.with(this@MainFragment)
+                .load(BASE_URL+it.image)
+                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                .circleCrop()
+                .into(binding.profileImage)
         }
 
         binding.profileHello.text = "Привет, "
@@ -221,7 +227,7 @@ class MainFragment : Fragment() {
     }
 
     private fun setupRecyclerView() = binding.recycler.apply {
-        mainAdapter = MainAdapter()
+        mainAdapter = MainAdapter(requireContext())
         adapter = mainAdapter
         layoutManager = LinearLayoutManager(requireContext())
     }

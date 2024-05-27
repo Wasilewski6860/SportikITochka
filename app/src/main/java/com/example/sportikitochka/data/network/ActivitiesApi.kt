@@ -1,6 +1,7 @@
 package com.example.sportikitochka.data.network
 
 import com.example.sportikitochka.data.models.response.activities.ActivitiesResponse
+import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.AddActivityResponse
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -14,7 +15,7 @@ interface ActivitiesApi {
     @GET(EndPoints.ACTIVITIES)
     suspend fun getAllActivities(
         @Header("Authorization") token: String
-    ): Response<ActivitiesResponse>
+    ): Response<List<ActivityResponse>>
 
     @POST(EndPoints.ADD_ACTIVITY)
     suspend fun addActivity(

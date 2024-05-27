@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val deviceModel = Build.MODEL
-//        AppMetrica.reportEvent("Device model", deviceModel)
+        AppMetrica.reportEvent("Device model", deviceModel)
 //        val window: Window = getWindow()
 //        window.setBackgroundDrawableResource(R.drawable.background_image)
 

@@ -26,6 +26,7 @@ import com.example.sportikitochka.other.Constants.MAP_ZOOM
 import com.example.sportikitochka.other.Polyline
 import com.example.sportikitochka.other.TrackingService
 import com.example.sportikitochka.other.TrackingUtility
+import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.mapToActivityType
 import com.google.android.gms.maps.model.LatLngBounds
@@ -100,7 +101,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MapKitFactory.initialize(requireContext());
-//        AppMetrica.reportEvent("Tracking screen viewed")
+        AppMetrica.reportEvent("Tracking screen viewed")
         binding.tvTrackingTimeInfo.text = when(activityType) {
             ActivityType.RUNNING -> "Время пробежки"
             ActivityType.BYCICLE -> "Время велозаезда"
@@ -273,6 +274,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 //        binding.mapView.setDrawingCacheEnabled(false) // clear drawing cache
 
         val bitmap = binding.mapView.screenshot
+
         val string = bitmapToString(bitmap?: throw Exception(""))
 
 
@@ -290,6 +292,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+        val image = bitmapToFile(dateFormat.format(calendar.time),requireContext(), bitmap)
+
         val run = SportActivity(
             activityType = ActivityType.RUNNING,
             img = string,
@@ -299,7 +303,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             timeInMillis = timeInMillis,
             caloriesBurned = caloriesBurned
         )
-        viewModel.stopActivity(run)
+        viewModel.stopActivity(run, image)
         Snackbar.make(
             requireActivity().findViewById(R.id.rootViewMain),
             "Run saved successfully",

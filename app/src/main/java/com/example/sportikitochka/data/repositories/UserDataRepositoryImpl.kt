@@ -43,6 +43,17 @@ class UserDataRepositoryImpl(val userDataApi: UserDataApi,val sessionRepository:
 
     override suspend fun changeAdminData(changeAdminDataRequest: ChangeAdminDataRequest): Response<ChangeDataUserResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return userDataApi.changeAdminData("Bearer "+token, changeAdminDataRequest)
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("name", changeAdminDataRequest.name)
+            .addFormDataPart("phone", changeAdminDataRequest.phone)
+            .addFormDataPart("birthday", changeAdminDataRequest.birthday)
+            .addFormDataPart(
+                "image",
+                changeAdminDataRequest.image.name,
+                changeAdminDataRequest.image.asRequestBody("image/*".toMediaTypeOrNull())
+            )
+            .build()
+        return userDataApi.changeAdminData("Bearer "+token, requestBody)
     }
 }

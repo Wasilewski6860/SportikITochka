@@ -9,6 +9,7 @@ import com.example.sportikitochka.domain.use_cases.admin_action.GrantPremiumUseC
 import com.example.sportikitochka.domain.use_cases.admin_action.RevokePremiumUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.UnblockUserUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ChangeUserTypeUseCase
+import com.example.sportikitochka.domain.use_cases.auth.GetSessionUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
 import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
 import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
@@ -19,10 +20,8 @@ import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
 import com.example.sportikitochka.domain.use_cases.auth.ValidateEmailUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
 import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
-import com.example.sportikitochka.domain.use_cases.payment.AddCardUseCase
 import com.example.sportikitochka.domain.use_cases.payment.BuyPremiumUseCase
-import com.example.sportikitochka.domain.use_cases.payment.DeleteCardUseCase
-import com.example.sportikitochka.domain.use_cases.payment.EditCardUseCase
+import com.example.sportikitochka.domain.use_cases.payment.CancelPremiumUseCase
 import com.example.sportikitochka.domain.use_cases.payment.GetAllCardsUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetAdminProfileUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
@@ -36,7 +35,6 @@ import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyU
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.SaveUserDataUseCase
 import com.example.sportikitochka.domain.use_cases.users.GetAllUsersUseCase
-import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -81,10 +79,7 @@ val domainModule = module {
     factory<SignOutUseCase> { SignOutUseCase(sessionRepository = get(), activityRepository = get(), onboardingRepository = get()) }
 
 
-    factory<AddCardUseCase> { AddCardUseCase(paymentRepository = get()) }
     factory<BuyPremiumUseCase> { BuyPremiumUseCase(paymentRepository = get()) }
-    factory<DeleteCardUseCase> { DeleteCardUseCase(paymentRepository = get()) }
-    factory<EditCardUseCase> { EditCardUseCase(paymentRepository = get()) }
     factory<GetAllCardsUseCase> { GetAllCardsUseCase(paymentRepository = get()) }
 
     factory<ChangeUserTypeUseCase> { ChangeUserTypeUseCase(authRepository = get(), sessionRepository = get()) }
@@ -93,4 +88,7 @@ val domainModule = module {
     factory<GetPremiumStatisticUseCase> { GetPremiumStatisticUseCase(statisticRepository = get()) }
     factory<RegisterAdminUseCase> { RegisterAdminUseCase(authRepository = get()) }
     factory<GetAdminProfileUseCase> { GetAdminProfileUseCase(profileRepository = get()) }
+
+    factory<GetSessionUseCase> { GetSessionUseCase(sessionRepository = get()) }
+    factory<CancelPremiumUseCase> { CancelPremiumUseCase(paymentRepository = get()) }
 }

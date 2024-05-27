@@ -1,5 +1,6 @@
 package com.example.sportikitochka.presentation.main.edit_profile
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -11,20 +12,26 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportactivityapp.other.DateFormatTextWatcher
 import com.example.sportactivityapp.other.PhoneFormatTextWatcher
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentEditProfileBinding
 import com.example.sportikitochka.databinding.FragmentProfileBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility
+import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
 import com.example.sportikitochka.other.TrackingUtility.roundFloat
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.TrackingUtility.uriToString
 import com.example.sportikitochka.other.WeightTextWatcher
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -40,6 +47,7 @@ class EditProfileFragment : Fragment() {
 
     private var image: MutableLiveData<String?> = MutableLiveData<String?>(null)
     private var imageString: String? = null
+    private var imageBitmap: Bitmap? = null
 
     private var name: String? = null
     private var birthday: String? = null
@@ -75,7 +83,7 @@ class EditProfileFragment : Fragment() {
                 val decodedString: ByteArray? = Base64.decode(it, Base64.DEFAULT)
 
                 val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-
+                imageBitmap = bitmap
 // Установка Bitmap в ImageView
                 binding.profileImage.setImageBitmap(bitmap)
             }
@@ -87,6 +95,12 @@ class EditProfileFragment : Fragment() {
 //                val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
 //                val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
 //                profileImage.setImageBitmap(bitmap)
+                Glide.with(this@EditProfileFragment)
+                    .load(EndPoints.BASE_URL +it.image)
+                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                    .circleCrop()
+                    .into(binding.profileImage)
+
                 image.postValue(it.image)
                 signUpName.setText(it.name)
                 val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
@@ -182,7 +196,7 @@ class EditProfileFragment : Fragment() {
             }
             else {
                 viewModel.changeUserData(
-                    name = name!!, image = imageString!!, weight = weight!!.toFloat(), phone = phone!!, birthday!!
+                    name = name!!, image = bitmapToFile(name!!,requireContext(), imageBitmap!!), weight = weight!!.toFloat(), phone = phone!!, birthday!!
                 )
             }
 
