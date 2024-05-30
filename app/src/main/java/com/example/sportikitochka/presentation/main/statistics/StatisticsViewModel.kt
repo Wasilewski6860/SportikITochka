@@ -80,6 +80,8 @@ class StatisticsViewModel(
                     var responseBody = getAdminStatisticsResponse.body()
 
                     if (responseBody != null) {
+                        responseBody.premiumUsers
+
                         _adminStatistic.postValue(responseBody!!)
                         _screenState.postValue(StatisticScreenState.Success)
                     }

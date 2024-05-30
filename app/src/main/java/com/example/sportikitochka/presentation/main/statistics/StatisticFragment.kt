@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.size
+import androidx.navigation.fragment.findNavController
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.request.profile.ProfilePeriod
 import com.example.sportikitochka.data.models.response.auth.UserType
@@ -54,6 +55,12 @@ class StatisticFragment : Fragment() {
 
 
         userType = viewModel.getType()
+        binding.tvGetPremiumStatistic.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_statisticFragment_to_paymentFragment,
+                savedInstanceState
+            )
+        }
         setContentVisible()
         when(userType) {
             UserType.Admin -> {
@@ -88,6 +95,8 @@ class StatisticFragment : Fragment() {
     private fun setContentVisible() {
         binding.loadingLayout.visibility = View.GONE
         binding.errorLayout.visibility = View.GONE
+
+
         when(userType) {
             UserType.Admin -> {
                 AppMetrica.reportEvent("Statistics admin viewed")

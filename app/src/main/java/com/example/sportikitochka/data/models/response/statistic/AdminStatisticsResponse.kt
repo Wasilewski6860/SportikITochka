@@ -3,9 +3,9 @@ package com.example.sportikitochka.data.models.response.statistic
 import com.google.gson.annotations.SerializedName
 
 data class AdminStatisticsResponse(
-    @SerializedName("total_users") val totalUsers: Int,
-    @SerializedName("premium_users") val premiumUsers: Int,
-    @SerializedName("graph_data") val graphData: List<GraphData>
+    @SerializedName("total_users") var totalUsers: Int,
+    @SerializedName("premium_users") var premiumUsers: Int,
+    @SerializedName("graph_data") var graphData: List<GraphData>
 )
 
 data class GraphData(

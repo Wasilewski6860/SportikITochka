@@ -86,7 +86,9 @@ class PaymentViewModel(
     ) {
         viewModelScope.launch {
             val list: MutableList<CreditCard>? = _cards.value?.toMutableList()
+            list?.removeLast()
             list?.add(CreditCard(cardName, cardNumber, month, year, cvv))
+            list?.add(CreditCard())
             list?.let {
                 _cards.postValue(it)
             }
@@ -135,7 +137,7 @@ class PaymentViewModel(
                 _screenState.value = ScreenPaymentState.BuyingError
             } catch (exception: Exception) {
                 Log.e("BUY PREMIUM", exception.toString())
-                if (exception.toString().startsWith("com.google.gson.JsonSyntaxException: java.lang.NumberFormatException: For input string:")) {
+                if (exception.toString().startsWith("java.lang.NumberFormatException: For input string:")) {
                     val session = getSessionUseCase.execute()
                     session?.role = UserType.Premium.toString()
                     session?.let {

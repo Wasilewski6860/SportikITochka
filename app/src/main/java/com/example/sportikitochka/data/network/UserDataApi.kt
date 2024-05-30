@@ -34,7 +34,7 @@ interface UserDataApi {
         @Body userData: RequestBody
     ): Response<ChangeDataUserResponse>
 
-    @PUT(EndPoints.CHANGE_USER_DATA)
+    @PUT(EndPoints.USER_DATA)
     suspend fun changeAdminData(
         @Header("Authorization") token: String,
         @Body userData: RequestBody

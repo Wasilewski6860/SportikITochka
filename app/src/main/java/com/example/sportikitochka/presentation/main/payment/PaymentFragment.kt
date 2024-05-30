@@ -1,28 +1,24 @@
 package com.example.sportikitochka.presentation.main.payment
 
-import android.graphics.BitmapFactory
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.databinding.FragmentMainBinding
 import com.example.sportikitochka.databinding.FragmentPaymentBinding
 import com.example.sportikitochka.domain.models.CreditCard
-import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.other.ConnectionLiveData
-import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
-import com.example.sportikitochka.presentation.main.main.MainAdapter
-import com.example.sportikitochka.presentation.main.main.MainViewModel
-import com.example.sportikitochka.presentation.main.rating.RatingAdapter
+import io.appmetrica.analytics.AppMetrica
+import io.appmetrica.analytics.Revenue
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import world.mappable.runtime.Runtime.getApplicationContext
+import java.util.Currency
+
 
 class PaymentFragment : Fragment() {
 
@@ -80,6 +76,16 @@ class PaymentFragment : Fragment() {
                     }
                 }
                 ScreenPaymentState.BuyingSuccess -> {
+
+                    AppMetrica.reportEvent("Premium bought")
+                    val revenue = Revenue.newBuilder(100, Currency.getInstance("RUB"))
+                        .withProductID("com.example.sportikitochka")
+                        .withQuantity(1)
+                        .build()
+                    // Sending the Revenue instance using reporter.
+                    AppMetrica.getReporter(getApplicationContext(), "0ee9624d-3997-4356-94d4-052ff53bb44d")
+                        .reportRevenue(revenue)
+
                     findNavController().navigate(
                         R.id.action_paymentFragment_to_profileFragment,
                         savedInstanceState

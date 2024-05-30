@@ -129,6 +129,7 @@ class ProfileFragment : Fragment() {
                     binding.containerPremium.visibility = View.VISIBLE
                     binding.tvGetPremium.text = "Отменить премиум"
                     binding.containerPremium.setOnClickListener {
+                        AppMetrica.reportEvent("Premium canceled")
                         viewModel.cancelPremium()
                     }
                 }
@@ -139,6 +140,7 @@ class ProfileFragment : Fragment() {
                     binding.containerPremium.visibility = View.VISIBLE
                     binding.tvGetPremium.text = "Купить премиум-подписку"
                     binding.containerPremium.setOnClickListener {
+                        AppMetrica.reportEvent("Profile screen opened")
                         findNavController().navigate(
                             R.id.action_profileFragment_to_paymentFragment,
                             savedInstanceState

@@ -10,5 +10,5 @@ data class AdminDataResponse(
     @SerializedName("phone")// В метрах
     val phone: String,
     @SerializedName("birthday")
-    val birthday: Long
+    val birthday: String
 )

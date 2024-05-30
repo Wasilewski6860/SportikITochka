@@ -23,7 +23,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
             app:cardNumber="5500005555555559"
-            app:cardName="Vinay Gaba"
+            app:cardName="NAME SURNAME"
             app:cardNumberTextColor="#cccccc"
             app:cardNumberFormat="all_digits"
             app:cardNameTextColor="#cccccc"
@@ -176,7 +176,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="6  423"
+                        android:text="300"
                         android:layout_weight="0.75"
                         android:gravity="center"
                         android:textSize="18sp"

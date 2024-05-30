@@ -38,7 +38,11 @@
         android:id="@+id/statisticFragment"
         android:name="com.example.sportikitochka.presentation.main.statistics.StatisticFragment"
         android:label="fragment_statistic"
-        tools:layout="@layout/fragment_statistic" />
+        tools:layout="@layout/fragment_statistic" >
+        <action
+            android:id="@+id/action_statisticFragment_to_paymentFragment"
+            app:destination="@id/paymentFragment" />
+    </fragment>
     <fragment
         android:id="@+id/selectActivityTypeFragment"
         android:name="com.example.sportikitochka.presentation.main.select_activity_type.SelectActivityTypeFragment"

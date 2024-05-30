@@ -67,7 +67,8 @@ val presentationModule = module {
             getProfileLocallyUseCase = get(),
             setPremiumUseCase = get(),
             removePremiumUseCase = get(),
-            getUserTypeUseCase = get()
+            getUserTypeUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 

@@ -226,6 +226,12 @@ class MainFragment : Fragment() {
         }
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchActivities()
+    }
+
     private fun setupRecyclerView() = binding.recycler.apply {
         mainAdapter = MainAdapter(requireContext())
         adapter = mainAdapter

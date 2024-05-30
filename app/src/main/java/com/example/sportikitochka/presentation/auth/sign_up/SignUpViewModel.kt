@@ -122,7 +122,7 @@ class SignUpViewModel(
     }
 
     fun isInputNameValid(text: String?): Boolean {
-        val regex = Regex("[^A-Za-z0-9 ]")
+        val regex = Regex("[^A-Za-zА-Яа-я0-9 ]")
         return !text.isNullOrBlank() && !regex.containsMatchIn(text)
     }
 

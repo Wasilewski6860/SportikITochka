@@ -64,42 +64,72 @@ class RatingFragment : Fragment() {
             }
 
         }
-
+        viewModel.getUserType()
         viewModel.loadUserProfile()
         viewModel.fetchUsers()
 
-        viewModel.userInfo.observe(viewLifecycleOwner) {
-            binding.profileYou.text = "Вы, "
-            binding.profileNameRaiting.text = it.name
+        when(viewModel.getType()) {
+            is UserType.Normal -> {
+                binding.isAdminTv.visibility = View.GONE
+                binding.raitingTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.GONE
+
+                viewModel.userInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
 
 
-            Glide.with(this@RatingFragment)
-                .load(EndPoints.BASE_URL +it.image)
-                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                .circleCrop()
-                .into(binding.profileImageRaiting)
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
 
-            when(viewModel.getType()) {
-                is UserType.Normal -> {
                     binding.isAdminTv.visibility = View.GONE
                     binding.raitingTv.visibility = View.VISIBLE
                     binding.premiumIvRating.visibility = View.GONE
                     binding.raitingTv.text="#"+it.rating
                 }
-                is UserType.Premium -> {
-                    binding.raitingTv.visibility = View.VISIBLE
-                    binding.raitingTv.text="#"+it.rating
-                    binding.premiumIvRating.visibility = View.VISIBLE
-                }
-                is UserType.Admin -> {
-                    binding.isAdminTv.visibility = View.VISIBLE
-                    binding.premiumIvRating.visibility = View.GONE
-                    binding.raitingTv.visibility = View.GONE
-                    binding.isAdminTv.text = "Вы админ"
-                }
-                else -> Unit
             }
+            is UserType.Premium -> {
+                binding.raitingTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.VISIBLE
+                viewModel.userInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
+
+
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
+
+                    binding.isAdminTv.visibility = View.GONE
+                    binding.raitingTv.visibility = View.VISIBLE
+                    binding.premiumIvRating.visibility = View.GONE
+                    binding.raitingTv.text="#"+it.rating
+                }
+            }
+            is UserType.Admin -> {
+                binding.isAdminTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.GONE
+                binding.raitingTv.visibility = View.GONE
+                binding.isAdminTv.text = "Вы админ"
+                viewModel.adminInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
+
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
+                }
+            }
+            else -> Unit
         }
+
 
 
         viewModel.screenState.observe(viewLifecycleOwner) {

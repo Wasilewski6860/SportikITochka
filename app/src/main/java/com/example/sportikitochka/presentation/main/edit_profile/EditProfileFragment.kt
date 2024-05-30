@@ -14,6 +14,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.ObjectKey
 import com.example.sportactivityapp.other.DateFormatTextWatcher
 import com.example.sportactivityapp.other.PhoneFormatTextWatcher
@@ -21,7 +23,6 @@ import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentEditProfileBinding
-import com.example.sportikitochka.databinding.FragmentProfileBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
@@ -30,6 +31,7 @@ import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.TrackingUtility.uriToString
 import com.example.sportikitochka.other.WeightTextWatcher
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.text.SimpleDateFormat
@@ -76,7 +78,7 @@ class EditProfileFragment : Fragment() {
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
         }
-
+        AppMetrica.reportEvent("Edit profile screen opened")
         image.observe(viewLifecycleOwner) {
             if (it!=null){
                 imageString = it
@@ -101,11 +103,27 @@ class EditProfileFragment : Fragment() {
                     .circleCrop()
                     .into(binding.profileImage)
 
+                Glide.with(this@EditProfileFragment)
+                    .asBitmap()
+                    .load(EndPoints.BASE_URL +it.image)
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            imageBitmap = resource
+                        }
+
+                    })
+
                 image.postValue(it.image)
                 signUpName.setText(it.name)
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-//                val dateString = dateFormat.format(it.birthday)
-                signUpBirthday.setText(it.birthday)
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd")
+                val outputFormat = SimpleDateFormat("dd.MM.yyyy")
+
+                val date = inputFormat.parse(it.birthday)
+                val outputDate = outputFormat.format(date)
+                signUpBirthday.setText(outputDate)
                 signUpPhone.setText(it.phone)
                 signUpCalories.setText(it.weight.toString())
             }
@@ -149,6 +167,7 @@ class EditProfileFragment : Fragment() {
                     )
                 }
                 ScreenEditProfileState.Success -> {
+                    AppMetrica.reportEvent("Profile changed")
                     findNavController().navigate(
                         R.id.action_editProfileFragment_to_profileFragment,
                         savedInstanceState
@@ -191,7 +210,7 @@ class EditProfileFragment : Fragment() {
             else if (!viewModel.isInputPhoneValid(phone)) {
                 showSnackbar("Неверно введен телефонный номер", requireActivity().findViewById(R.id.rootViewMain))
             }
-            else if (!viewModel.isInputWeightValid(weight) || viewModel.getUserRole() == UserType.Admin) {
+            else if (!viewModel.isInputWeightValid(weight) && viewModel.getUserRole() != UserType.Admin) {
                 showSnackbar("Неверно введен вес", requireActivity().findViewById(R.id.rootViewMain))
             }
             else {

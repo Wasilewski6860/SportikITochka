@@ -160,6 +160,13 @@ class EditProfileViewModel(
                 if (saveResponse.isSuccessful) {
                     _screenState.postValue(ScreenEditProfileState.Success)
                 } else {
+                    var error = saveResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("CHANGE_USER_DATA", it) }
                     _screenState.postValue(ScreenEditProfileState.Error)
                 }
             } catch (httpException: HttpException) {
@@ -173,7 +180,7 @@ class EditProfileViewModel(
     }
 
     fun isInputNameValid(text: String?): Boolean {
-        val regex = Regex("[^A-Za-z0-9 ]")
+        val regex = Regex("[^A-Za-zА-Яа-я0-9 ]")
         return !text.isNullOrBlank() && !regex.containsMatchIn(text)
     }
 

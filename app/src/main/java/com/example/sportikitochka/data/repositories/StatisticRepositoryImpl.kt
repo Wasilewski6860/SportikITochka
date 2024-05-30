@@ -16,6 +16,7 @@ class StatisticRepositoryImpl(private val sessionRepository: SessionRepository, 
 
     override suspend fun getAdminStatistic(statisticsRequest: StatisticsRequest): Response<AdminStatisticsResponse> {
         val token = sessionRepository.getSession()!!.accessToken
-        return statisticsApi.getAdminStatistic("Bearer "+token, statisticsRequest.period)
+        val list =  statisticsApi.getAdminStatistic("Bearer "+token, statisticsRequest.period)
+        return list
     }
 }
