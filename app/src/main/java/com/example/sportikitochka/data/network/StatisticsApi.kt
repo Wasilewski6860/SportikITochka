@@ -7,20 +7,22 @@ import com.example.sportikitochka.data.models.response.statistic.AdminStatistics
 import com.example.sportikitochka.data.models.response.statistic.PremiumStatisticsResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface StatisticsApi {
 
-    @POST(EndPoints.PREMIUM_STATISTIC)
+    @GET(EndPoints.PREMIUM_STATISTIC)
     suspend fun getPremiumStatistic(
-        @Header("аuthorization") token: String,
-        @Body statisticsRequest: StatisticsRequest,
+        @Header("Authorization") token: String,
+        @Query("period") statisticsRequest: String,
     ): Response<PremiumStatisticsResponse>
 
-    @POST(EndPoints.ADMIN_STATISTIC)
+    @GET(EndPoints.ADMIN_STATISTIC)
     suspend fun getAdminStatistic(
-        @Header("аuthorization") token: String,
-        @Body statisticsRequest: StatisticsRequest,
+        @Header("Authorization") token: String,
+        @Query("period") statisticsRequest: String,
     ): Response<AdminStatisticsResponse>
 }

@@ -21,7 +21,9 @@ import com.example.sportikitochka.domain.use_cases.user_data.GetAdminDataUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -90,12 +92,23 @@ class EditProfileViewModel(
                         }
 
                     } else {
+                        val error = userDataResponse.errorBody()?.source()?.let { source ->
+                            Buffer().use { buffer ->
+                                source.readAll(buffer)
+                                buffer.readUtf8()
+                            }
+                        }
+                        error?.let { Log.e("GET USER DATA REMOTE ERROR", it) }
+
                         val userData = getUserDataLocallyUseCase.execute()
                         if (userData != null) {
                             _userInfo.postValue(userData!!)
                             _screenState.postValue(ScreenEditProfileState.LoadingSuccessLocal)
                         }
-                        else _screenState.postValue(ScreenEditProfileState.LoadingError)
+                        else {
+                            error?.let { Log.e("GET USER DATA LOCAL ERROR", it) }
+                            _screenState.postValue(ScreenEditProfileState.LoadingError)
+                        }
                     }
                 }
 
@@ -111,7 +124,7 @@ class EditProfileViewModel(
 
     fun changeUserData(
         name: String,
-        image: String,
+        image: File,
         weight: Float?,
         phone: String,
         birthday: String
@@ -119,9 +132,8 @@ class EditProfileViewModel(
         viewModelScope.launch {
             try {
 
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()) // формат даты
-                val date = dateFormat.parse(birthday) // парсинг даты из строки
-                val timestamp = date.time // получение времени в миллисекундах
+
+                val convertedBirthday = convertDateFormat(birthday)
 
                 val saveResponse = if (getUserRole() == UserType.Admin) {
                     changeAdminDataUseCase.execute(
@@ -129,7 +141,7 @@ class EditProfileViewModel(
                             name = name,
                             image = image,
                             phone = phone,
-                            birthday = timestamp
+                            birthday = convertedBirthday
                         )
                     )
                 }
@@ -140,7 +152,7 @@ class EditProfileViewModel(
                             image = image,
                             weight = weight!!.toInt(), //TODO
                             phone = phone,
-                            birthday = timestamp.toString() //TODO
+                            birthday = convertedBirthday
                         )
                     )
                 }
@@ -148,6 +160,13 @@ class EditProfileViewModel(
                 if (saveResponse.isSuccessful) {
                     _screenState.postValue(ScreenEditProfileState.Success)
                 } else {
+                    var error = saveResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("CHANGE_USER_DATA", it) }
                     _screenState.postValue(ScreenEditProfileState.Error)
                 }
             } catch (httpException: HttpException) {
@@ -161,7 +180,7 @@ class EditProfileViewModel(
     }
 
     fun isInputNameValid(text: String?): Boolean {
-        val regex = Regex("[^A-Za-z0-9 ]")
+        val regex = Regex("[^A-Za-zА-Яа-я0-9 ]")
         return !text.isNullOrBlank() && !regex.containsMatchIn(text)
     }
 
@@ -178,6 +197,13 @@ class EditProfileViewModel(
         return !text.isNullOrBlank()
     }
 
+    fun convertDateFormat(date: String): String {
+        val inputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val parsedDate = inputFormat.parse(date)
+        return outputFormat.format(parsedDate)
+    }
 }
 
 sealed class ScreenEditProfileState {

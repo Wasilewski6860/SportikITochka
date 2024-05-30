@@ -5,6 +5,7 @@ import com.example.sportikitochka.data.models.response.activities.ActivityRespon
 import com.example.sportikitochka.data.models.response.activities.AddActivityResponse
 import com.example.sportikitochka.domain.models.SportActivity
 import retrofit2.Response
+import java.io.File
 
 interface ActivityRepository {
 
@@ -13,7 +14,7 @@ interface ActivityRepository {
     suspend fun getActivity(id: Int): SportActivity
     suspend fun clearAll()
 
-    suspend fun addActivityRemote(sportActivity: SportActivity) : Response<AddActivityResponse>
+    suspend fun addActivityRemote(sportActivity: SportActivity,  image: File) : Response<AddActivityResponse>
     //    suspend fun deleteActivityRemote(token: String, addActivityRequest: AddActivityRequest) : Response<TaskResponse>
-    suspend fun getAllActivitiesRemote()  : Response<ActivitiesResponse>
+    suspend fun getAllActivitiesRemote()  : Response<List<ActivityResponse>>
 }

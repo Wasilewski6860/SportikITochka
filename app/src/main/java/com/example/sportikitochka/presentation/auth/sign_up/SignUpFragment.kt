@@ -21,6 +21,7 @@ import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.databinding.FragmentSignUpBinding
 import com.example.sportikitochka.other.ConnectionLiveData
+import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.WeightTextWatcher
 import io.appmetrica.analytics.AppMetrica
@@ -29,6 +30,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -51,6 +53,7 @@ class SignUpFragment : Fragment() {
     }
     private var image: MutableLiveData<String?> = MutableLiveData<String?>(null)
     private var imageString: String? = null
+    private var imageBitmap: Bitmap? = null
 
     private var isEmailPassed = false
 
@@ -87,7 +90,7 @@ class SignUpFragment : Fragment() {
                 val decodedString: ByteArray? = Base64.decode(it, Base64.DEFAULT)
 
                 val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-
+                imageBitmap = bitmap
 // Установка Bitmap в ImageView
                 binding.profileImage.setImageBitmap(bitmap)
             }
@@ -132,7 +135,7 @@ class SignUpFragment : Fragment() {
                     eventParameters["name"] = name.toString()
                     eventParameters["role"] = if (isAdmin) UserType.Admin.toString() else UserType.Normal.toString()
 //
-//                    AppMetrica.reportEvent("New user", eventParameters)
+                    AppMetrica.reportEvent("New user", eventParameters)
 
 //                    YandexMetrica.reportEvent("New user", eventParameters)
 
@@ -249,7 +252,11 @@ class SignUpFragment : Fragment() {
         }
         else {
             viewModel.signUp(
-                name!!, email!!, password!!, birthday!!, phone!!, weight!!, imageString!!, isAdmin
+                name!!, email!!, password!!, birthday!!, phone!!, weight!!, TrackingUtility.bitmapToFile(
+                    name!!,
+                    requireContext(),
+                    imageBitmap!!
+                ), isAdmin
             )
         }
     }

@@ -2,6 +2,7 @@ package com.example.sportikitochka.data.network
 
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
 import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
+import com.example.sportikitochka.data.models.response.profile.AdminProfileResponse
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
 import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
@@ -19,4 +20,9 @@ interface UserProfileApi {
         @Header("Authorization") token: String,
         @Query("period") period: String
     ): Response<UserProfileResponse>
+
+    @GET(EndPoints.ADMIN_PROFILE)
+    suspend fun getAdminProfile(
+        @Header("Authorization") token: String
+    ): Response<AdminProfileResponse>
 }

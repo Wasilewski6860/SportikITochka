@@ -14,6 +14,7 @@ import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
+import java.io.File
 
 class TrackingViewModel(
     private val addActivityRemoteUseCase: AddActivityRemoteUseCase,
@@ -29,12 +30,12 @@ class TrackingViewModel(
     val weight: Float? = getUserDataLocallyUseCase.execute()?.weight
 
 
-    fun stopActivity(activity: SportActivity) {
+    fun stopActivity(activity: SportActivity, image: File) {
         _screenState.value = ScreenTrackingState.Loading
 
         viewModelScope.launch {
             try {
-                val result = addActivityRemoteUseCase.execute(activity)
+                val result = addActivityRemoteUseCase.execute(activity, image)
                 if (result.isSuccessful){
                     _screenState.value = ScreenTrackingState.Success
                 }

@@ -21,7 +21,7 @@ data class UserResponse(
     @SerializedName("average_time") val averageTime: Long,
     @SerializedName("average_calories") val averageCalories: Long,
     @SerializedName("is_blocked") val isBlocked: Boolean,
-    @SerializedName("achievements") val achievements: List<AchievementResponse> = listOf(),
+    @SerializedName("achievements") val achievements: List<AchievementResponse>,
 )
 
 
@@ -40,6 +40,6 @@ fun UserResponse.mapToUser(): User {
         averageTime = this.averageTime,
         averageCalories = this.averageCalories,
         achievements = this.achievements.map { it -> it.mapToAchievement() },
-//        isBlocked = this.isBlocked
+        isBlocked = this.isBlocked
     )
 }

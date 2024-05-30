@@ -7,9 +7,7 @@ data class AdminActionResponse(
     @SerializedName("success")
     var success: Boolean,
     @SerializedName("action")
-    var action: String, //"grant_premium" // или "revoke_premium" для отмены премиума, "block" для блокировки или "unblock" для снятия блокировки
-    @SerializedName("timestamp")
-    var timestamp: Long
+    var action: String,
 ) {
     fun isSuccess(): Boolean = success
 }

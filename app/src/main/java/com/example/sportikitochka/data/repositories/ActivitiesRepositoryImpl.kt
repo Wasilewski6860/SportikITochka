@@ -1,5 +1,6 @@
 package com.example.sportikitochka.data.repositories
 
+import android.util.Base64
 import com.example.sportikitochka.data.db.SportActivitiesStorage
 import com.example.sportikitochka.data.db.dto.SportActivityDto
 import com.example.sportikitochka.data.models.request.activities.AddActivityRequest
@@ -11,7 +12,11 @@ import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.domain.repositories.ActivityRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
 import com.example.sportikitochka.other.mapToActivityType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
+import java.io.File
 
 class ActivitiesRepositoryImpl(
     private val sportActivitiesStorage: SportActivitiesStorage,
@@ -19,7 +24,9 @@ class ActivitiesRepositoryImpl(
     private val sessionRepository: SessionRepository
     ): ActivityRepository {
 
-    override suspend fun addActivity(sportActivity: SportActivity) = sportActivitiesStorage.addActivity(sportActivity.mapToData())
+    override suspend fun addActivity(sportActivity: SportActivity) {
+        sportActivitiesStorage.addActivity(sportActivity.mapToData())
+    }
 
     override suspend fun getAllActivities(): List<SportActivity> = sportActivitiesStorage.getAllActivities().map { sportActivityDto -> sportActivityDto.mapToDomain() }
 
@@ -29,13 +36,33 @@ class ActivitiesRepositoryImpl(
 
 
     override suspend fun addActivityRemote(
-        sportActivity: SportActivity
+        sportActivity: SportActivity,
+        image: File
     ): Response<AddActivityResponse> {
-        return api.addActivity("Bearer "+token, sportActivity.mapToRequest())
+//        val decodedImageData = Base64.decode(sportActivity.img, Base64.DEFAULT)
+//        val file = File(context.filesDir, "image.png")
+
+        val request: AddActivityRequest = sportActivity.mapToRequest()
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("activity_type", request.activityType)
+            .addFormDataPart("date", request.timestamp)
+            .addFormDataPart("avg_speed", request.avgSpeed.toString())
+            .addFormDataPart("distance_in_meters", request.distanceInMeters.toString())
+            .addFormDataPart("duration", request.timeInMillis.toString())
+            .addFormDataPart("calories_burned", request.caloriesBurned.toString())
+            .addFormDataPart(
+                "image",
+                image.name,
+                image.asRequestBody("image/*".toMediaTypeOrNull())
+            )
+            .build()
+
+        return api.addActivity("Bearer "+token, requestBody)
     }
 
 
-    override suspend fun getAllActivitiesRemote(): Response<ActivitiesResponse> {
+    override suspend fun getAllActivitiesRemote(): Response<List<ActivityResponse>> {
         return api.getAllActivities("Bearer "+token)
     }
 

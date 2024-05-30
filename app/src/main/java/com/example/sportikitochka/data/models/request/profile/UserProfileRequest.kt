@@ -12,5 +12,11 @@ enum class ProfilePeriod(val period: String) {
     WEEK("week"),
     MONTH("month"),
     YEAR("year"),
-    ALL_TIME("all_time")
+    ALL_TIME("all_time");
+
+    override fun toString(): String {
+        return period
+    }
+
+
 }

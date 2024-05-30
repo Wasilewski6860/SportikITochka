@@ -272,6 +272,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Вы администратор?"
+                android:visibility="invisible"
                 android:checked="false" />
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

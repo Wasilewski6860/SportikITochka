@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.models.response.profile.AdminProfileResponse
 import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
 import com.example.sportikitochka.data.models.response.users.mapToUser
 import com.example.sportikitochka.domain.models.User
@@ -15,14 +16,17 @@ import com.example.sportikitochka.domain.use_cases.admin_action.GrantPremiumUseC
 import com.example.sportikitochka.domain.use_cases.admin_action.RevokePremiumUseCase
 import com.example.sportikitochka.domain.use_cases.admin_action.UnblockUserUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
+import com.example.sportikitochka.domain.use_cases.profile.GetAdminProfileUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
 import com.example.sportikitochka.domain.use_cases.users.GetAllUsersUseCase
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 
 class RatingViewModel(
     private val getProfileUseCase: GetProfileUseCase,
+    private val getAdminProfileUseCase: GetAdminProfileUseCase,
     private val getProfileLocallyUseCase: GetProfileLocallyUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -44,24 +48,73 @@ class RatingViewModel(
     private val _userInfo = MutableLiveData<UserProfileResponse>()
     val userInfo: LiveData<UserProfileResponse> = _userInfo
 
+    private val _adminInfo = MutableLiveData<AdminProfileResponse>()
+    val adminInfo: LiveData<AdminProfileResponse> = _adminInfo
+
+    fun getUserRole() = getUserTypeUseCase.execute()
+
     fun loadUserProfile() {
         viewModelScope.launch {
             try {
-                val userProfileResponse = getProfileUseCase.execute(UserProfileRequest("all_time"))
-                if (userProfileResponse.isSuccessful) {
-                    var responseBody = userProfileResponse.body()
+                if (getUserRole() == UserType.Admin) {
+                    val userProfileResponse = getAdminProfileUseCase.execute()
+                    if (userProfileResponse.isSuccessful) {
+                        var responseBody = userProfileResponse.body()
 
-                    if (responseBody != null) {
-                        _userInfo.postValue(responseBody!!)
-                    }
-                    else {
-                        //TODO Переделать
-                       // _userInfo.postValue(getProfileLocallyUseCase.execute(UserProfileRequest("all_time")))
+                        if (responseBody != null) {
+                            _adminInfo.postValue(responseBody!!)
+                        }
+                        else {
+                            val error = userProfileResponse.errorBody()?.source()?.let { source ->
+                                Buffer().use { buffer ->
+                                    source.readAll(buffer)
+                                    buffer.readUtf8()
+                                }
+                            }
+                            error?.let { Log.e("GET PROFILE ADMIN", it) }
+                            _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
+                        }
+                    } else {
+                        val error = userProfileResponse.errorBody()?.source()?.let { source ->
+                            Buffer().use { buffer ->
+                                source.readAll(buffer)
+                                buffer.readUtf8()
+                            }
+                        }
+                        error?.let { Log.e("GET PROFILE ADMIN", it) }
                         _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
                     }
-                } else {
-                    _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
                 }
+                else {
+                    val userProfileResponse = getProfileUseCase.execute(UserProfileRequest("all_time"))
+                    if (userProfileResponse.isSuccessful) {
+                        var responseBody = userProfileResponse.body()
+
+                        if (responseBody != null) {
+                            _userInfo.postValue(responseBody!!)
+                        }
+                        else {
+                            val error = userProfileResponse.errorBody()?.source()?.let { source ->
+                                Buffer().use { buffer ->
+                                    source.readAll(buffer)
+                                    buffer.readUtf8()
+                                }
+                            }
+                            error?.let { Log.e("GET PROFILE", it) }
+                            _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
+                        }
+                    } else {
+                        val error = userProfileResponse.errorBody()?.source()?.let { source ->
+                            Buffer().use { buffer ->
+                                source.readAll(buffer)
+                                buffer.readUtf8()
+                            }
+                        }
+                        error?.let { Log.e("GET PROFILE", it) }
+                        _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
+                    }
+                }
+
             } catch (httpException: HttpException) {
                 Log.e("GET_PROFILE_HTTP_EXCEPTION", httpException.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о профиле"))
@@ -82,7 +135,7 @@ class RatingViewModel(
                     val responseBody = usersResponse.body()
 
                     if (responseBody!=null){
-                        var list = responseBody.map { userResponse -> userResponse.mapToUser() }
+                        var list = responseBody.user.map { userResponse -> userResponse.mapToUser() }
                         _users.postValue(list)
 
                         _screenState.value =
@@ -90,14 +143,21 @@ class RatingViewModel(
                     }
                 }
                 else {
+                    val error = usersResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("GET USERS", it) }
                     _screenState.postValue(ScreenRatingState.ErrorBlock("К сожалению, не можем загрузить данные о пользователях"))
                 }
             }
             catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
+                Log.e("GET USERS", httpException.toString())
                 _screenState.postValue(ScreenRatingState.ErrorBlock("К сожалению, не можем загрузить данные о пользователях"))
             } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
+                Log.e("GET USERS", exception.toString())
                 _screenState.postValue(ScreenRatingState.ErrorBlock("К сожалению, не можем загрузить данные о пользователях"))
             }
         }
@@ -131,14 +191,21 @@ class RatingViewModel(
                     }
                 }
                 else {
+                    val error = blockResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("BLOCK USER", it) }
                     _screenState.value = ScreenRatingState.ErrorInfo("Не удалось изменить информацию о пользователе")
                 }
             }
             catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
+                Log.e("BLOCK USER", httpException.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о пользователях"))
             } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
+                Log.e("BLOCK USER", exception.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("К сожалению, не можем загрузить данные о пользователях"))
             }
         }
@@ -157,14 +224,21 @@ class RatingViewModel(
                     }
                 }
                 else {
+                    val error = setPremiumResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("SET PREMIUM", it) }
                     _screenState.value = ScreenRatingState.ErrorInfo("Не удалось выдать пользователю премиум")
                 }
             }
             catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
+                Log.e("SET PREMIUM", httpException.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("Не удалось выдать пользователю премиум"))
             } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
+                Log.e("SET PREMIUM", exception.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("Не удалось выдать пользователю премиум"))
             }
         }
@@ -183,14 +257,21 @@ class RatingViewModel(
                     }
                 }
                 else {
+                    val error = removePremiumResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    error?.let { Log.e("REMOVE PREMIUM", it) }
                     _screenState.value = ScreenRatingState.ErrorInfo("Не удалось лишить пользователя премиума")
                 }
             }
             catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
+                Log.e("REMOVE PREMIUM", httpException.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("Не удалось лишить пользователя премиума"))
             } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
+                Log.e("REMOVE PREMIUM", exception.toString())
                 _screenState.postValue(ScreenRatingState.ErrorInfo("Не удалось лишить пользователя премиума"))
             }
         }

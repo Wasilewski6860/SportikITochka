@@ -7,8 +7,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.databinding.CardItemBinding
 import com.example.sportikitochka.databinding.CardItemLayoutBinding
 import com.example.sportikitochka.databinding.RatingItemBinding
 import com.example.sportikitochka.domain.models.CreditCard
@@ -39,19 +37,20 @@ class CardsAdapter(
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val item = getItem(position)
 
-        if (item.cardName!=null) {
+        if (item.cardNumber!=null) {
             with(holder.binding) {
                 mainLayout.visibility = View.VISIBLE
                 newCardLayout.visibility = View.GONE
-                card1.setIsFlippable(false)
-                card1.setIsEditable(false)
-                card1.cardName = item.cardName
-                card1.cardNumber = item.cardNumber
-                val expirity = item.month.toString()+"/"+item.year.toString()
-                card1.expiryDate = expirity
-                editButton.setOnClickListener {
-                    buttonActionListener.onClickItem(item)
-                }
+                cardNumberTv.text = "*"+item.cardNumber?.substring(12)
+//                card1.setIsFlippable(false)
+//                card1.setIsEditable(false)
+//                card1.cardName = item.cardName
+//                card1.cardNumber = item.cardNumber
+//                val expirity = item.month.toString()+"/"+item.year.toString()
+//                card1.expiryDate = expirity
+//                editButton.setOnClickListener {
+//                    buttonActionListener.onClickItem(item)
+//                }
                 mainLayout.setOnClickListener {
                     cardActionListener.onClickItem(item)
                 }
@@ -64,6 +63,7 @@ class CardsAdapter(
                 newCardLayout.setOnClickListener {
                     newCardClickActionListener.onClickItem(item)
                 }
+                cardIv.setImageResource(R.drawable.ic_add_inbox)
             }
         }
 

@@ -9,8 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentRatingBinding
 import com.example.sportikitochka.domain.models.User
 import com.example.sportikitochka.other.ConnectionLiveData
@@ -48,7 +52,7 @@ class RatingFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setupRecyclerView()
-//        AppMetrica.reportEvent("Rating screen viewed")
+        AppMetrica.reportEvent("Rating screen viewed")
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
             if (it) {
@@ -60,40 +64,72 @@ class RatingFragment : Fragment() {
             }
 
         }
-
+        viewModel.getUserType()
         viewModel.loadUserProfile()
         viewModel.fetchUsers()
 
-        viewModel.userInfo.observe(viewLifecycleOwner) {
-            binding.profileYou.text = "Вы, "
-            binding.profileNameRaiting.text = it.name
+        when(viewModel.getType()) {
+            is UserType.Normal -> {
+                binding.isAdminTv.visibility = View.GONE
+                binding.raitingTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.GONE
 
-            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
+                viewModel.userInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
 
-            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-            binding.profileImageRaiting.setImageBitmap(bitmap)
 
-            when(viewModel.getType()) {
-                is UserType.Normal -> {
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
+
                     binding.isAdminTv.visibility = View.GONE
                     binding.raitingTv.visibility = View.VISIBLE
                     binding.premiumIvRating.visibility = View.GONE
                     binding.raitingTv.text="#"+it.rating
                 }
-                is UserType.Premium -> {
-                    binding.raitingTv.visibility = View.VISIBLE
-                    binding.raitingTv.text="#"+it.rating
-                    binding.premiumIvRating.visibility = View.VISIBLE
-                }
-                is UserType.Admin -> {
-                    binding.isAdminTv.visibility = View.VISIBLE
-                    binding.premiumIvRating.visibility = View.GONE
-                    binding.raitingTv.visibility = View.GONE
-                    binding.isAdminTv.text = "Вы админ"
-                }
-                else -> Unit
             }
+            is UserType.Premium -> {
+                binding.raitingTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.VISIBLE
+                viewModel.userInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
+
+
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
+
+                    binding.isAdminTv.visibility = View.GONE
+                    binding.raitingTv.visibility = View.VISIBLE
+                    binding.premiumIvRating.visibility = View.GONE
+                    binding.raitingTv.text="#"+it.rating
+                }
+            }
+            is UserType.Admin -> {
+                binding.isAdminTv.visibility = View.VISIBLE
+                binding.premiumIvRating.visibility = View.GONE
+                binding.raitingTv.visibility = View.GONE
+                binding.isAdminTv.text = "Вы админ"
+                viewModel.adminInfo.observe(viewLifecycleOwner) {
+                    binding.profileYou.text = "Вы, "
+                    binding.profileNameRaiting.text = it.name
+
+                    Glide.with(this@RatingFragment)
+                        .load(EndPoints.BASE_URL +it.image)
+                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                        .circleCrop()
+                        .into(binding.profileImageRaiting)
+                }
+            }
+            else -> Unit
         }
+
 
 
         viewModel.screenState.observe(viewLifecycleOwner) {

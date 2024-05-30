@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sportikitochka.data.models.response.activities.ActivityResponse
 import com.example.sportikitochka.data.models.response.activities.mapToSportActivity
 import com.example.sportikitochka.domain.models.SportActivity
 import com.example.sportikitochka.domain.use_cases.activity.AddActivityLocalUseCase
@@ -31,10 +32,10 @@ class AllActivitiesViewModel(
                 val activitiesRemoteResponse = getAllActivitiesRemoteUseCase.execute()
                 if (activitiesRemoteResponse.isSuccessful){
 
-                    val responseBody = activitiesRemoteResponse.body()
+                    val responseBody: List<ActivityResponse>? = activitiesRemoteResponse.body()
 
                     if (responseBody!=null){
-                        var list = responseBody.activities.activities.map { activityResponse -> activityResponse.mapToSportActivity() }
+                        var list = responseBody.map { activityResponse -> activityResponse.mapToSportActivity() }
                         _activities.postValue(list)
                         for (activity in list){
                             addActivityLocalUseCase.execute(activity)

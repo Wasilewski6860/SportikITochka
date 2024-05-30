@@ -8,6 +8,7 @@ import com.example.sportikitochka.data.models.response.activities.AddActivityRes
 import com.example.sportikitochka.data.models.response.user_data.AdminDataResponse
 import com.example.sportikitochka.data.models.response.user_data.ChangeDataUserResponse
 import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -22,7 +23,7 @@ interface UserDataApi {
         @Header("Authorization") token: String
     ): Response<UserDataResponse>
 
-    @POST(EndPoints.USER_DATA)
+    @GET(EndPoints.USER_DATA)
     suspend fun getAdminData(
         @Header("Authorization") token: String
     ): Response<AdminDataResponse>
@@ -30,13 +31,13 @@ interface UserDataApi {
     @PUT(EndPoints.USER_DATA)
     suspend fun changeUserData(
         @Header("Authorization") token: String,
-        @Body changeDataUserRequest: ChangeDataUserRequest
+        @Body userData: RequestBody
     ): Response<ChangeDataUserResponse>
 
-    @POST(EndPoints.CHANGE_USER_DATA)
+    @PUT(EndPoints.USER_DATA)
     suspend fun changeAdminData(
         @Header("Authorization") token: String,
-        @Body changeAdminDataRequest: ChangeAdminDataRequest
+        @Body userData: RequestBody
     ): Response<ChangeDataUserResponse>
 
 }

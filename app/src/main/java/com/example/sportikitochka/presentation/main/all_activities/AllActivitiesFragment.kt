@@ -239,7 +239,7 @@ class AllActivitiesFragment : Fragment() {
     }
 
     private fun setupRecyclerView() = binding.recyclerAllActivities.apply {
-        mainAdapter = MainAdapter()
+        mainAdapter = MainAdapter(requireContext())
         adapter = mainAdapter
         layoutManager = LinearLayoutManager(requireContext())
     }

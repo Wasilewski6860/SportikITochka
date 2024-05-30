@@ -26,8 +26,11 @@ import com.example.sportikitochka.other.Constants.MAP_ZOOM
 import com.example.sportikitochka.other.Polyline
 import com.example.sportikitochka.other.TrackingService
 import com.example.sportikitochka.other.TrackingUtility
+import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
+import com.example.sportikitochka.other.isGpsEnabled
 import com.example.sportikitochka.other.mapToActivityType
+import com.example.sportikitochka.presentation.main.main.MainViewModel
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.snackbar.Snackbar
 import io.appmetrica.analytics.AppMetrica
@@ -52,6 +55,7 @@ import java.util.Locale
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     private val viewModel: TrackingViewModel by viewModel()
+    private val mainViewModel: MainViewModel by viewModel()
 
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
@@ -100,7 +104,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MapKitFactory.initialize(requireContext());
-//        AppMetrica.reportEvent("Tracking screen viewed")
+        AppMetrica.reportEvent("Tracking screen viewed")
         binding.tvTrackingTimeInfo.text = when(activityType) {
             ActivityType.RUNNING -> "Время пробежки"
             ActivityType.BYCICLE -> "Время велозаезда"
@@ -111,8 +115,13 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
 
         binding.stopButton.setOnClickListener {
-            zoomToSeeWholeTrack()
-            endRunAndSaveToDb()
+            if (this.requireContext().isGpsEnabled) {
+                zoomToSeeWholeTrack()
+                endRunAndSaveToDb()
+            }
+            else {
+                showSnackbar("Включите геолокацию устройства", requireActivity().findViewById(R.id.rootViewMain))
+            }
         }
 
         addAllPolylines()
@@ -177,6 +186,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     private fun stopRun() {
         sendCommandToService(ACTION_STOP_SERVICE)
+        mainViewModel.fetchActivities()
         findNavController().navigate(R.id.action_trackingFragment_to_mainFragment2)
     }
 
@@ -229,17 +239,24 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             }
         }
 
-        var northeast = bounds.build().northeast
-        var southwest = bounds.build().southwest
+        if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
 
-        var boundingBox = BoundingBox(Point(southwest.latitude,southwest.longitude), Point(northeast.latitude,northeast.longitude)) // getting BoundingBox between two points
-        var geometry: Geometry = Geometry.fromBoundingBox(boundingBox)
-        var cameraPosition = binding.mapView.map?.cameraPosition(geometry) // getting cameraPosition
-        var target = cameraPosition?.target ?: Point(pathPoints.last().last().latitude,pathPoints.last().last().longitude)
-        cameraPosition = CameraPosition(target, (cameraPosition?.zoom ?: MAP_ZOOM) - 0.8f,
-            cameraPosition?.azimuth ?: 0.0F, cameraPosition?.tilt ?: 0.0F) // Zoom 80%
-        binding.mapView.map?.move(cameraPosition, Animation(Animation.Type.SMOOTH, 0f), null) // move camera
+            var northeast = bounds.build().northeast
+            var southwest = bounds.build().southwest
 
+            var boundingBox = BoundingBox(Point(southwest.latitude,southwest.longitude), Point(northeast.latitude,northeast.longitude)) // getting BoundingBox between two points
+            var geometry: Geometry = Geometry.fromBoundingBox(boundingBox)
+            var cameraPosition = binding.mapView.map?.cameraPosition(geometry) // getting cameraPosition
+            var target = cameraPosition?.target ?: Point(pathPoints.last().last().latitude,pathPoints.last().last().longitude)
+            cameraPosition = CameraPosition(target, (cameraPosition?.zoom ?: MAP_ZOOM) - 0.8f,
+                cameraPosition?.azimuth ?: 0.0F, cameraPosition?.tilt ?: 0.0F) // Zoom 80%
+            binding.mapView.map?.move(cameraPosition, Animation(Animation.Type.SMOOTH, 0f), null) // move camera
+
+        }
+        else {
+            showSnackbar("Не удалось определить ваше местоположение", requireActivity().findViewById(R.id.rootViewMain))
+
+        }
 //        map?.moveCamera(
 //            CameraUpdateFactory.newLatLngBounds(
 //                bounds.build(),
@@ -254,6 +271,49 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
         val enabled: Boolean = binding.mapView.isDrawingCacheEnabled()
 
+        if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
+            val bitmap = binding.mapView.screenshot
+
+            val string = bitmapToString(bitmap?: throw Exception(""))
+
+
+            var distanceInMeters: Long = 0L
+            for(polyline in pathPoints) {
+                distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
+            }
+
+            val avgSpeed = round((distanceInMeters / 1000f) / (timeInMillis / 1000f / 60 / 60) * 10) / 10f
+            val dateTimestamp = Calendar.getInstance().timeInMillis
+            val caloriesBurned = ((distanceInMeters / 1000f) * weight).toLong()
+
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = dateTimestamp
+            }
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            val image = bitmapToFile(dateFormat.format(calendar.time),requireContext(), bitmap)
+
+            val run = SportActivity(
+                activityType = ActivityType.RUNNING,
+                img = string,
+                timestamp = dateFormat.format(calendar.time),
+                avgSpeed = avgSpeed,
+                distanceInMeters = distanceInMeters,
+                timeInMillis = timeInMillis,
+                caloriesBurned = caloriesBurned
+            )
+            viewModel.stopActivity(run, image)
+            Snackbar.make(
+                requireActivity().findViewById(R.id.rootViewMain),
+                "Run saved successfully",
+                Snackbar.LENGTH_LONG
+            ).show()
+            stopRun()
+        }
+        else {
+            showSnackbar("Не удалось определить ваше местоположение", requireActivity().findViewById(R.id.rootViewMain))
+
+        }
 //        binding.mapView.setDrawingCacheEnabled(true)
 //
 //        // this is the important code :)
@@ -272,40 +332,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 //        val b: Bitmap = Bitmap.createBitmap(binding.mapView.getDrawingCache())
 //        binding.mapView.setDrawingCacheEnabled(false) // clear drawing cache
 
-        val bitmap = binding.mapView.screenshot
-        val string = bitmapToString(bitmap?: throw Exception(""))
 
-
-        var distanceInMeters: Long = 0L
-        for(polyline in pathPoints) {
-            distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
-        }
-
-        val avgSpeed = round((distanceInMeters / 1000f) / (timeInMillis / 1000f / 60 / 60) * 10) / 10f
-        val dateTimestamp = Calendar.getInstance().timeInMillis
-        val caloriesBurned = ((distanceInMeters / 1000f) * weight).toLong()
-
-        val calendar = Calendar.getInstance().apply {
-                timeInMillis = dateTimestamp
-        }
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        val run = SportActivity(
-            activityType = ActivityType.RUNNING,
-            img = string,
-            timestamp = dateFormat.format(calendar.time),
-            avgSpeed = avgSpeed,
-            distanceInMeters = distanceInMeters,
-            timeInMillis = timeInMillis,
-            caloriesBurned = caloriesBurned
-        )
-        viewModel.stopActivity(run)
-        Snackbar.make(
-            requireActivity().findViewById(R.id.rootViewMain),
-            "Run saved successfully",
-            Snackbar.LENGTH_LONG
-        ).show()
-        stopRun()
 
     }
 

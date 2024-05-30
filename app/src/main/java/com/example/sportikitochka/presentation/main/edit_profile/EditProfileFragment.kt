@@ -1,5 +1,6 @@
 package com.example.sportikitochka.presentation.main.edit_profile
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -11,20 +12,28 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.signature.ObjectKey
 import com.example.sportactivityapp.other.DateFormatTextWatcher
 import com.example.sportactivityapp.other.PhoneFormatTextWatcher
 import com.example.sportikitochka.R
 import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentEditProfileBinding
-import com.example.sportikitochka.databinding.FragmentProfileBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility
+import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
 import com.example.sportikitochka.other.TrackingUtility.roundFloat
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.TrackingUtility.uriToString
 import com.example.sportikitochka.other.WeightTextWatcher
 import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
+import io.appmetrica.analytics.AppMetrica
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -40,6 +49,7 @@ class EditProfileFragment : Fragment() {
 
     private var image: MutableLiveData<String?> = MutableLiveData<String?>(null)
     private var imageString: String? = null
+    private var imageBitmap: Bitmap? = null
 
     private var name: String? = null
     private var birthday: String? = null
@@ -68,14 +78,14 @@ class EditProfileFragment : Fragment() {
         connectionLiveData.observe(viewLifecycleOwner) {
             isOnline = it
         }
-
+        AppMetrica.reportEvent("Edit profile screen opened")
         image.observe(viewLifecycleOwner) {
             if (it!=null){
                 imageString = it
                 val decodedString: ByteArray? = Base64.decode(it, Base64.DEFAULT)
 
                 val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-
+                imageBitmap = bitmap
 // Установка Bitmap в ImageView
                 binding.profileImage.setImageBitmap(bitmap)
             }
@@ -87,11 +97,33 @@ class EditProfileFragment : Fragment() {
 //                val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
 //                val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
 //                profileImage.setImageBitmap(bitmap)
+                Glide.with(this@EditProfileFragment)
+                    .load(EndPoints.BASE_URL +it.image)
+                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                    .circleCrop()
+                    .into(binding.profileImage)
+
+                Glide.with(this@EditProfileFragment)
+                    .asBitmap()
+                    .load(EndPoints.BASE_URL +it.image)
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            imageBitmap = resource
+                        }
+
+                    })
+
                 image.postValue(it.image)
                 signUpName.setText(it.name)
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                val dateString = dateFormat.format(it.birthday)
-                signUpBirthday.setText(dateString)
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd")
+                val outputFormat = SimpleDateFormat("dd.MM.yyyy")
+
+                val date = inputFormat.parse(it.birthday)
+                val outputDate = outputFormat.format(date)
+                signUpBirthday.setText(outputDate)
                 signUpPhone.setText(it.phone)
                 signUpCalories.setText(it.weight.toString())
             }
@@ -135,6 +167,7 @@ class EditProfileFragment : Fragment() {
                     )
                 }
                 ScreenEditProfileState.Success -> {
+                    AppMetrica.reportEvent("Profile changed")
                     findNavController().navigate(
                         R.id.action_editProfileFragment_to_profileFragment,
                         savedInstanceState
@@ -177,12 +210,12 @@ class EditProfileFragment : Fragment() {
             else if (!viewModel.isInputPhoneValid(phone)) {
                 showSnackbar("Неверно введен телефонный номер", requireActivity().findViewById(R.id.rootViewMain))
             }
-            else if (!viewModel.isInputWeightValid(weight) || viewModel.getUserRole() == UserType.Admin) {
+            else if (!viewModel.isInputWeightValid(weight) && viewModel.getUserRole() != UserType.Admin) {
                 showSnackbar("Неверно введен вес", requireActivity().findViewById(R.id.rootViewMain))
             }
             else {
                 viewModel.changeUserData(
-                    name = name!!, image = imageString!!, weight = weight!!.toFloat(), phone = phone!!, birthday!!
+                    name = name!!, image = bitmapToFile(name!!,requireContext(), imageBitmap!!), weight = weight!!.toFloat(), phone = phone!!, birthday!!
                 )
             }
 

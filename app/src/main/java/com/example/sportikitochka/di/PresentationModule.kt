@@ -39,7 +39,8 @@ val presentationModule = module {
     viewModel<SignUpViewModel> {
         SignUpViewModel(
             signUpUseCase = get(),
-            validateEmailUseCase = get()
+            validateEmailUseCase = get(),
+            signUpAdminUseCase = get()
         )
     }
 
@@ -51,7 +52,9 @@ val presentationModule = module {
             getAllActivitiesLocalUseCase = get(),
 
             getUserDataUseCase = get(),
-            saveUserDataUseCase = get()
+            saveUserDataUseCase = get(),
+            getUserRoleUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 
@@ -64,7 +67,8 @@ val presentationModule = module {
             getProfileLocallyUseCase = get(),
             setPremiumUseCase = get(),
             removePremiumUseCase = get(),
-            getUserTypeUseCase = get()
+            getUserTypeUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 
@@ -87,7 +91,11 @@ val presentationModule = module {
         ProfileViewModel(
             getUserRoleUseCase = get(),
             signOutUseCase = get(),
-            getProfileUseCase = get()
+            getProfileUseCase = get(),
+            cancelPremiumUseCase = get(),
+            saveSessionUseCase = get(),
+            getSessionUseCase = get(),
+            getAdminProfileUseCase = get()
         )
     }
 
@@ -104,12 +112,11 @@ val presentationModule = module {
 
     viewModel<PaymentViewModel> {
         PaymentViewModel(
-            addCardUseCase = get(),
             buyPremiumUseCase = get(),
-            deleteCardUseCase = get(),
-            editCardUseCase = get(),
             getAllCardsUseCase = get(),
-            changeUserTypeUseCase = get()
+            changeUserTypeUseCase = get(),
+            saveSessionUseCase = get(),
+            getSessionUseCase = get()
         )
     }
 

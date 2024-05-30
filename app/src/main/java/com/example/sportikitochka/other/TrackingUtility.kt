@@ -16,7 +16,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -125,5 +127,14 @@ object TrackingUtility {
         }
 
         return string
+    }
+
+    fun bitmapToFile(name:String, context: Context, bitmap: Bitmap): File {
+        val file = File(context.cacheDir, name)
+        val outputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+        return file
     }
 }

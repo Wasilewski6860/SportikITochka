@@ -12,6 +12,7 @@ import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
 import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
 import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
 import kotlinx.coroutines.launch
+import okio.Buffer
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -44,6 +45,15 @@ class SignInViewModel(
                 else {
 
                     val errorString: String? = loginResponse.errorBody()?.string()
+
+                    val error = loginResponse.errorBody()?.source()?.let { source ->
+                        Buffer().use { buffer ->
+                            source.readAll(buffer)
+                            buffer.readUtf8()
+                        }
+                    }
+                    Log.e("SIGN_IN_ERROR", error!!)
+
                     try {
                         errorString?.let {
                             _screenState.postValue(
