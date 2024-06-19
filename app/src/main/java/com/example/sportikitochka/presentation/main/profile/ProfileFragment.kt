@@ -53,7 +53,7 @@ class ProfileFragment : Fragment() {
             viewModel.loadAdminProfile()
         }
         else {
-            viewModel.loadProfileForWeek()
+            viewModel.loadProfileInitial()
         }
         AppMetrica.reportEvent("Profile viewed")
         binding.spTimeProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -76,16 +76,30 @@ class ProfileFragment : Fragment() {
                     binding.contentLayout.visibility = View.GONE
                     binding.loadingLayout.visibility = View.VISIBLE
                     binding.errorLayout.visibility = View.GONE
+                    binding.containerCardProfile.visibility = View.GONE
+                    binding.containerCardProfileLoading.visibility = View.GONE
                 }
                 ScreenProfileState.Success -> {
                     binding.contentLayout.visibility = View.VISIBLE
                     binding.loadingLayout.visibility = View.GONE
                     binding.errorLayout.visibility = View.GONE
+                    binding.containerCardProfile.visibility = View.VISIBLE
+                    binding.containerCardProfileLoading.visibility = View.GONE
                 }
                 ScreenProfileState.Error -> {
                     binding.contentLayout.visibility = View.GONE
                     binding.loadingLayout.visibility = View.GONE
                     binding.errorLayout.visibility = View.VISIBLE
+                    binding.containerCardProfile.visibility = View.INVISIBLE
+                    binding.containerCardProfileLoading.visibility = View.GONE
+                }
+
+                ScreenProfileState.LoadingPeriod -> {
+                    binding.contentLayout.visibility = View.VISIBLE
+                    binding.loadingLayout.visibility = View.GONE
+                    binding.errorLayout.visibility = View.GONE
+                    binding.containerCardProfile.visibility = View.INVISIBLE
+                    binding.containerCardProfileLoading.visibility = View.VISIBLE
                 }
             }
         }

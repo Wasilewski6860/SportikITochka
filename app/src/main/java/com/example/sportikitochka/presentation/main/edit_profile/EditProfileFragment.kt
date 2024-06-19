@@ -202,10 +202,10 @@ class EditProfileFragment : Fragment() {
         }
         else
             if (!viewModel.isInputNameValid(name)){
-                showSnackbar("Неверно введено имя", requireActivity().findViewById(R.id.rootViewMain))
+                showSnackbar("Неверно введено имя, используйте кириллические и латинские буквы и цифры", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (!viewModel.isInputDateValid(birthday)) {
-                showSnackbar("Неверно введена дата рождения", requireActivity().findViewById(R.id.rootViewMain))
+                showSnackbar("Неверно введена дата рождения, введите в формате дд.мм.гггг", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (!viewModel.isInputPhoneValid(phone)) {
                 showSnackbar("Неверно введен телефонный номер", requireActivity().findViewById(R.id.rootViewMain))

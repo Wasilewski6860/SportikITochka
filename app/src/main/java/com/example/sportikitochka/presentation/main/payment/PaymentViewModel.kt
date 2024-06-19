@@ -137,7 +137,7 @@ class PaymentViewModel(
                 _screenState.value = ScreenPaymentState.BuyingError
             } catch (exception: Exception) {
                 Log.e("BUY PREMIUM", exception.toString())
-                if (exception.toString().startsWith("java.lang.NumberFormatException: For input string:")) {
+                if (exception.toString().startsWith("com.google.gson.JsonSyntaxException")) {
                     val session = getSessionUseCase.execute()
                     session?.role = UserType.Premium.toString()
                     session?.let {

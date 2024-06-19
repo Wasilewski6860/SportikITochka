@@ -77,14 +77,14 @@ class PaymentFragment : Fragment() {
                 }
                 ScreenPaymentState.BuyingSuccess -> {
 
-                    AppMetrica.reportEvent("Premium bought")
-                    val revenue = Revenue.newBuilder(100, Currency.getInstance("RUB"))
-                        .withProductID("com.example.sportikitochka")
-                        .withQuantity(1)
-                        .build()
+//                    AppMetrica.reportEvent("Premium bought")
+//                    val revenue = Revenue.newBuilder(100, Currency.getInstance("RUB"))
+//                        .withProductID("com.example.sportikitochka")
+//                        .withQuantity(1)
+//                        .build()
                     // Sending the Revenue instance using reporter.
-                    AppMetrica.getReporter(getApplicationContext(), "0ee9624d-3997-4356-94d4-052ff53bb44d")
-                        .reportRevenue(revenue)
+//                    AppMetrica.getReporter(getApplicationContext(), "0ee9624d-3997-4356-94d4-052ff53bb44d")
+//                        .reportRevenue(revenue)
 
                     findNavController().navigate(
                         R.id.action_paymentFragment_to_profileFragment,
@@ -194,6 +194,7 @@ class PaymentFragment : Fragment() {
             },
             buttonActionListener = object : CardsAdapter.CardActionListener {
                 override fun onClickItem(card: CreditCard) {
+                    showSnackbar("Не удалось совершить оплату", requireActivity().findViewById(R.id.rootViewMain))
                     //TODO Редактирование карты
                     with(binding) {
                         loadingLayout.visibility = View.GONE

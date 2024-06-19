@@ -53,13 +53,28 @@ class ProfileViewModel(
         }
     }
 
-    fun loadProfileForWeek() = loadUserProfile(ProfilePeriod.WEEK)
-    fun loadProfileForMonth() = loadUserProfile(ProfilePeriod.MONTH)
-    fun loadProfileForYear() = loadUserProfile(ProfilePeriod.YEAR)
-    fun loadProfileForAllTime() = loadUserProfile(ProfilePeriod.ALL_TIME)
+    fun loadProfileInitial() {
+        _screenState.postValue(ScreenProfileState.Loading)
+        loadUserProfile(ProfilePeriod.WEEK)
+    }
+    fun loadProfileForWeek() {
+        _screenState.postValue(ScreenProfileState.LoadingPeriod)
+        loadUserProfile(ProfilePeriod.WEEK)
+    }
+    fun loadProfileForMonth() {
+        _screenState.postValue(ScreenProfileState.LoadingPeriod)
+        loadUserProfile(ProfilePeriod.MONTH)
+    }
+    fun loadProfileForYear() {
+        _screenState.postValue(ScreenProfileState.LoadingPeriod)
+        loadUserProfile(ProfilePeriod.YEAR)
+    }
+    fun loadProfileForAllTime() {
+        _screenState.postValue(ScreenProfileState.LoadingPeriod)
+        loadUserProfile(ProfilePeriod.ALL_TIME)
+    }
 
     private fun loadUserProfile(period: ProfilePeriod) {
-        _screenState.postValue(ScreenProfileState.Loading)
         viewModelScope.launch {
             try {
                 val userProfileResponse = getProfileUseCase.execute(UserProfileRequest(period.period))
@@ -163,6 +178,7 @@ class ProfileViewModel(
 
 sealed class ScreenProfileState {
     object Loading: ScreenProfileState()
+    object LoadingPeriod: ScreenProfileState()
     object Success: ScreenProfileState()
     object Error: ScreenProfileState()
 }

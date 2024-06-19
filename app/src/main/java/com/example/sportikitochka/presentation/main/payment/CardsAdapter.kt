@@ -42,6 +42,7 @@ class CardsAdapter(
                 mainLayout.visibility = View.VISIBLE
                 newCardLayout.visibility = View.GONE
                 cardNumberTv.text = "*"+item.cardNumber?.substring(12)
+                cardIv.setImageResource(R.drawable.ic_card)
 //                card1.setIsFlippable(false)
 //                card1.setIsEditable(false)
 //                card1.cardName = item.cardName

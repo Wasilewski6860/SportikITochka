@@ -153,6 +153,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="12.09.98"
+
+                    android:inputType="number"
                     android:fontFamily="@font/inter_semibold"
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
