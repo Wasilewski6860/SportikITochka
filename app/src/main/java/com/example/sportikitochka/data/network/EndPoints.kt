@@ -4,6 +4,9 @@ object EndPoints {
 
     const val BASE_URL = "https://www.sportik-i.ru/"
     const val LOGIN = "login"
+    const val SEND_TO_EMAIL = "password/send-email"
+    const val CONFIRM_CODE = "password/get-code"
+    const val CHANGE_PASSWORD = "password/change"
     const val REGISTER = "user/register"
     const val ADMIN_REGISTER = "admin/register"
     const val VERIFY_EMAIL = "api/verify_email"

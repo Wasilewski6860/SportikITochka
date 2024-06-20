@@ -15,31 +15,33 @@
         android:visibility="gone"
         android:elevation="10dp">
 
-        <com.vinaygaba.creditcardview.CreditCardView
+<!--        <com.example.creditcardlibrary.view.CustomCreditCard-->
+<!--            android:id="@+id/creditCardView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="250dp"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:cardType="VISA"-->
+<!--            app:month="JUNE"-->
+<!--            app:year="2041"-->
+<!--            app:scrBackground="@drawable/cbimage"/>-->
+
+        <me.thekusch.view.CreditCardVisualize
             android:id="@+id/creditCardView"
-            android:layout_width="fill_parent"
-            android:layout_height="225dp"
-            android:background="@drawable/cardbackground_world"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="16dp"
-            app:cardNumber="5500005555555559"
-            app:cardName="NAME SURNAME"
-            app:cardNumberTextColor="#cccccc"
-            app:cardNumberFormat="all_digits"
-            app:cardNameTextColor="#cccccc"
-            app:type="auto"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:brandLogo="@drawable/ic_card"
-            app:putChip="true"
-            app:expiryDate = "02/22"
-            app:expiryDateTextColor="#cccccc"
-            app:isEditable="true"
-            app:validTillTextColor="#cccccc"
-            app:hintTextColor = "#cccccc"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:cardBackgroundColor="@color/cardDefaultColor"
+            app:cardCvcNumber=""
+            app:cardNumber=""
+            app:cardTextHintColor="@color/dark_grey"
+            app:cardUserName=""
+            app:cardValidDate=""/>
 
 
         <ImageView

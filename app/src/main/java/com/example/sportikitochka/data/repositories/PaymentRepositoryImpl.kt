@@ -15,7 +15,7 @@ import com.example.sportikitochka.domain.repositories.SessionRepository
 import retrofit2.Response
 
 class PaymentRepositoryImpl(private val paymentApi: PaymentApi, private val sessionRepository: SessionRepository): PaymentRepository {
-    override suspend fun getAllCards(): Response<AllCardsResponse> {
+    override suspend fun getAllCards(): Response<List<CreditCardResponse>> {
         val token = sessionRepository.getSession()!!.accessToken
         return paymentApi.getAllCards("Bearer "+token)
     }

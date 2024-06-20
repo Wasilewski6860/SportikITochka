@@ -42,14 +42,22 @@ class PaymentViewModel(
                     val responseBody = cardsResponse.body()
 
                     if (responseBody!=null){
-                        if (responseBody.cardNumbers == null) {
+                        if (responseBody == null) {
                             var list: MutableList<CreditCard> = mutableListOf<CreditCard>()
                             list.add(CreditCard())
                             _cards.postValue(list)
                         }
                         else {
                             var list: MutableList<CreditCard> =
-                                responseBody.cardNumbers.map { number -> CreditCard(cardNumber = number) }.toMutableList()
+                                responseBody.map { card ->
+                                    CreditCard(
+                                        cardNumber = card.cardNumber,
+                                        cardName = card.cardName,
+                                        month = card.month,
+                                        year = card.month,
+                                        cvv = card.cvv
+                                    )
+                                }.toMutableList()
                             list.add(CreditCard())
                             _cards.postValue(list)
                         }
