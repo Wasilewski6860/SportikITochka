@@ -60,6 +60,12 @@ class SignInFragment : Fragment() {
         binding.buttonLogin.setOnClickListener {
             signIn()
         }
+        binding.forgotPassTv.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_signInFragment_to_resetPasswordFragment,
+                savedInstanceState
+            )
+        }
 
         binding.createAccountTv.setOnClickListener {
             showSnackbar("Попытка регистрации")

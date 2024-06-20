@@ -49,6 +49,7 @@ import com.example.sportikitochka.data.network.AdminActionApi
 import com.example.sportikitochka.data.network.AuthApi
 import com.example.sportikitochka.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.data.network.PaymentApi
+import com.example.sportikitochka.data.network.ResetPasswordApi
 import com.example.sportikitochka.data.network.StatisticsApi
 import com.example.sportikitochka.data.network.UserApi
 import com.example.sportikitochka.data.network.UserDataApi
@@ -60,6 +61,7 @@ import com.example.sportikitochka.data.repositories.OnboardingRepositoryImpl
 import com.example.sportikitochka.data.repositories.PaymentRepositoryImpl
 import com.example.sportikitochka.data.repositories.PreferencesRepositoryImpl
 import com.example.sportikitochka.data.repositories.ProfileRepositoryImpl
+import com.example.sportikitochka.data.repositories.ResetPasswordRepositoryImpl
 import com.example.sportikitochka.data.repositories.SessionRepositoryImpl
 import com.example.sportikitochka.data.repositories.StatisticRepositoryImpl
 import com.example.sportikitochka.data.repositories.UserDataRepositoryImpl
@@ -74,6 +76,7 @@ import com.example.sportikitochka.domain.repositories.OnboardingRepository
 import com.example.sportikitochka.domain.repositories.PaymentRepository
 import com.example.sportikitochka.domain.repositories.PreferencesRepository
 import com.example.sportikitochka.domain.repositories.ProfileRepository
+import com.example.sportikitochka.domain.repositories.ResetPasswordRepository
 import com.example.sportikitochka.domain.repositories.SessionRepository
 import com.example.sportikitochka.domain.repositories.StatisticRepository
 import com.example.sportikitochka.domain.repositories.UserDataRepository
@@ -700,6 +703,19 @@ val dataModule = module {
             .build()
             .create(PaymentApi::class.java)
     }
+
+    single<ResetPasswordApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setLenient()
+                        .create()
+                ))
+            .build()
+            .create(ResetPasswordApi::class.java)
+    }
 //    single<UserDataApi> {
 //        object: UserDataApi {
 //            override suspend fun getUserData(token: String): Response<UserDataResponse> {
@@ -803,6 +819,7 @@ val dataModule = module {
     single<PaymentRepository> { PaymentRepositoryImpl(paymentApi = get(), sessionRepository = get()) }
 
     single<StatisticRepository> { StatisticRepositoryImpl(statisticsApi = get(), sessionRepository = get()) }
+    single<ResetPasswordRepository> { ResetPasswordRepositoryImpl(resetPasswordApi = get()) }
 
 
     single<SportActivitiesStorage> { SportActivityStorageImpl(sportActivitiesDatabase = get()) }

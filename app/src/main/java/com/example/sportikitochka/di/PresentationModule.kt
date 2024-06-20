@@ -1,6 +1,7 @@
 package com.example.sportikitochka.di
 
 import com.example.sportikitochka.presentation.auth.onboarding.OnboardingViewModel
+import com.example.sportikitochka.presentation.auth.reset_password.ResetPasswordViewModel
 import com.example.sportikitochka.presentation.auth.sign_in.SignInViewModel
 import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
 import com.example.sportikitochka.presentation.auth.splash.SplashViewModel
@@ -125,6 +126,14 @@ val presentationModule = module {
            getUserTypeUseCase = get(),
             getAdminStatisticUseCase = get(),
             getPremiumStatisticUseCase = get()
+        )
+    }
+
+    viewModel<ResetPasswordViewModel> {
+        ResetPasswordViewModel(
+            confirmCodeUseCase = get(),
+            resetPasswordUseCase = get(),
+            sendToEmailUseCase = get()
         )
     }
 }

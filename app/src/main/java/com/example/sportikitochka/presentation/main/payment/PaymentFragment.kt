@@ -133,6 +133,21 @@ class PaymentFragment : Fragment() {
                         cardLayout.visibility = View.GONE
                     }
                 }
+
+                ScreenPaymentState.BuyingError -> TODO()
+                ScreenPaymentState.BuyingSuccess -> TODO()
+                ScreenPaymentState.CardOperationError -> TODO()
+                ScreenPaymentState.CardOperationSuccess -> TODO()
+                ScreenPaymentState.CardsLoaded -> TODO()
+                ScreenPaymentState.CardsLoadingError -> TODO()
+                ScreenPaymentState.Loading -> TODO()
+                ScreenPaymentState.BuyingError -> TODO()
+                ScreenPaymentState.BuyingSuccess -> TODO()
+                ScreenPaymentState.CardOperationError -> TODO()
+                ScreenPaymentState.CardOperationSuccess -> TODO()
+                ScreenPaymentState.CardsLoaded -> TODO()
+                ScreenPaymentState.CardsLoadingError -> TODO()
+                ScreenPaymentState.Loading -> TODO()
             }
         }
         selectedCardLiveData.observe(viewLifecycleOwner) {
@@ -168,28 +183,13 @@ class PaymentFragment : Fragment() {
             cardActionListener = object : CardsAdapter.CardActionListener {
                 override fun onClickItem(card: CreditCard) {
                     selectedCard = card
-//                    else {
-//                        with(binding) {
-//                            loadingLayout.visibility = View.GONE
-//                            errorLayout.visibility = View.GONE
-//                            contentLayout.visibility = View.GONE
-//                            cardLayout.visibility = View.VISIBLE
-//
-//                            confirmButton.setOnClickListener {
-//                                //TODO Создание карты
-//                                selectedCard?.let {
-//                                    viewModel.addCard(it.cardName!!, it.cardNumber!!, it.month!!, it.year!!, it.cvv!!)
-//                                }
-//                            }
-//                            deleteButton.visibility = View.GONE
-//                        }
-//                    }
+                    selectedCardLiveData.postValue(card)
+
                     with(binding) {
                         contentLayout.visibility = View.VISIBLE
                         bottomCardView.visibility = View.VISIBLE
                         cardLayout.visibility = View.GONE
                     }
-
                 }
             },
             buttonActionListener = object : CardsAdapter.CardActionListener {
@@ -205,20 +205,21 @@ class PaymentFragment : Fragment() {
 
                         confirmButton.setOnClickListener {
                             //TODO сделать проверку на валидность
-                            val expirityDate = creditCardView.expiryDate
-                            val name = creditCardView.cardName
-                            val number = creditCardView.cardNumber
-                            val cvv = 123
+                            val cardValue = creditCardView.getCardValue()
+                            val expirityDate = cardValue.cardValidDate
+                            val name = cardValue.cardUsersName
+                            val number = cardValue.cardNumber
+                            val cvv = cardValue.cardCvcNumber
+
                             if (validate()) {
-                                val dates = expirityDate.split("/")
-                                val month = dates[0]
-                                val year = dates[1]
+                                val month = expirityDate?.substring(0,1)
+                                val year = expirityDate?.substring(2,3)
                                 viewModel.addCard(
-                                    name,
-                                    number,
-                                    month.toInt(),
-                                    year.toInt(),
-                                    cvv.toInt(),
+                                    name!!,
+                                    number!!,
+                                    month!!.toInt(),
+                                    year!!.toInt(),
+                                    cvv!!.toInt(),
                                 )
                                 selectedCardLiveData.postValue(
                                     CreditCard(
@@ -252,20 +253,20 @@ class PaymentFragment : Fragment() {
 
                         confirmButton.setOnClickListener {
                             //TODO сделать проверку на валидность
-                            val expirityDate = creditCardView.expiryDate
-                            val name = creditCardView.cardName
-                            val number = creditCardView.cardNumber
-                            val cvv = 123
+                            val cardValue = creditCardView.getCardValue()
+                            val expirityDate = cardValue.cardValidDate
+                            val name = cardValue.cardUsersName
+                            val number = cardValue.cardNumber
+                            val cvv = cardValue.cardCvcNumber
                             if (validate()) {
-                                val dates = expirityDate.split("/")
-                                val month = dates[0]
-                                val year = dates[1]
+                                val month = expirityDate?.substring(0,2)
+                                val year = expirityDate?.substring(2,4)
                                 viewModel.addCard(
-                                    name,
-                                    number,
-                                    month.toInt(),
-                                    year.toInt(),
-                                    cvv.toInt(),
+                                    name!!,
+                                    number!!,
+                                    month!!.toInt(),
+                                    year!!.toInt(),
+                                    cvv!!.toInt(),
                                 )
                                 selectedCardLiveData.postValue(
                                     CreditCard(
@@ -273,7 +274,7 @@ class PaymentFragment : Fragment() {
                                         number,
                                         month.toInt(),
                                         year.toInt(),
-                                        cvv.toInt(),
+                                        cvv!!.toInt(),
                                     )
                                 )
                                 contentLayout.visibility = View.VISIBLE
@@ -294,13 +295,14 @@ class PaymentFragment : Fragment() {
 
     private fun validate(): Boolean  {
         with(binding) {
-            val expirityDate = creditCardView.expiryDate
-            val expitityRegex = Regex("""^(0[1-9]|1[0-2])/(2[0-9]{2}|[0-1][0-9]{2})$""")
-            val name = creditCardView.cardName
-            val number = creditCardView.cardNumber
-            val cvv = 123
+            val expirityDate = creditCardView.cardValidDate
+            val expitityRegex = Regex("^\\d{4}$")
+            val cardValue = creditCardView.getCardValue()
+            val name = cardValue.cardUsersName
+            val number = cardValue.cardNumber
+            val cvv = cardValue.cardCvcNumber
 
-            if (expirityDate.isNullOrBlank() || expitityRegex.matches(expirityDate)){
+            if (expirityDate == null || !expitityRegex.matches(expirityDate)){
                 showSnackbar("Неверно введен конец срока действия карты", requireActivity().findViewById(R.id.rootViewMain))
             }
             else if (name == null || name.isNullOrBlank()) {
@@ -309,7 +311,7 @@ class PaymentFragment : Fragment() {
             else if (number == null || number.isNullOrBlank()) {
                 showSnackbar("Неверно введен номер карты", requireActivity().findViewById(R.id.rootViewMain))
             }
-            else if (cvv == null) {
+            else if (cvv == null || cvv.isNullOrBlank()) {
                 showSnackbar("Неверно введен cvv", requireActivity().findViewById(R.id.rootViewMain))
             }
             else {

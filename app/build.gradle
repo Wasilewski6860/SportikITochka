@@ -117,7 +117,7 @@ dependencies {
     implementation 'io.github.infeez.kotlin-mock-server:mock-server-okhttp:1.0.0'
 
 //    implementation 'com.github.maxpilotto:credit-card-view:8.0.0'
-    implementation "com.vinaygaba:creditcardview:1.0.4"
+//    implementation "com.vinaygaba:creditcardview:1.0.4"
 //    implementation "com.github.KunikaValecha:CreditCardView:1.0"
 
     implementation 'io.appmetrica.analytics:analytics:6.5.0'
@@ -126,5 +126,10 @@ dependencies {
     implementation "world.mappable.android:maps.mobile:1.2.1-lite"
 
     implementation("com.squareup.okio:okio:3.9.0")
+
+//    implementation "com.github.KunikaValecha:CreditCardView:1.0"
+
+    implementation 'com.github.Muratthekus:Credit-Card-Visualizer:v1.0'
+
 
 }

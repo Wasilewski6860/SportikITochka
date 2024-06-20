@@ -13,7 +13,7 @@ import retrofit2.Response
 
 interface PaymentRepository {
 
-    suspend fun getAllCards() : Response<AllCardsResponse>
+    suspend fun getAllCards() : Response<List<CreditCardResponse>>
     suspend fun buyPremium(buyPremiumRequest: BuyPremiumRequest) : Response<BuyPremiumResponse>
     suspend fun cancelPremium() : Response<CancelPremiumResponse>
 }

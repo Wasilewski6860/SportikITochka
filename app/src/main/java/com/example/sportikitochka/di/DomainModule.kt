@@ -26,6 +26,9 @@ import com.example.sportikitochka.domain.use_cases.payment.GetAllCardsUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetAdminProfileUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileLocallyUseCase
 import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.domain.use_cases.reset_password.ConfirmCodeUseCase
+import com.example.sportikitochka.domain.use_cases.reset_password.ResetPasswordUseCase
+import com.example.sportikitochka.domain.use_cases.reset_password.SendToEmailUseCase
 import com.example.sportikitochka.domain.use_cases.statistic.GetAdminStatisticUseCase
 import com.example.sportikitochka.domain.use_cases.statistic.GetPremiumStatisticUseCase
 import com.example.sportikitochka.domain.use_cases.user_data.ChangeAdminDataUseCase
@@ -91,4 +94,8 @@ val domainModule = module {
 
     factory<GetSessionUseCase> { GetSessionUseCase(sessionRepository = get()) }
     factory<CancelPremiumUseCase> { CancelPremiumUseCase(paymentRepository = get()) }
+
+    factory<ConfirmCodeUseCase> { ConfirmCodeUseCase(resetPasswordRepository = get()) }
+    factory<ResetPasswordUseCase> { ResetPasswordUseCase(resetPasswordRepository = get()) }
+    factory<SendToEmailUseCase> { SendToEmailUseCase(resetPasswordRepository = get()) }
 }

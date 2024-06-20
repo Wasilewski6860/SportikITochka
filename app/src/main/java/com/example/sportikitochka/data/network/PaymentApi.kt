@@ -21,7 +21,7 @@ interface PaymentApi {
     @GET(EndPoints.GET_ALL_CARDS)
     suspend fun getAllCards(
         @Header("Authorization") token: String
-    ): Response<AllCardsResponse>
+    ): Response<List<CreditCardResponse>>
 
 
     @POST(EndPoints.BUY_PREMIUM)

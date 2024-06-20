@@ -129,6 +129,7 @@
                 android:textColor="@color/bottom_nav_background"/>
 
             <TextView
+                android:id="@+id/forgot_pass_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
