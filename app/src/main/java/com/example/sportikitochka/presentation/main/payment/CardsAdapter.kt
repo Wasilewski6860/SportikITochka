@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.CardItemLayoutBinding
 import com.example.sportikitochka.databinding.RatingItemBinding
-import com.example.sportikitochka.domain.models.CreditCard
-import com.example.sportikitochka.domain.models.User
+import com.example.domain.models.CreditCard
+import com.example.domain.models.User
 import com.example.sportikitochka.other.TrackingUtility
 import java.text.DecimalFormat
 
@@ -18,7 +18,7 @@ class CardsAdapter(
     private val cardActionListener: CardActionListener,
     private val buttonActionListener: CardActionListener,
     private val newCardClickActionListener: CardActionListener,
-) : ListAdapter<CreditCard, CardsAdapter.CardViewHolder>(DiffCallBack) {
+) : ListAdapter<com.example.domain.models.CreditCard, CardsAdapter.CardViewHolder>(DiffCallBack) {
 
     class CardViewHolder(val binding: CardItemLayoutBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -71,17 +71,17 @@ class CardsAdapter(
     }
 
     interface CardActionListener {
-        fun onClickItem(card: CreditCard)
+        fun onClickItem(card: com.example.domain.models.CreditCard)
     }
 
     companion object {
-        val DiffCallBack = object : DiffUtil.ItemCallback<CreditCard>() {
+        val DiffCallBack = object : DiffUtil.ItemCallback<com.example.domain.models.CreditCard>() {
 
-            override fun areItemsTheSame(oldItem: CreditCard, newItem: CreditCard): Boolean {
+            override fun areItemsTheSame(oldItem: com.example.domain.models.CreditCard, newItem: com.example.domain.models.CreditCard): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: CreditCard, newItem: CreditCard): Boolean {
+            override fun areContentsTheSame(oldItem: com.example.domain.models.CreditCard, newItem: com.example.domain.models.CreditCard): Boolean {
                 return oldItem == newItem
             }
         }

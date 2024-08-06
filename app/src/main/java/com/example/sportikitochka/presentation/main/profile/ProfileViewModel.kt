@@ -5,23 +5,36 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sportikitochka.data.models.request.profile.ProfilePeriod
-import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.models.response.profile.AdminProfileResponse
-import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
-import com.example.sportikitochka.domain.use_cases.auth.GetSessionUseCase
-import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
-import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
-import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
-import com.example.sportikitochka.domain.use_cases.payment.CancelPremiumUseCase
-import com.example.sportikitochka.domain.use_cases.profile.GetAdminProfileUseCase
-import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
-import com.example.sportikitochka.presentation.main.main.ScreenMainState
+import com.example.data.models.request.profile.ProfilePeriod
+import com.example.data.models.request.profile.UserProfileRequest
+import com.example.data.models.response.profile.AdminProfileResponse
+import com.example.data.models.response.profile.UserProfileResponse
+import com.example.domain.coroutines.Response
+import com.example.domain.models.AdminProfile
+import com.example.domain.models.UserData
+import com.example.domain.models.UserProfile
+import com.example.domain.models.UserType
+import com.example.domain.use_cases.auth.GetSessionUseCase
+import com.example.domain.use_cases.auth.GetUserRoleUseCase
+import com.example.domain.use_cases.auth.SaveSessionUseCase
+import com.example.domain.use_cases.auth.SignOutUseCase
+import com.example.domain.use_cases.payment.CancelPremiumUseCase
+import com.example.domain.use_cases.profile.GetAdminProfileUseCase
+import com.example.domain.use_cases.profile.GetProfileUseCase
+import com.example.sportikitochka.common.State
+import com.example.sportikitochka.presentation.main.payment.PaymentState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
 
+data class ProfileScreenState(
+    val profileState: State<UserProfile> = State.Loading,
+    val adminProfileState: State<AdminProfile> = State.Loading,
+    val cancelProfileState: State<Unit> = State.NotStarted,
+    val userRole: UserType = UserType.Normal
+)
 class ProfileViewModel(
     private val getUserRoleUseCase: GetUserRoleUseCase,
     private val signOutUseCase: SignOutUseCase,
@@ -32,19 +45,11 @@ class ProfileViewModel(
     private val getSessionUseCase: GetSessionUseCase,
 ) : ViewModel() {
 
-    private val _screenState = MutableLiveData<ScreenProfileState>()
-    val screenState: LiveData<ScreenProfileState> = _screenState
+    private val _screenState = MutableStateFlow<ProfileScreenState>(
+        ProfileScreenState()
+    )
+    val screenState: StateFlow<ProfileScreenState> = _screenState
 
-    private val _userInfo = MutableLiveData<UserProfileResponse>()
-    val userInfo: LiveData<UserProfileResponse> = _userInfo
-
-    private val _adminInfo = MutableLiveData<AdminProfileResponse>()
-    val adminInfo: LiveData<AdminProfileResponse> = _adminInfo
-
-    private val _userRole = MutableLiveData<UserType>()
-    val userRole: LiveData<UserType> = _userRole
-
-    fun getUserRole() = _userRole.postValue(getUserRoleUseCase.execute())
     fun getRole()  = getUserRoleUseCase.execute()
 
     fun signOut(){
@@ -53,124 +58,73 @@ class ProfileViewModel(
         }
     }
 
-    fun loadProfileInitial() {
-        _screenState.postValue(ScreenProfileState.Loading)
-        loadUserProfile(ProfilePeriod.WEEK)
+    fun getUserRole(){
+        _screenState.value = _screenState.value.copy(userRole = getUserRoleUseCase.execute()!!)
     }
-    fun loadProfileForWeek() {
-        _screenState.postValue(ScreenProfileState.LoadingPeriod)
-        loadUserProfile(ProfilePeriod.WEEK)
-    }
-    fun loadProfileForMonth() {
-        _screenState.postValue(ScreenProfileState.LoadingPeriod)
-        loadUserProfile(ProfilePeriod.MONTH)
-    }
-    fun loadProfileForYear() {
-        _screenState.postValue(ScreenProfileState.LoadingPeriod)
-        loadUserProfile(ProfilePeriod.YEAR)
-    }
-    fun loadProfileForAllTime() {
-        _screenState.postValue(ScreenProfileState.LoadingPeriod)
-        loadUserProfile(ProfilePeriod.ALL_TIME)
-    }
-
-    private fun loadUserProfile(period: ProfilePeriod) {
+    fun loadUserProfile(period: ProfilePeriod) {
+        _screenState.value = _screenState.value.copy(profileState = State.Loading)
         viewModelScope.launch {
-            try {
-                val userProfileResponse = getProfileUseCase.execute(UserProfileRequest(period.period))
-                if (userProfileResponse.isSuccessful) {
-                    var responseBody = userProfileResponse.body()
-
-                    if (responseBody != null) {
-                        _userInfo.postValue(responseBody!!)
-                        _screenState.postValue(ScreenProfileState.Success)
-                    }
-                    else _screenState.postValue(ScreenProfileState.Error)
-
-                } else {
-                    val error = userProfileResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("LOAD USER PROFILE", it) }
-                    _screenState.postValue(ScreenProfileState.Error)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("LOAD PROFILE", httpException.toString())
-                _screenState.postValue(ScreenProfileState.Error)
-            } catch (exception: Exception) {
-                Log.e("LOAD PROFILE", exception.toString())
-                _screenState.postValue(ScreenProfileState.Error)
+            val userDataResponse = getProfileUseCase.execute(period.toString())
+            if (userDataResponse is Response.Success) {
+                _screenState.value = _screenState.value.copy(profileState = State.Success(userDataResponse.value))
+            }
+            else {
+                _screenState.value = _screenState.value.copy(profileState = State.Error((userDataResponse as Response.Failure).error))
             }
         }
     }
 
     fun loadAdminProfile() {
-        _screenState.postValue(ScreenProfileState.Loading)
+        _screenState.value = _screenState.value.copy(adminProfileState = State.Loading)
         viewModelScope.launch {
-            try {
-                val userProfileResponse = getAdminProfileUseCase.execute()
-                if (userProfileResponse.isSuccessful) {
-                    var responseBody = userProfileResponse.body()
-
-                    if (responseBody != null) {
-                        _adminInfo.postValue(responseBody!!)
-                        _screenState.postValue(ScreenProfileState.Success)
-                    }
-                    else _screenState.postValue(ScreenProfileState.Error)
-
-                } else {
-                    val error = userProfileResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("LOAD ADMIN PROFILE", it) }
-                    _screenState.postValue(ScreenProfileState.Error)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("LOAD ADMIN PROFILE", httpException.toString())
-                _screenState.postValue(ScreenProfileState.Error)
-            } catch (exception: Exception) {
-                Log.e("LOAD ADMIN PROFILE", exception.toString())
-                _screenState.postValue(ScreenProfileState.Error)
+            val userDataResponse = getAdminProfileUseCase.execute()
+            if (userDataResponse is Response.Success) {
+                _screenState.value = _screenState.value.copy(adminProfileState = State.Success(userDataResponse.value))
+            }
+            else {
+                _screenState.value = _screenState.value.copy(adminProfileState = State.Error((userDataResponse as Response.Failure).error))
             }
         }
     }
 
+    fun loadProfileInitial() {
+        loadUserProfile(ProfilePeriod.WEEK)
+    }
+    fun loadProfileForWeek() {
+        loadUserProfile(ProfilePeriod.WEEK)
+    }
+    fun loadProfileForMonth() {
+        loadUserProfile(ProfilePeriod.MONTH)
+    }
+    fun loadProfileForYear() {
+        loadUserProfile(ProfilePeriod.YEAR)
+    }
+    fun loadProfileForAllTime() {
+        loadUserProfile(ProfilePeriod.ALL_TIME)
+    }
+
+
     fun cancelPremium() {
-        _screenState.postValue(ScreenProfileState.Loading)
+        _screenState.value = _screenState.value.copy(cancelProfileState = State.Loading)
         viewModelScope.launch {
-            try {
-                val response = cancelPremiumUseCase.execute()
-                if (response.isSuccessful) {
-                    _screenState.postValue(ScreenProfileState.Success)
-                    val session = getSessionUseCase.execute()
-                    session?.role = UserType.Normal.toString()
-                    session?.let {
-                        saveSessionUseCase.execute(it)
-                    }
-                    loadProfileForWeek()
-                    getUserRole()
-                } else {
-                    val error = response.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("CANCEL PREMIUM", it) }
-                    _screenState.postValue(ScreenProfileState.Error)
+            val userDataResponse = cancelPremiumUseCase.execute()
+            if (userDataResponse is Response.Success) {
+                _screenState.value = _screenState.value.copy(
+                    cancelProfileState = State.Success(userDataResponse.value),
+                    userRole = UserType.Normal
+                )
+                val session = getSessionUseCase.execute()
+                session?.role = UserType.Normal.toString()
+                session?.let {
+                    saveSessionUseCase.execute(it)
                 }
-            } catch (httpException: HttpException) {
-                Log.e("CANCEL PREMIUM", httpException.toString())
-                _screenState.postValue(ScreenProfileState.Error)
-            } catch (exception: Exception) {
-                Log.e("CANCEL PREMIUM", exception.toString())
-                _screenState.postValue(ScreenProfileState.Error)
+                loadProfileForWeek()
+            }
+            else {
+                _screenState.value = _screenState.value.copy(
+                    cancelProfileState = State.Error((userDataResponse as Response.Failure).error),
+                    userRole = UserType.Premium
+                )
             }
         }
     }

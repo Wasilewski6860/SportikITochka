@@ -5,22 +5,28 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sportikitochka.data.models.request.profile.ProfilePeriod
-import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.models.response.statistic.AdminStatisticsResponse
-import com.example.sportikitochka.data.models.response.statistic.PremiumStatisticsResponse
-import com.example.sportikitochka.domain.models.User
-import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
-import com.example.sportikitochka.domain.use_cases.statistic.GetAdminStatisticUseCase
-import com.example.sportikitochka.domain.use_cases.statistic.GetPremiumStatisticUseCase
-import com.example.sportikitochka.presentation.main.profile.ScreenProfileState
-import com.example.sportikitochka.presentation.main.rating.ScreenRatingState
+import com.example.data.models.request.profile.ProfilePeriod
+import com.example.data.models.response.statistic.AdminStatisticsResponse
+import com.example.data.models.response.statistic.PremiumStatisticsResponse
+import com.example.domain.coroutines.Response
+import com.example.domain.models.AdminStatistic
+import com.example.domain.models.PremiumStatistic
+import com.example.domain.models.UserType
+import com.example.domain.use_cases.auth.GetUserRoleUseCase
+import com.example.domain.use_cases.statistic.GetAdminStatisticUseCase
+import com.example.domain.use_cases.statistic.GetPremiumStatisticUseCase
+import com.example.sportikitochka.common.State
+import com.example.sportikitochka.presentation.main.rating.RatingScreenState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
-import java.time.Period
 
+data class StatisticsScreenState(
+    val premiumState: State<PremiumStatistic> = State.NotStarted,
+    val adminState: State<AdminStatistic> = State.NotStarted,
+)
 class StatisticsViewModel(
     private val getUserTypeUseCase: GetUserRoleUseCase,
     private val getAdminStatisticUseCase: GetAdminStatisticUseCase,
@@ -28,81 +34,33 @@ class StatisticsViewModel(
 ) : ViewModel() {
     fun getType(): UserType = getUserTypeUseCase.execute()!!
 
-    private val _screenState = MutableLiveData<StatisticScreenState>()
-    val screenState: LiveData<StatisticScreenState> = _screenState
-
-    private val _premiumStatistic = MutableLiveData<PremiumStatisticsResponse>()
-    val premiumStatistic: LiveData<PremiumStatisticsResponse> = _premiumStatistic
-
-    private val _adminStatistic = MutableLiveData<AdminStatisticsResponse>()
-    val adminStatistic: LiveData<AdminStatisticsResponse> = _adminStatistic
+    private val _screenState = MutableStateFlow<StatisticsScreenState>(
+        StatisticsScreenState()
+    )
+    val screenState: StateFlow<StatisticsScreenState> = _screenState
 
     fun fetchPremiumStatistic(period: ProfilePeriod) {
-        _screenState.postValue(StatisticScreenState.Loading)
+        _screenState.value = _screenState.value.copy(premiumState = State.Loading)
         viewModelScope.launch {
-            try {
-                val getPremiumStatisticsResponse = getPremiumStatisticUseCase.execute(period)
-                if (getPremiumStatisticsResponse.isSuccessful) {
-                    var responseBody = getPremiumStatisticsResponse.body()
-
-                    if (responseBody != null) {
-                        _premiumStatistic.postValue(responseBody!!)
-                        _screenState.postValue(StatisticScreenState.Success)
-                    }
-                    else _screenState.postValue(StatisticScreenState.Error)
-
-                } else {
-                    var error = getPremiumStatisticsResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("PREMIUM_STATISTIC", it) }
-                    _screenState.postValue(StatisticScreenState.Error)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("PREMIUM_STATISTIC", httpException.toString())
-                _screenState.postValue(StatisticScreenState.Error)
-            } catch (exception: Exception) {
-                Log.e("PREMIUM_STATISTIC", exception.toString())
-                _screenState.postValue(StatisticScreenState.Error)
+            val userDataResponse = getPremiumStatisticUseCase.execute(period.toString())
+            if (userDataResponse is Response.Success) {
+                _screenState.value = _screenState.value.copy(premiumState = State.Success(userDataResponse.value))
+            }
+            else {
+                _screenState.value = _screenState.value.copy(premiumState = State.Error((userDataResponse as Response.Failure).error))
             }
         }
     }
 
-    fun fetchAdminStatistic(period: ProfilePeriod) {
-        _screenState.postValue(StatisticScreenState.Loading)
+    fun fetchAdminStatistic(period: com.example.data.models.request.profile.ProfilePeriod) {
+        _screenState.value = _screenState.value.copy(adminState = State.Loading)
         viewModelScope.launch {
-            try {
-                val getAdminStatisticsResponse = getAdminStatisticUseCase.execute(period)
-                if (getAdminStatisticsResponse.isSuccessful) {
-                    var responseBody = getAdminStatisticsResponse.body()
-
-                    if (responseBody != null) {
-                        responseBody.premiumUsers
-
-                        _adminStatistic.postValue(responseBody!!)
-                        _screenState.postValue(StatisticScreenState.Success)
-                    }
-                    else _screenState.postValue(StatisticScreenState.Error)
-
-                } else {
-                    var error = getAdminStatisticsResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("ADMIN_STATISTIC", it) }
-                    _screenState.postValue(StatisticScreenState.Error)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("ADMIN_STATISTIC", httpException.toString())
-                _screenState.postValue(StatisticScreenState.Error)
-            } catch (exception: Exception) {
-                Log.e("ADMIN_STATISTIC", exception.toString())
-                _screenState.postValue(StatisticScreenState.Error)
+            val userDataResponse = getAdminStatisticUseCase.execute(period.toString())
+            if (userDataResponse is Response.Success) {
+                _screenState.value = _screenState.value.copy(adminState = State.Success(userDataResponse.value))
+            }
+            else {
+                _screenState.value = _screenState.value.copy(adminState = State.Error((userDataResponse as Response.Failure).error))
             }
         }
     }

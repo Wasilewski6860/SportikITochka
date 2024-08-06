@@ -1,14 +1,14 @@
 package com.example.sportikitochka.di
 
-import com.example.sportikitochka.domain.use_cases.activity.AddActivityLocalUseCase
-import com.example.sportikitochka.domain.use_cases.activity.AddActivityRemoteUseCase
-import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesLocalUseCase
-import com.example.sportikitochka.domain.use_cases.activity.GetAllActivitiesRemoteUseCase
-import com.example.sportikitochka.domain.use_cases.admin_action.BlockUserUseCase
-import com.example.sportikitochka.domain.use_cases.admin_action.GrantPremiumUseCase
-import com.example.sportikitochka.domain.use_cases.admin_action.RevokePremiumUseCase
-import com.example.sportikitochka.domain.use_cases.admin_action.UnblockUserUseCase
-import com.example.sportikitochka.domain.use_cases.auth.ChangeUserTypeUseCase
+import com.example.domain.use_cases.activity.AddActivityLocalUseCase
+import com.example.domain.use_cases.activity.AddActivityRemoteUseCase
+import com.example.domain.use_cases.activity.GetAllActivitiesLocalUseCase
+import com.example.domain.use_cases.activity.GetAllActivitiesRemoteUseCase
+import com.example.domain.use_cases.admin_action.BlockUserUseCase
+import com.example.domain.use_cases.admin_action.GrantPremiumUseCase
+import com.example.domain.use_cases.admin_action.RevokePremiumUseCase
+import com.example.domain.use_cases.admin_action.UnblockUserUseCase
+import com.example.domain.use_cases.auth.ChangeUserTypeUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetSessionUseCase
 import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
 import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
@@ -56,17 +56,45 @@ val domainModule = module {
     factory<GetUserRoleUseCase> { GetUserRoleUseCase(sessionRepository = get()) }
 
     factory<GetProfileUseCase> { GetProfileUseCase(profileRepository = get()) }
-    factory<AddActivityLocalUseCase> { AddActivityLocalUseCase(activityRepository = get()) }
-    factory<GetAllActivitiesRemoteUseCase> { GetAllActivitiesRemoteUseCase(activityRepository = get()) }
-    factory<GetAllActivitiesLocalUseCase> { GetAllActivitiesLocalUseCase(activityRepository = get()) }
+    factory<com.example.domain.use_cases.activity.AddActivityLocalUseCase> {
+        com.example.domain.use_cases.activity.AddActivityLocalUseCase(
+            activityRepository = get()
+        )
+    }
+    factory<com.example.domain.use_cases.activity.GetAllActivitiesRemoteUseCase> {
+        com.example.domain.use_cases.activity.GetAllActivitiesRemoteUseCase(
+            activityRepository = get()
+        )
+    }
+    factory<com.example.domain.use_cases.activity.GetAllActivitiesLocalUseCase> {
+        com.example.domain.use_cases.activity.GetAllActivitiesLocalUseCase(
+            activityRepository = get()
+        )
+    }
 
     factory<GetUserRoleUseCase> { GetUserRoleUseCase(sessionRepository = get()) }
     factory<GetProfileUseCase> { GetProfileUseCase(profileRepository = get()) }
     factory<GetAllUsersUseCase> { GetAllUsersUseCase(usersRepository = get()) }
-    factory<BlockUserUseCase> { BlockUserUseCase(adminActionRepository = get()) }
-    factory<UnblockUserUseCase> { UnblockUserUseCase(adminActionRepository = get()) }
-    factory<GrantPremiumUseCase> { GrantPremiumUseCase(adminActionRepository = get()) }
-    factory<RevokePremiumUseCase> { RevokePremiumUseCase(adminActionRepository = get()) }
+    factory<com.example.domain.use_cases.admin_action.BlockUserUseCase> {
+        com.example.domain.use_cases.admin_action.BlockUserUseCase(
+            adminActionRepository = get()
+        )
+    }
+    factory<com.example.domain.use_cases.admin_action.UnblockUserUseCase> {
+        com.example.domain.use_cases.admin_action.UnblockUserUseCase(
+            adminActionRepository = get()
+        )
+    }
+    factory<com.example.domain.use_cases.admin_action.GrantPremiumUseCase> {
+        com.example.domain.use_cases.admin_action.GrantPremiumUseCase(
+            adminActionRepository = get()
+        )
+    }
+    factory<com.example.domain.use_cases.admin_action.RevokePremiumUseCase> {
+        com.example.domain.use_cases.admin_action.RevokePremiumUseCase(
+            adminActionRepository = get()
+        )
+    }
 
     factory<GetUserDataUseCase> { GetUserDataUseCase(userDataRepository = get()) }
     factory<GetAdminDataUseCase> { GetAdminDataUseCase(userDataRepository = get()) }
@@ -75,7 +103,11 @@ val domainModule = module {
     factory<SaveUserDataUseCase> { SaveUserDataUseCase(sessionRepository = get()) }
     factory<GetUserDataLocallyUseCase> { GetUserDataLocallyUseCase(sessionRepository = get()) }
 
-    factory<AddActivityRemoteUseCase> { AddActivityRemoteUseCase(activityRepository = get()) }
+    factory<com.example.domain.use_cases.activity.AddActivityRemoteUseCase> {
+        com.example.domain.use_cases.activity.AddActivityRemoteUseCase(
+            activityRepository = get()
+        )
+    }
 
     factory<GetProfileLocallyUseCase> { GetProfileLocallyUseCase(profileRepository = get()) }
 
@@ -85,7 +117,12 @@ val domainModule = module {
     factory<BuyPremiumUseCase> { BuyPremiumUseCase(paymentRepository = get()) }
     factory<GetAllCardsUseCase> { GetAllCardsUseCase(paymentRepository = get()) }
 
-    factory<ChangeUserTypeUseCase> { ChangeUserTypeUseCase(authRepository = get(), sessionRepository = get()) }
+    factory<com.example.domain.use_cases.auth.ChangeUserTypeUseCase> {
+        com.example.domain.use_cases.auth.ChangeUserTypeUseCase(
+            authRepository = get(),
+            sessionRepository = get()
+        )
+    }
 
     factory<GetAdminStatisticUseCase> { GetAdminStatisticUseCase(statisticRepository = get()) }
     factory<GetPremiumStatisticUseCase> { GetPremiumStatisticUseCase(statisticRepository = get()) }

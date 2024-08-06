@@ -1,24 +1,19 @@
 package com.example.sportikitochka.presentation.main.rating
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.databinding.RatingItemBinding
 import com.example.sportikitochka.databinding.RatingItemViewBinding
-import com.example.sportikitochka.domain.models.User
-import com.example.sportikitochka.other.TrackingUtility
+import com.example.domain.models.User
 import java.text.DecimalFormat
 
 class RatingAdapter(
     private val isAdmin: Boolean,
     private val premiumActionListener: UserPremiumActionListener,
     private val blockActionListener: UserBlockActionListener
-) : ListAdapter<User, RatingAdapter.UserViewHolder>(DiffCallBack) {
+) : ListAdapter<com.example.domain.models.User, RatingAdapter.UserViewHolder>(DiffCallBack) {
 
     class UserViewHolder(val binding: RatingItemViewBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -114,21 +109,21 @@ class RatingAdapter(
 
 
     interface UserPremiumActionListener {
-        fun onClickItem(user: User)
+        fun onClickItem(user: com.example.domain.models.User)
     }
 
     interface UserBlockActionListener {
-        fun onClickItem(user: User)
+        fun onClickItem(user: com.example.domain.models.User)
     }
 
     companion object {
-        val DiffCallBack = object : DiffUtil.ItemCallback<User>() {
+        val DiffCallBack = object : DiffUtil.ItemCallback<com.example.domain.models.User>() {
 
-            override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
+            override fun areItemsTheSame(oldItem: com.example.domain.models.User, newItem: com.example.domain.models.User): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
+            override fun areContentsTheSame(oldItem: com.example.domain.models.User, newItem: com.example.domain.models.User): Boolean {
                 return oldItem == newItem
             }
         }

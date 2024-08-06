@@ -1,25 +1,28 @@
 package com.example.sportikitochka.presentation.main.rating
 
-import android.graphics.BitmapFactory
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.network.EndPoints
+import com.example.data.network.EndPoints
 import com.example.sportikitochka.databinding.FragmentRatingBinding
-import com.example.sportikitochka.domain.models.User
+import com.example.domain.models.User
+import com.example.domain.models.UserType
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import io.appmetrica.analytics.AppMetrica
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RatingFragment : Fragment() {
@@ -68,112 +71,7 @@ class RatingFragment : Fragment() {
         viewModel.loadUserProfile()
         viewModel.fetchUsers()
 
-        when(viewModel.getType()) {
-            is UserType.Normal -> {
-                binding.isAdminTv.visibility = View.GONE
-                binding.raitingTv.visibility = View.VISIBLE
-                binding.premiumIvRating.visibility = View.GONE
-
-                viewModel.userInfo.observe(viewLifecycleOwner) {
-                    binding.profileYou.text = "Вы, "
-                    binding.profileNameRaiting.text = it.name
-
-
-                    Glide.with(this@RatingFragment)
-                        .load(EndPoints.BASE_URL +it.image)
-                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                        .circleCrop()
-                        .into(binding.profileImageRaiting)
-
-                    binding.isAdminTv.visibility = View.GONE
-                    binding.raitingTv.visibility = View.VISIBLE
-                    binding.premiumIvRating.visibility = View.GONE
-                    binding.raitingTv.text="#"+it.rating
-                }
-            }
-            is UserType.Premium -> {
-                binding.raitingTv.visibility = View.VISIBLE
-                binding.premiumIvRating.visibility = View.VISIBLE
-                viewModel.userInfo.observe(viewLifecycleOwner) {
-                    binding.profileYou.text = "Вы, "
-                    binding.profileNameRaiting.text = it.name
-
-
-                    Glide.with(this@RatingFragment)
-                        .load(EndPoints.BASE_URL +it.image)
-                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                        .circleCrop()
-                        .into(binding.profileImageRaiting)
-
-                    binding.isAdminTv.visibility = View.GONE
-                    binding.raitingTv.visibility = View.VISIBLE
-                    binding.premiumIvRating.visibility = View.GONE
-                    binding.raitingTv.text="#"+it.rating
-                }
-            }
-            is UserType.Admin -> {
-                binding.isAdminTv.visibility = View.VISIBLE
-                binding.premiumIvRating.visibility = View.GONE
-                binding.raitingTv.visibility = View.GONE
-                binding.isAdminTv.text = "Вы админ"
-                viewModel.adminInfo.observe(viewLifecycleOwner) {
-                    binding.profileYou.text = "Вы, "
-                    binding.profileNameRaiting.text = it.name
-
-                    Glide.with(this@RatingFragment)
-                        .load(EndPoints.BASE_URL +it.image)
-                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                        .circleCrop()
-                        .into(binding.profileImageRaiting)
-                }
-            }
-            else -> Unit
-        }
-
-
-
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ScreenRatingState.Loading -> {
-                    binding.loadingLayout.visibility = View.VISIBLE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                }
-                ScreenRatingState.SuccessRemote -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-                }
-                is ScreenRatingState.ErrorInfo -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-
-                    showSnackbar(it.message, requireActivity().findViewById(R.id.rootViewMain))
-                }
-                is ScreenRatingState.ErrorBlock -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.VISIBLE
-                    binding.errorLayoutTv.text = it.message
-
-                    binding.errorLayoutButton.setOnClickListener {
-                        viewModel.fetchUsers()
-                        viewModel.loadUserProfile()
-                    }
-                }
-                ScreenRatingState.Empty -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-                    showSnackbar("Пустовато как-то(добавить экран)", requireActivity().findViewById(R.id.rootViewMain))
-                }
-            }
-        }
-
-        viewModel.users.observe(viewLifecycleOwner) {
-            ratingAdapter.submitList(it)
-        }
+        initObservers()
     }
 
     private fun setupRecyclerView() = binding.recycler.apply {
@@ -199,6 +97,152 @@ class RatingFragment : Fragment() {
         )
         adapter = ratingAdapter
         layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                       when(it.userType) {
+                           UserType.Admin -> {
+                               binding.isAdminTv.visibility = View.VISIBLE
+                               binding.premiumIvRating.visibility = View.GONE
+                               binding.raitingTv.visibility = View.GONE
+                               binding.isAdminTv.text = "Вы админ"
+                           }
+                           UserType.Normal -> {
+                               binding.isAdminTv.visibility = View.GONE
+                               binding.raitingTv.visibility = View.VISIBLE
+                               binding.premiumIvRating.visibility = View.GONE
+                           }
+                           UserType.Premium -> {
+                               binding.raitingTv.visibility = View.VISIBLE
+                               binding.premiumIvRating.visibility = View.VISIBLE
+                           }
+                       }
+                        when(it.adminProfileState) {
+                            is State.Error -> {
+                                binding.loadingLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.VISIBLE
+                                binding.errorLayoutTv.text = it.adminProfileState.error.message
+
+                                binding.errorLayoutButton.setOnClickListener {
+                                    viewModel.fetchUsers()
+                                    viewModel.loadUserProfile()
+                                }
+                            }
+                            State.Loading -> {
+                                binding.loadingLayout.visibility = View.VISIBLE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                binding.profileYou.text = "Вы, "
+                                binding.profileNameRaiting.text = it.adminProfileState.value.name
+                                Glide.with(this@RatingFragment)
+                                    .load(EndPoints.BASE_URL +it.adminProfileState.value.image)
+                                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                                    .circleCrop()
+                                    .into(binding.profileImageRaiting)
+                            }
+                        }
+                        when(it.userProfileState) {
+                            is State.Error -> {
+                                binding.loadingLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.VISIBLE
+                                binding.errorLayoutTv.text = it.userProfileState.error.message
+
+                                binding.errorLayoutButton.setOnClickListener {
+                                    viewModel.fetchUsers()
+                                    viewModel.loadUserProfile()
+                                }
+                            }
+                            State.Loading -> {
+                                binding.loadingLayout.visibility = View.VISIBLE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                if(it.userType == UserType.Normal) {
+                                    binding.profileYou.text = "Вы, "
+                                    binding.profileNameRaiting.text = it.userProfileState.value.name
+                                    Glide.with(this@RatingFragment)
+                                        .load(EndPoints.BASE_URL +it.userProfileState.value.image)
+                                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                                        .circleCrop()
+                                        .into(binding.profileImageRaiting)
+
+                                    binding.isAdminTv.visibility = View.GONE
+                                    binding.raitingTv.visibility = View.VISIBLE
+                                    binding.premiumIvRating.visibility = View.GONE
+                                    binding.raitingTv.text="#"+it.userProfileState.value.rating
+                                }
+                                else {
+                                    binding.profileYou.text = "Вы, "
+                                    binding.profileNameRaiting.text = it.userProfileState.value.name
+                                    Glide.with(this@RatingFragment)
+                                        .load(com.example.data.network.EndPoints.BASE_URL +it.userProfileState.value.image)
+                                        .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                                        .circleCrop()
+                                        .into(binding.profileImageRaiting)
+
+                                    binding.isAdminTv.visibility = View.GONE
+                                    binding.raitingTv.visibility = View.VISIBLE
+                                    binding.premiumIvRating.visibility = View.GONE
+                                    binding.raitingTv.text="#"+it.userProfileState.value.rating
+                                }
+                            }
+                        }
+                        when(it.users) {
+                            is State.Error -> {
+                                binding.loadingLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.VISIBLE
+                                binding.errorLayout.visibility = View.GONE
+                                showSnackbar(it.users.error.message.toString(), requireActivity().findViewById(R.id.rootViewMain))
+                            }
+                            State.Loading -> {
+                                binding.loadingLayout.visibility = View.VISIBLE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                ratingAdapter.submitList(it.users.value)
+                            }
+                        }
+                        when(it.operationState) {
+                            is State.Error -> {
+                                binding.loadingLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.VISIBLE
+                                binding.errorLayoutTv.text = it.operationState.error.message
+
+                                binding.errorLayoutButton.setOnClickListener {
+                                    viewModel.fetchUsers()
+                                    viewModel.loadUserProfile()
+                                }
+                            }
+                            State.Loading -> {
+                                binding.loadingLayout.visibility = View.VISIBLE
+                                binding.contentLayout.visibility = View.GONE
+                                binding.errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                binding.loadingLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.VISIBLE
+                                binding.errorLayout.visibility = View.GONE
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

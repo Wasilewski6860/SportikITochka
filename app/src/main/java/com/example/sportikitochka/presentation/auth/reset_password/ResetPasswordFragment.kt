@@ -1,46 +1,33 @@
 package com.example.sportikitochka.presentation.auth.reset_password
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.sportactivityapp.other.DateFormatTextWatcher
-import com.example.sportactivityapp.other.PhoneFormatTextWatcher
+import com.example.data.network.error.DoesntMatchException
+import com.example.data.network.error.ForbiddenException
+import com.example.data.network.error.NotFoundException
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.databinding.FragmentResetPasswordBinding
-import com.example.sportikitochka.databinding.FragmentSignUpBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility
-import com.example.sportikitochka.other.WeightTextWatcher
-import com.example.sportikitochka.presentation.auth.sign_up.SignUpScreenState
-import com.example.sportikitochka.presentation.auth.sign_up.SignUpViewModel
-import io.appmetrica.analytics.AppMetrica
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.example.sportikitochka.presentation.auth.AuthActivity
+import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
-import java.io.InputStream
 
 class ResetPasswordFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ResetPasswordFragment()
-    }
 
     private val viewModel: ResetPasswordViewModel by viewModel()
     private var _binding: FragmentResetPasswordBinding? = null
@@ -48,10 +35,6 @@ class ResetPasswordFragment : Fragment() {
 
     protected lateinit var connectionLiveData: ConnectionLiveData
     private var isOnline : Boolean = false
-
-    private var currentScreenState: MutableLiveData<ResetNavigationState> = MutableLiveData<ResetNavigationState>().apply {
-        value = ResetNavigationState.FirstScreen
-    }
 
     private var email: String? = null
     private var password: String? = null
@@ -81,121 +64,159 @@ class ResetPasswordFragment : Fragment() {
                 binding.passwordConfirmEt.transformationMethod = PasswordTransformationMethod.getInstance()
             }
         }
+        initListeners()
+        setupObserver()
+    }
 
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ResetPasswordScreenState.AnyError -> TrackingUtility.showSnackbar(
-                    "Что-то пошло не так",
-                    requireActivity().findViewById(R.id.rootView)
-                )
-                ResetPasswordScreenState.ConfirmCodeError -> TrackingUtility.showSnackbar(
-                    "Код неверный",
-                    requireActivity().findViewById(R.id.rootView)
-                )
-                ResetPasswordScreenState.ConfirmCodeSuccess -> currentScreenState.postValue(ResetNavigationState.ThirdScreen)
-                ResetPasswordScreenState.Loading -> Unit
-                ResetPasswordScreenState.ResetPasswordError -> TrackingUtility.showSnackbar(
-                    "Не удалось сменить пароль",
-                    requireActivity().findViewById(R.id.rootView)
-                )
-                ResetPasswordScreenState.ResetPasswordSuccess -> findNavController().navigate(
-                    R.id.action_resetPasswordFragment_to_signInFragment,
-                    savedInstanceState
-                )
-                ResetPasswordScreenState.SendToEmailError -> TrackingUtility.showSnackbar(
-                    "Не удалось отправить сообщение на введенный адрес. Проверьте корректность введенного",
-                    requireActivity().findViewById(R.id.rootView)
-                )
-                is ResetPasswordScreenState.SendToEmailSuccess -> {
-                    code = it.code
-                    currentScreenState.postValue(ResetNavigationState.SecondScreen)
-                }
-
+    private fun initListeners() = with(binding){
+        switchPasswordVisibility.setOnClickListener {
+            if (binding.switchPasswordVisibility.isChecked) {
+                binding.passwordEt.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                binding.passwordConfirmEt.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            } else {
+                binding.passwordEt.transformationMethod = PasswordTransformationMethod.getInstance()
+                binding.passwordConfirmEt.transformationMethod = PasswordTransformationMethod.getInstance()
             }
         }
-        currentScreenState.observe(viewLifecycleOwner) {
-            with(binding) {
-                when(it) {
-                    is ResetNavigationState.FirstScreen -> {
-                        emailAndPasswordLayout.visibility = View.VISIBLE
-                        emailLayout.visibility = View.VISIBLE
-                        passwordLayout.visibility = View.GONE
-                        codeLayout.visibility = View.GONE
+    }
+    private fun setupObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                        when (it.currentScreen) {
+                            ResetNavigationState.FirstScreen -> {
+                                emailAndPasswordLayout.visibility = View.VISIBLE
+                                emailLayout.visibility = View.VISIBLE
+                                passwordLayout.visibility = View.GONE
+                                codeLayout.visibility = View.GONE
 
-                        val advancedTextView = progressBarSignUp
-                        advancedTextView.setValue(33)
-                        binding.nextButtonResetPassword.setOnClickListener {
-                            if (binding.emailEt.text.isNullOrBlank()){
-                                TrackingUtility.showSnackbar(
-                                    "Введите email",
-                                    requireActivity().findViewById(R.id.rootView)
-                                )
+                                val advancedTextView = progressBarSignUp
+                                advancedTextView.setValue(33)
+
+                                binding.nextButtonResetPassword.setOnClickListener {
+                                    if (binding.emailEt.text.isNullOrBlank()){
+                                        TrackingUtility.showSnackbar(
+                                            "Введите email",
+                                            requireActivity().findViewById(R.id.rootView)
+                                        )
+                                    }
+                                    else {
+                                        email = binding.emailEt.text.toString()
+                                        viewModel.sendEmail(binding.emailEt.text.toString())
+                                    }
+                                }
                             }
-                            else {
-                                email = binding.emailEt.text.toString()
-                                viewModel.sendEmail(binding.emailEt.text.toString())
+                            ResetNavigationState.SecondScreen -> {
+                                emailAndPasswordLayout.visibility = View.VISIBLE
+                                emailLayout.visibility = View.GONE
+                                passwordLayout.visibility = View.GONE
+                                codeLayout.visibility = View.VISIBLE
+
+                                val advancedTextView = progressBarSignUp
+                                advancedTextView.setValue(66)
+                                binding.nextButtonResetPassword.setOnClickListener {
+                                    if (binding.codeEt.text.isNullOrBlank()){
+                                        TrackingUtility.showSnackbar(
+                                            "Введите код",
+                                            requireActivity().findViewById(R.id.rootView)
+                                        )
+                                    }
+                                    else {
+                                        viewModel.confirmCode(code!!,binding.codeEt.text.toString())
+                                    }
+                                }
+                            }
+                            ResetNavigationState.ThirdScreen -> {
+                                emailAndPasswordLayout.visibility = View.VISIBLE
+                                emailLayout.visibility = View.GONE
+                                passwordLayout.visibility = View.VISIBLE
+                                codeLayout.visibility = View.GONE
+
+                                val advancedTextView = progressBarSignUp
+                                advancedTextView.setValue(100)
+
+                                binding.nextButtonResetPassword.setOnClickListener {
+                                    if (binding.passwordEt.text.isNullOrBlank()){
+                                        (requireActivity() as AuthActivity).showSnackbar("Введите пароль")
+                                    }
+                                    else if (binding.passwordEt.text.toString() != binding.passwordConfirmEt.text.toString()){
+                                        TrackingUtility.showSnackbar(
+                                            "Пароли должны совпадать",
+                                            requireActivity().findViewById(R.id.rootView)
+                                        )
+                                    }
+                                    else {
+                                        viewModel.resetPassword(email!!,binding.passwordEt.text.toString(), binding.passwordConfirmEt.text.toString())
+                                    }
+                                }
                             }
                         }
-                    }
-                    is ResetNavigationState.SecondScreen -> {
-                        emailAndPasswordLayout.visibility = View.VISIBLE
-                        emailLayout.visibility = View.GONE
-                        passwordLayout.visibility = View.GONE
-                        codeLayout.visibility = View.VISIBLE
-
-                        val advancedTextView = progressBarSignUp
-                        advancedTextView.setValue(66)
-                        binding.nextButtonResetPassword.setOnClickListener {
-                            if (binding.codeEt.text.isNullOrBlank()){
-                                TrackingUtility.showSnackbar(
-                                    "Введите код",
-                                    requireActivity().findViewById(R.id.rootView)
-                                )
+                        when(it.sendEmailState) {
+                            is State.Error -> {
+                                when(it.sendEmailState.error) {
+                                    is NotFoundException -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Не удалось найти пользователя с данным адресом")
+                                    }
+                                    else -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Не удалось отправить сообщение на введенный адрес. Проверьте корректность введенного")
+                                    }
+                                }
                             }
-                            else {
-                                viewModel.confirmCode(code!!,binding.codeEt.text.toString())
+                            State.Loading -> Unit
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                code = it.sendEmailState.value
+                                viewModel.navigateToScreen(ResetNavigationState.SecondScreen)
                             }
                         }
-                    }
-                    is ResetNavigationState.ThirdScreen -> {
-                        emailAndPasswordLayout.visibility = View.VISIBLE
-                        emailLayout.visibility = View.GONE
-                        passwordLayout.visibility = View.VISIBLE
-                        codeLayout.visibility = View.GONE
-
-                        val advancedTextView = progressBarSignUp
-                        advancedTextView.setValue(100)
-                        binding.nextButtonResetPassword.setOnClickListener {
-                            if (binding.passwordEt.text.isNullOrBlank()){
-                                TrackingUtility.showSnackbar(
-                                    "Введите пароль",
-                                    requireActivity().findViewById(R.id.rootView)
-                                )
+                        when(it.resetPasswordState) {
+                            is State.Error -> {
+                                when(it.resetPasswordState.error) {
+                                    is DoesntMatchException -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Введенные пароли не совпадают")
+                                    }
+                                    else -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Не удалось сменить пароль")
+                                    }
+                                }
                             }
-                            else if (binding.passwordEt.text.toString() != binding.passwordConfirmEt.text.toString()){
-                                TrackingUtility.showSnackbar(
-                                    "Пароли должны совпадать",
-                                    requireActivity().findViewById(R.id.rootView)
-                                )
+                            State.Loading -> Unit
+                            State.NotStarted -> Unit
+                            is State.Success -> findNavController().navigate(
+                                R.id.action_resetPasswordFragment_to_signInFragment
+                            )
+                        }
+                        when(it.confirmPasswordState) {
+                            is State.Error -> {
+                                when(it.confirmPasswordState.error) {
+                                    is ForbiddenException -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Доступ запрещен")
+                                    }
+                                    else -> {
+                                        (requireActivity() as AuthActivity).showSnackbar("Код неверный")
+                                    }
+                                }
                             }
-                            else {
-                                viewModel.resetPassword(email!!,binding.passwordEt.text.toString(), binding.passwordConfirmEt.text.toString())
-                            }
+                            State.Loading -> Unit
+                            State.NotStarted -> Unit
+                            is State.Success -> viewModel.navigateToScreen(ResetNavigationState.ThirdScreen)
                         }
                     }
-
-                    else -> {}
                 }
             }
         }
     }
 
+
 }
 
 
-
-private sealed class ResetNavigationState {
+sealed class ResetNavigationState: Parcelable {
+    @Parcelize
     object FirstScreen: ResetNavigationState()
+    @Parcelize
     object SecondScreen: ResetNavigationState()
+    @Parcelize
     object ThirdScreen: ResetNavigationState()
 }

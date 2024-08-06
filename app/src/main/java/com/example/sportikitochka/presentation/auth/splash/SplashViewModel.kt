@@ -1,8 +1,8 @@
 package com.example.sportikitochka.presentation.auth.splash
 
 import androidx.lifecycle.ViewModel
-import com.example.sportikitochka.domain.use_cases.onboarding.IsOnboardingViewedUseCase
-import com.example.sportikitochka.domain.use_cases.onboarding.SetOnboardingViewedUseCase
+import com.example.domain.use_cases.onboarding.IsOnboardingViewedUseCase
+import com.example.domain.use_cases.onboarding.SetOnboardingViewedUseCase
 
 class SplashViewModel(
     private val isOnboardingViewedUseCase: IsOnboardingViewedUseCase,

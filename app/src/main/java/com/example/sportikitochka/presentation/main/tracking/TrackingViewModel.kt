@@ -5,61 +5,44 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
-import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
-import com.example.sportikitochka.domain.models.SportActivity
-import com.example.sportikitochka.domain.use_cases.activity.AddActivityRemoteUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
+import com.example.data.models.response.user_data.UserDataResponse
+import com.example.domain.coroutines.Response
+import com.example.domain.models.SportActivity
+import com.example.domain.models.UserData
+import com.example.domain.use_cases.activity.AddActivityRemoteUseCase
+import com.example.domain.use_cases.user_data.GetUserDataLocallyUseCase
+import com.example.sportikitochka.common.State
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
 import java.io.File
 
+data class TrackingState(
+    val userDataState: State<UserData> = State.Loading,
+    val saveState: State<Unit> = State.NotStarted,
+    val weight: Float = -1F
+)
 class TrackingViewModel(
     private val addActivityRemoteUseCase: AddActivityRemoteUseCase,
     private val getUserDataLocallyUseCase: GetUserDataLocallyUseCase
 ) : ViewModel() {
 
-    private val _screenState = MutableLiveData<ScreenTrackingState>()
-    val screenState: LiveData<ScreenTrackingState> = _screenState
-
-    private val _userInfo = MutableLiveData<UserDataResponse>()
-    val userInfo: LiveData<UserDataResponse> = _userInfo
-
-    val weight: Float? = getUserDataLocallyUseCase.execute()?.weight
-
+    private val _screenState = MutableStateFlow<TrackingState>(
+        TrackingState()
+    )
+    val screenState: StateFlow<TrackingState> = _screenState
 
     fun stopActivity(activity: SportActivity, image: File) {
-        _screenState.value = ScreenTrackingState.Loading
-
+        _screenState.value = _screenState.value.copy(saveState = State.Loading)
         viewModelScope.launch {
-            try {
-                val result = addActivityRemoteUseCase.execute(activity, image)
-                if (result.isSuccessful){
-                    _screenState.value = ScreenTrackingState.Success
-                }
-                else{
-                    val error = result.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("SAVE TRACKING", it) }
-                    _screenState.value = ScreenTrackingState.Error("Произошла ошибка")
-                }
-
-            } catch (httpException: HttpException) {
-                Log.e("TAG", httpException.toString())
-                _screenState.value = ScreenTrackingState.Error()
-            } catch (exception: Exception) {
-                Log.e("TAG", exception.toString())
-                _screenState.value = ScreenTrackingState.Error()
+            val response = addActivityRemoteUseCase.execute(activity, image)
+            if (response is Response.Success) {
+                _screenState.value = _screenState.value.copy(saveState = State.Success(response.value))
             }
-            catch (exception: NoDataException) {
-                Log.e("TAG", exception.toString())
-                _screenState.value = ScreenTrackingState.Error(exception.message)
+            else {
+                _screenState.value = _screenState.value.copy(saveState = State.Error((response as Response.Failure).error))
             }
         }
     }

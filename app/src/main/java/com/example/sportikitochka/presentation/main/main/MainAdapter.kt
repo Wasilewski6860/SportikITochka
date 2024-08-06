@@ -1,8 +1,6 @@
 package com.example.sportikitochka.presentation.main.main
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,18 +11,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.network.EndPoints.BASE_URL
+import com.example.data.network.EndPoints.BASE_URL
 import com.example.sportikitochka.databinding.RunItemBinding
-import com.example.sportikitochka.domain.models.SportActivity
+import com.example.domain.models.SportActivity
 import com.example.sportikitochka.other.TrackingUtility
-import com.example.sportikitochka.other.TrackingUtility.bitmapToString
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class MainAdapter(
     val context: Context
-) : ListAdapter<SportActivity, MainAdapter.MainViewHolder>(DiffCallBack), View.OnClickListener {
+) : ListAdapter<com.example.domain.models.SportActivity, MainAdapter.MainViewHolder>(DiffCallBack), View.OnClickListener {
 
     class MainViewHolder(val binding: RunItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -94,17 +88,17 @@ class MainAdapter(
     }
 
     interface TaskActionListener {
-        fun onClickItem(task : SportActivity)
+        fun onClickItem(task : com.example.domain.models.SportActivity)
     }
 
     companion object {
-        val DiffCallBack = object : DiffUtil.ItemCallback<SportActivity>() {
+        val DiffCallBack = object : DiffUtil.ItemCallback<com.example.domain.models.SportActivity>() {
 
-            override fun areItemsTheSame(oldItem: SportActivity, newItem: SportActivity): Boolean {
+            override fun areItemsTheSame(oldItem: com.example.domain.models.SportActivity, newItem: com.example.domain.models.SportActivity): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: SportActivity, newItem: SportActivity): Boolean {
+            override fun areContentsTheSame(oldItem: com.example.domain.models.SportActivity, newItem: com.example.domain.models.SportActivity): Boolean {
                 return oldItem == newItem
             }
         }

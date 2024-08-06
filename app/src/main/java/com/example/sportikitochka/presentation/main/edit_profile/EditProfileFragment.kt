@@ -2,7 +2,6 @@ package com.example.sportikitochka.presentation.main.edit_profile
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Base64
 import androidx.fragment.app.Fragment
@@ -10,7 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -20,22 +22,25 @@ import com.bumptech.glide.signature.ObjectKey
 import com.example.sportactivityapp.other.DateFormatTextWatcher
 import com.example.sportactivityapp.other.PhoneFormatTextWatcher
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.network.EndPoints
+import com.example.data.network.EndPoints
+import com.example.data.network.error.ForbiddenException
+import com.example.data.network.error.IncorrectInputException
+import com.example.data.network.error.IncorrectTokenException
+import com.example.data.network.error.NotFoundException
+import com.example.domain.models.UserType
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.databinding.FragmentEditProfileBinding
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
-import com.example.sportikitochka.other.TrackingUtility.roundFloat
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.TrackingUtility.uriToString
 import com.example.sportikitochka.other.WeightTextWatcher
-import com.example.sportikitochka.presentation.main.profile.ProfileViewModel
+import com.example.sportikitochka.presentation.main.MainActivity
 import io.appmetrica.analytics.AppMetrica
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Locale
 
 class EditProfileFragment : Fragment() {
 
@@ -47,7 +52,6 @@ class EditProfileFragment : Fragment() {
 
     private val viewModel: EditProfileViewModel by viewModel()
 
-    private var image: MutableLiveData<String?> = MutableLiveData<String?>(null)
     private var imageString: String? = null
     private var imageBitmap: Bitmap? = null
 
@@ -60,7 +64,7 @@ class EditProfileFragment : Fragment() {
     private var isOnline : Boolean = false
 
     val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()){
-        image.postValue(uriToString(requireContext(), it, requireActivity().findViewById(R.id.rootViewMain)))
+        viewModel.loadImage(uriToString(requireContext(), it, requireActivity().findViewById(R.id.rootViewMain)))
     }
 
     override fun onCreateView(
@@ -79,103 +83,17 @@ class EditProfileFragment : Fragment() {
             isOnline = it
         }
         AppMetrica.reportEvent("Edit profile screen opened")
-        image.observe(viewLifecycleOwner) {
-            if (it!=null){
-                imageString = it
-                val decodedString: ByteArray? = Base64.decode(it, Base64.DEFAULT)
 
-                val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-                imageBitmap = bitmap
-// Установка Bitmap в ImageView
-                binding.profileImage.setImageBitmap(bitmap)
-            }
-        }
-
+        initObservers()
+        initListeners()
         viewModel.loadUserData()
-        viewModel.userInfo.observe(viewLifecycleOwner) {
-            with(binding) {
-//                val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
-//                val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
-//                profileImage.setImageBitmap(bitmap)
-                Glide.with(this@EditProfileFragment)
-                    .load(EndPoints.BASE_URL +it.image)
-                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                    .circleCrop()
-                    .into(binding.profileImage)
 
-                Glide.with(this@EditProfileFragment)
-                    .asBitmap()
-                    .load(EndPoints.BASE_URL +it.image)
-                    .into(object : SimpleTarget<Bitmap>() {
-                        override fun onResourceReady(
-                            resource: Bitmap,
-                            transition: Transition<in Bitmap>?
-                        ) {
-                            imageBitmap = resource
-                        }
-
-                    })
-
-                image.postValue(it.image)
-                signUpName.setText(it.name)
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd")
-                val outputFormat = SimpleDateFormat("dd.MM.yyyy")
-
-                val date = inputFormat.parse(it.birthday)
-                val outputDate = outputFormat.format(date)
-                signUpBirthday.setText(outputDate)
-                signUpPhone.setText(it.phone)
-                signUpCalories.setText(it.weight.toString())
-            }
-        }
         if (viewModel.getUserRole() == UserType.Admin) {
             binding.layoutSignUpCalories.visibility = View.GONE
         }
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ScreenEditProfileState.Error -> {
-                    binding.editProfileLayout.visibility = View.VISIBLE
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                    TrackingUtility.showSnackbar(
-                        "Не удалось сохранить изменения",
-                        requireActivity().findViewById(R.id.rootViewMain)
-                    )
-                }
-                ScreenEditProfileState.Loading -> {
-                    binding.editProfileLayout.visibility = View.GONE
-                    binding.loadingLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-                }
-                ScreenEditProfileState.LoadingError -> {
-                    binding.editProfileLayout.visibility = View.GONE
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.VISIBLE
-                }
-                ScreenEditProfileState.LoadingSuccess -> {
-                    binding.editProfileLayout.visibility = View.VISIBLE
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                }
-                ScreenEditProfileState.LoadingSuccessLocal -> {
-                    binding.editProfileLayout.visibility = View.VISIBLE
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                    TrackingUtility.showSnackbar(
-                        "Не удалось сохранить данные из сети",
-                        requireActivity().findViewById(R.id.rootViewMain)
-                    )
-                }
-                ScreenEditProfileState.Success -> {
-                    AppMetrica.reportEvent("Profile changed")
-                    findNavController().navigate(
-                        R.id.action_editProfileFragment_to_profileFragment,
-                        savedInstanceState
-                    )
-                }
-            }
-        }
+    }
 
+    private fun initListeners() {
         binding.signUpBirthday.addTextChangedListener(DateFormatTextWatcher(binding.signUpBirthday))
         binding.signUpPhone.addTextChangedListener(PhoneFormatTextWatcher(binding.signUpPhone))
         binding.signUpCalories.addTextChangedListener(WeightTextWatcher(binding.signUpCalories))
@@ -218,7 +136,101 @@ class EditProfileFragment : Fragment() {
                     name = name!!, image = bitmapToFile(name!!,requireContext(), imageBitmap!!), weight = weight!!.toFloat(), phone = phone!!, birthday!!
                 )
             }
-
     }
+
+    private fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                        when(it.userDataState) {
+                            is State.Error -> {
+                                when(it.userDataState.error) {
+                                    is IncorrectTokenException -> (requireActivity() as MainActivity).showSnackbar("Время сессии истекло, пожалуйста, перезайдите в приложение")
+                                    is ForbiddenException -> (requireActivity() as MainActivity).showSnackbar("У вас нет доступа")
+                                    is NotFoundException -> (requireActivity() as MainActivity).showSnackbar("Указанный пользователь не найден")
+                                    else -> (requireActivity() as MainActivity).showSnackbar("Что-то пошло не так. Связаться с нами: sportikitocka@gmail.com")
+                                }
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                editProfileLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                editProfileLayout.visibility = View.VISIBLE
+                                loadingLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+
+                                Glide.with(this@EditProfileFragment)
+                                    .load(com.example.data.network.EndPoints.BASE_URL +it.image)
+                                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                                    .circleCrop()
+                                    .into(binding.profileImage)
+
+                                Glide.with(this@EditProfileFragment)
+                                    .asBitmap()
+                                    .load(com.example.data.network.EndPoints.BASE_URL +it.image)
+                                    .into(object : SimpleTarget<Bitmap>() {
+                                        override fun onResourceReady(
+                                            resource: Bitmap,
+                                            transition: Transition<in Bitmap>?
+                                        ) {
+                                            imageBitmap = resource
+                                        }
+
+                                    })
+                                viewModel.loadImage(it.userDataState.value.image)
+                                signUpName.setText(it.userDataState.value.name)
+
+                                val inputFormat = SimpleDateFormat("yyyy-MM-dd")
+                                val outputFormat = SimpleDateFormat("dd.MM.yyyy")
+                                val date = inputFormat.parse(it.userDataState.value.birthday)
+                                val outputDate = outputFormat.format(date)
+
+                                signUpBirthday.setText(outputDate)
+                                signUpPhone.setText(it.userDataState.value.phone)
+                                signUpCalories.setText(it.userDataState.value.weight.toString())
+                            }
+                        }
+
+                        when(it.changeDataState) {
+                            is State.Error -> {
+                                when(it.changeDataState.error) {
+                                    is IncorrectInputException -> (requireActivity() as MainActivity).showSnackbar("Неверно указаны данные")
+                                    is IncorrectTokenException -> (requireActivity() as MainActivity).showSnackbar("Время сессии истекло, пожалуйста, перезайдите в приложение")
+                                    is ForbiddenException -> (requireActivity() as MainActivity).showSnackbar("У вас нет доступа")
+                                    is NotFoundException -> (requireActivity() as MainActivity).showSnackbar("Указанный пользователь не найден")
+                                    else -> (requireActivity() as MainActivity).showSnackbar("Что-то пошло не так. Связаться с нами: sportikitocka@gmail.com")
+                                }
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                editProfileLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                AppMetrica.reportEvent("Profile changed")
+                                findNavController().navigate(
+                                    R.id.action_editProfileFragment_to_profileFragment
+                                )
+                            }
+                        }
+
+                        if (it.image!=null){
+                            imageString = it.image
+                            val decodedString: ByteArray? = Base64.decode(it.image, Base64.DEFAULT)
+                            val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString?.size ?: 0)
+                            imageBitmap = bitmap
+                            binding.profileImage.setImageBitmap(bitmap)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 }

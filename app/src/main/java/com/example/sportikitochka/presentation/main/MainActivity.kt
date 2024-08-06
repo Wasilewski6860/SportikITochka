@@ -5,16 +5,16 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.models.response.auth.UserType.Premium.toUserType
+import com.example.data.models.response.auth.UserType
+import com.example.data.models.response.auth.UserType.Premium.toUserType
 import com.example.sportikitochka.databinding.ActivityMainBinding
 import com.example.sportikitochka.other.TrackingUtility.USER_TYPE_KEY
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import io.appmetrica.analytics.AppMetrica
 
 class MainActivity : AppCompatActivity() {
@@ -55,12 +55,12 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView = standartBottomNavigationView
 
         when(userType){
-            UserType.Normal, UserType.Premium  -> {
+            com.example.data.models.response.auth.UserType.Normal, com.example.data.models.response.auth.UserType.Premium  -> {
                 standartBottomNavigationView.setupWithNavController(navHostFragment.findNavController())
                 adminBottomNavigationView.visibility = View.GONE
                 bottomNavigationView = standartBottomNavigationView
             }
-            UserType.Admin -> {
+            com.example.data.models.response.auth.UserType.Admin -> {
                 adminBottomNavigationView.setupWithNavController(navHostFragment.findNavController())
                 standartBottomNavigationView.visibility = View.GONE
                 bottomNavigationView = adminBottomNavigationView
@@ -107,6 +107,14 @@ class MainActivity : AppCompatActivity() {
 //        if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
 //            navHostFragment.findNavController().navigate(R.id.action_global_trackingFragment)
 //        }
+    }
+
+    fun showSnackbar(message: String) {
+        Snackbar.make(
+            findViewById(R.id.rootViewMain),
+            message,
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
 }

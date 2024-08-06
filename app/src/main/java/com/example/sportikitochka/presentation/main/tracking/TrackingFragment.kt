@@ -3,7 +3,6 @@ package com.example.sportikitochka.presentation.main.tracking
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -13,12 +12,15 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentTrackingBinding
-import com.example.sportikitochka.domain.models.SportActivity
-import com.example.sportikitochka.other.ActivityType
+import com.example.domain.models.SportActivity
+import com.example.domain.models.ActivityType
 import com.example.sportikitochka.other.Constants.ACTION_PAUSE_SERVICE
 import com.example.sportikitochka.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.example.sportikitochka.other.Constants.ACTION_STOP_SERVICE
@@ -29,12 +31,14 @@ import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.bitmapToFile
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.other.isGpsEnabled
-import com.example.sportikitochka.other.mapToActivityType
+import com.example.domain.models.mapToActivityType
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.presentation.main.main.MainViewModel
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.snackbar.Snackbar
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -75,12 +79,12 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     private lateinit var collection: MapObjectCollection
 
-    private  var activityType: ActivityType = ActivityType.RUNNING
+    private  var activityType: com.example.domain.models.ActivityType = com.example.domain.models.ActivityType.RUNNING
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            activityType = it.getString("activityType")?.mapToActivityType() ?: ActivityType.RUNNING
+            activityType = it.getString("activityType")?.mapToActivityType() ?: com.example.domain.models.ActivityType.RUNNING
         }
     }
 
@@ -130,18 +134,25 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     private fun subscribeToObservers() {
 
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ScreenTrackingState.Success -> Unit
-                is ScreenTrackingState.Error -> {
-                    showSnackbar(it.message.toString(), requireActivity().findViewById(R.id.rootViewMain))
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                        when(it.saveState) {
+                            is State.Error ->{
+                                showSnackbar(it.saveState.error.message.toString(), requireActivity().findViewById(R.id.rootViewMain))
+                            }
+                            else -> Unit
+                        }
+                        when(it.userDataState) {
+                            is State.Success -> {
+                                weight = it.weight
+                            }
+                            else -> Unit
+                        }
+                    }
                 }
-                else -> Unit
             }
-        }
-
-        viewModel.userInfo.observe(viewLifecycleOwner) {
-            weight = it.weight
         }
 
         TrackingService.isTracking.observe(viewLifecycleOwner, Observer {
@@ -293,8 +304,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
             val image = bitmapToFile(dateFormat.format(calendar.time),requireContext(), bitmap)
 
-            val run = SportActivity(
-                activityType = ActivityType.RUNNING,
+            val run = com.example.domain.models.SportActivity(
+                activityType = com.example.domain.models.ActivityType.RUNNING,
                 img = string,
                 timestamp = dateFormat.format(calendar.time),
                 avgSpeed = avgSpeed,

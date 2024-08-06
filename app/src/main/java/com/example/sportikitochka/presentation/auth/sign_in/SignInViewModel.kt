@@ -5,18 +5,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sportikitochka.data.models.request.auth.LoginRequest
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
-import com.example.sportikitochka.domain.use_cases.auth.IsLoggedUseCase
-import com.example.sportikitochka.domain.use_cases.auth.LoginUseCase
-import com.example.sportikitochka.domain.use_cases.auth.SaveSessionUseCase
+import com.example.data.models.request.auth.LoginRequest
+import com.example.domain.coroutines.Response
+import com.example.domain.models.UserSession
+import com.example.domain.use_cases.auth.GetUserRoleUseCase
+import com.example.domain.use_cases.auth.IsLoggedUseCase
+import com.example.domain.use_cases.auth.LoginUseCase
+import com.example.domain.use_cases.auth.SaveSessionUseCase
+import com.example.sportikitochka.common.State
+import com.example.sportikitochka.presentation.auth.reset_password.ResetNavigationState
+import com.example.sportikitochka.presentation.auth.reset_password.ResetPasswordScreenState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
 import java.io.IOException
 
-
+data class SignInScreenState(
+    val signInState: State<UserSession>
+)
 class SignInViewModel(
     private val getUserRoleUseCase: GetUserRoleUseCase,
     private val isLoggedUseCase: IsLoggedUseCase,
@@ -24,69 +32,23 @@ class SignInViewModel(
     private val saveSessionUseCase: SaveSessionUseCase
 ) : ViewModel() {
 
-    private val _screenState = MutableLiveData<SignInScreenState>()
-    val screenState: LiveData<SignInScreenState> = _screenState
+    private val _screenState = MutableStateFlow<SignInScreenState>(
+        SignInScreenState(State.NotStarted)
+    )
+    val screenState: StateFlow<SignInScreenState> = _screenState
 
     fun isLogged() = isLoggedUseCase.execute()
     fun getUserRole() = getUserRoleUseCase.execute()
 
     fun login(email : String, password : String) {
-        _screenState.value = SignInScreenState.Loading
+        _screenState.value = _screenState.value.copy(State.Loading)
         viewModelScope.launch {
-            try {
-                val loginResponse = loginUseCase.execute(LoginRequest(email, password))
-                if (loginResponse.isSuccessful) {
-                    val loginResponseBody = loginResponse.body()
-                    loginResponseBody?.let {
-                        saveSessionUseCase.execute(it)
-                        _screenState.postValue(SignInScreenState.Success)
-                    }
-                }
-                else {
-
-                    val errorString: String? = loginResponse.errorBody()?.string()
-
-                    val error = loginResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    Log.e("SIGN_IN_ERROR", error!!)
-
-                    try {
-                        errorString?.let {
-                            _screenState.postValue(
-                                if (it.contains("USER_BLOCKED")) SignInScreenState.UserBlockedError
-                                else if (it.contains("USER_NOT_FOUND")) SignInScreenState.UserNotFoundError
-                                else if (it.contains("INCORRECT_PASSWORD")) SignInScreenState.IncorrectPasswordError
-                                else SignInScreenState.AnyError
-                            )
-                        }
-                       
-                    } catch (e: IOException) {
-                        _screenState.postValue(SignInScreenState.AnyError)
-                    }
-
-//
-//                    val errorBody: ErrorResponse = loginResponse.errorBody()?.string() as ErrorResponse
-//                    _screenState.postValue(
-//                        when(errorBody.error) {
-//                            "USER_BLOCKED" -> SignInScreenState.UserBlockedError
-//                            "USER_NOT_FOUND" -> SignInScreenState.UserNotFoundError
-//                            "INCORRECT_PASSWORD" -> SignInScreenState.IncorrectPasswordError
-//                            else -> SignInScreenState.AnyError
-//                        }
-//                    )
-                }
-            } catch (httpException: HttpException) {
-                Log.e("HTTP-EXCEPTION", httpException.toString())
-                _screenState.postValue(SignInScreenState.AnyError)
-
-            } catch (exception: Exception) {
-                Log.e("EXCEPTION", exception.toString())
-                _screenState.postValue(SignInScreenState.AnyError)
+            val result = loginUseCase.execute(email, password)
+            if (result is Response.Success) {
+                saveSessionUseCase.execute(result.value)
+                _screenState.value = _screenState.value.copy(State.Success(result.value))
             }
+            else _screenState.value = _screenState.value.copy(State.Error((result as Response.Failure).error))
         }
     }
 

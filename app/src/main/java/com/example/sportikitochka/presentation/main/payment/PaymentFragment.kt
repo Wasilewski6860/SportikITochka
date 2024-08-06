@@ -5,16 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
+import com.example.data.network.EndPoints
+import com.example.data.network.error.ForbiddenException
+import com.example.data.network.error.IncorrectTokenException
+import com.example.data.network.error.NotFoundException
 import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentPaymentBinding
-import com.example.sportikitochka.domain.models.CreditCard
+import com.example.domain.models.CreditCard
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.other.ConnectionLiveData
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.Revenue
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import world.mappable.runtime.Runtime.getApplicationContext
 import java.util.Currency
@@ -33,9 +45,7 @@ class PaymentFragment : Fragment() {
 
     private var isOnline : Boolean = false
 
-
     private var selectedCard: CreditCard? = null
-    private var selectedCardLiveData: MutableLiveData<CreditCard?>  = MutableLiveData<CreditCard?>(null)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,107 +68,11 @@ class PaymentFragment : Fragment() {
             if(it)viewModel.fetchCards()
         }
         setupRecyclerView()
-        viewModel.cards.observe(viewLifecycleOwner) {
-            cardsAdapter.submitList(it)
-        }
+        initObservers()
         binding.errorLayoutButton.setOnClickListener {
             viewModel.fetchCards()
         }
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ScreenPaymentState.BuyingError -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.GONE
-                        errorLayout.visibility = View.GONE
-                        contentLayout.visibility = View.VISIBLE
-                        cardLayout.visibility = View.GONE
-                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootViewMain))
-                    }
-                }
-                ScreenPaymentState.BuyingSuccess -> {
 
-//                    AppMetrica.reportEvent("Premium bought")
-//                    val revenue = Revenue.newBuilder(100, Currency.getInstance("RUB"))
-//                        .withProductID("com.example.sportikitochka")
-//                        .withQuantity(1)
-//                        .build()
-                    // Sending the Revenue instance using reporter.
-//                    AppMetrica.getReporter(getApplicationContext(), "0ee9624d-3997-4356-94d4-052ff53bb44d")
-//                        .reportRevenue(revenue)
-
-                    findNavController().navigate(
-                        R.id.action_paymentFragment_to_profileFragment,
-                        savedInstanceState
-                    )
-                }
-                ScreenPaymentState.CardOperationError -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.GONE
-                        errorLayout.visibility = View.GONE
-                        contentLayout.visibility = View.VISIBLE
-                        cardLayout.visibility = View.GONE
-                        showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootViewMain))
-                    }
-                }
-                ScreenPaymentState.CardOperationSuccess -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.GONE
-                        errorLayout.visibility = View.GONE
-                        contentLayout.visibility = View.VISIBLE
-                        cardLayout.visibility = View.GONE
-                    }
-                    viewModel.fetchCards()
-                }
-                ScreenPaymentState.CardsLoaded -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.GONE
-                        errorLayout.visibility = View.GONE
-                        contentLayout.visibility = View.VISIBLE
-                        cardLayout.visibility = View.GONE
-                    }
-                }
-                ScreenPaymentState.CardsLoadingError -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.GONE
-                        errorLayout.visibility = View.VISIBLE
-                        contentLayout.visibility = View.GONE
-                        cardLayout.visibility = View.GONE
-                    }
-                }
-                ScreenPaymentState.Loading -> {
-                    with(binding) {
-                        loadingLayout.visibility = View.VISIBLE
-                        errorLayout.visibility = View.GONE
-                        contentLayout.visibility = View.GONE
-                        cardLayout.visibility = View.GONE
-                    }
-                }
-
-                ScreenPaymentState.BuyingError -> TODO()
-                ScreenPaymentState.BuyingSuccess -> TODO()
-                ScreenPaymentState.CardOperationError -> TODO()
-                ScreenPaymentState.CardOperationSuccess -> TODO()
-                ScreenPaymentState.CardsLoaded -> TODO()
-                ScreenPaymentState.CardsLoadingError -> TODO()
-                ScreenPaymentState.Loading -> TODO()
-                ScreenPaymentState.BuyingError -> TODO()
-                ScreenPaymentState.BuyingSuccess -> TODO()
-                ScreenPaymentState.CardOperationError -> TODO()
-                ScreenPaymentState.CardOperationSuccess -> TODO()
-                ScreenPaymentState.CardsLoaded -> TODO()
-                ScreenPaymentState.CardsLoadingError -> TODO()
-                ScreenPaymentState.Loading -> TODO()
-            }
-        }
-        selectedCardLiveData.observe(viewLifecycleOwner) {
-            selectedCard = it
-            if (it != null) {
-                binding.carnNumberTv.text = "*"+it.cardNumber?.substring(12)
-            }
-            else {
-                binding.carnNumberTv.text = "Не выбрано"
-            }
-        }
         with(binding) {
             payButton.setOnClickListener {
                 selectedCard?.let {
@@ -169,13 +83,6 @@ class PaymentFragment : Fragment() {
             bottomCardView.visibility = View.GONE
             cardLayout.visibility = View.GONE
         }
-        // TODO: Use the ViewModel
-//        requireActivity().findViewById<com.github.credit_card_view.CreditCardView>(R.id.creditCardView).setBankName("TINKOFF")
-//
-//        val imageResource = R.raw.tinkoff_logo // идентификатор ресурса изображения
-//        val inputStream = resources.openRawResource(imageResource)
-//        val bitmap = BitmapFactory.decodeStream(inputStream)
-//        requireActivity().findViewById<com.github.credit_card_view.CreditCardView>(R.id.creditCardView).setCardProviderLogo(bitmap)
     }
 
     private fun setupRecyclerView() = binding.recycler.apply {
@@ -183,7 +90,7 @@ class PaymentFragment : Fragment() {
             cardActionListener = object : CardsAdapter.CardActionListener {
                 override fun onClickItem(card: CreditCard) {
                     selectedCard = card
-                    selectedCardLiveData.postValue(card)
+                    viewModel.selectCard(card)
 
                     with(binding) {
                         contentLayout.visibility = View.VISIBLE
@@ -193,9 +100,8 @@ class PaymentFragment : Fragment() {
                 }
             },
             buttonActionListener = object : CardsAdapter.CardActionListener {
-                override fun onClickItem(card: CreditCard) {
+                override fun onClickItem(card: com.example.domain.models.CreditCard) {
                     showSnackbar("Не удалось совершить оплату", requireActivity().findViewById(R.id.rootViewMain))
-                    //TODO Редактирование карты
                     with(binding) {
                         loadingLayout.visibility = View.GONE
                         errorLayout.visibility = View.GONE
@@ -221,7 +127,7 @@ class PaymentFragment : Fragment() {
                                     year!!.toInt(),
                                     cvv!!.toInt(),
                                 )
-                                selectedCardLiveData.postValue(
+                                viewModel.selectCard(
                                     CreditCard(
                                         name,
                                         number,
@@ -242,7 +148,7 @@ class PaymentFragment : Fragment() {
                 }
             },
             newCardClickActionListener = object : CardsAdapter.CardActionListener {
-                override fun onClickItem(card: CreditCard) {
+                override fun onClickItem(card: com.example.domain.models.CreditCard) {
                     //TODO Редактирование карты
                     with(binding) {
                         loadingLayout.visibility = View.GONE
@@ -268,7 +174,7 @@ class PaymentFragment : Fragment() {
                                     year!!.toInt(),
                                     cvv!!.toInt(),
                                 )
-                                selectedCardLiveData.postValue(
+                                viewModel.selectCard(
                                     CreditCard(
                                         name,
                                         number,
@@ -319,5 +225,70 @@ class PaymentFragment : Fragment() {
             }
         }
         return false
+    }
+
+    private fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                        when(it.cardsState) {
+                            is State.Error -> {
+                                loadingLayout.visibility = View.GONE
+                                errorLayout.visibility = View.VISIBLE
+                                contentLayout.visibility = View.GONE
+                                cardLayout.visibility = View.GONE
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                errorLayout.visibility = View.GONE
+                                contentLayout.visibility = View.GONE
+                                cardLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                loadingLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                                contentLayout.visibility = View.VISIBLE
+                                cardLayout.visibility = View.GONE
+
+                                cardsAdapter.submitList(it.cardsState.value)
+                            }
+                        }
+                        when(it.buyPremiumState) {
+                            is State.Error -> {
+                                loadingLayout.visibility = View.GONE
+                                errorLayout.visibility = View.VISIBLE
+                                contentLayout.visibility = View.GONE
+                                cardLayout.visibility = View.GONE
+
+                                showSnackbar("К сожалению, не удалось выполнить операцию", requireActivity().findViewById(R.id.rootViewMain))
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                errorLayout.visibility = View.GONE
+                                contentLayout.visibility = View.GONE
+                                cardLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                loadingLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                                contentLayout.visibility = View.VISIBLE
+                                cardLayout.visibility = View.GONE
+                                viewModel.fetchCards()
+                            }
+                        }
+                        selectedCard = it.selectedCard
+                            if (it.selectedCard != null) {
+                            binding.carnNumberTv.text = "*"+it.selectedCard.cardNumber?.substring(12)
+                        }
+                        else {
+                            binding.carnNumberTv.text = "Не выбрано"
+                        }
+                    }
+                }
+            }
+        }
     }
 }

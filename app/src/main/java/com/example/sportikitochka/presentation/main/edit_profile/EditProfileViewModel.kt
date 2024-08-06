@@ -5,27 +5,35 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sportikitochka.data.models.request.profile.ProfilePeriod
-import com.example.sportikitochka.data.models.request.profile.UserProfileRequest
-import com.example.sportikitochka.data.models.request.user_data.ChangeAdminDataRequest
-import com.example.sportikitochka.data.models.request.user_data.ChangeDataUserRequest
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.models.response.profile.UserProfileResponse
-import com.example.sportikitochka.data.models.response.user_data.UserDataResponse
-import com.example.sportikitochka.domain.use_cases.auth.GetUserRoleUseCase
-import com.example.sportikitochka.domain.use_cases.auth.SignOutUseCase
-import com.example.sportikitochka.domain.use_cases.profile.GetProfileUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.ChangeAdminDataUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.ChangeUserDataUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.GetAdminDataUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataLocallyUseCase
-import com.example.sportikitochka.domain.use_cases.user_data.GetUserDataUseCase
+import com.example.data.models.request.user_data.ChangeAdminDataRequest
+import com.example.data.models.request.user_data.ChangeDataUserRequest
+import com.example.data.models.response.user_data.UserDataResponse
+import com.example.domain.coroutines.Response
+import com.example.domain.models.UserData
+import com.example.domain.models.UserType
+import com.example.domain.use_cases.auth.GetUserRoleUseCase
+import com.example.domain.use_cases.user_data.ChangeAdminDataUseCase
+import com.example.domain.use_cases.user_data.ChangeUserDataUseCase
+import com.example.domain.use_cases.user_data.GetAdminDataUseCase
+import com.example.domain.use_cases.user_data.GetUserDataLocallyUseCase
+import com.example.domain.use_cases.user_data.GetUserDataUseCase
+import com.example.sportikitochka.common.State
+import com.example.sportikitochka.presentation.main.all_activities.AllActivitiesState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okio.Buffer
 import retrofit2.HttpException
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+
+data class EditProfileState(
+    val userDataState: State<UserData> = State.Loading,
+    val changeDataState: State<Unit> = State.NotStarted,
+    val image: String? = null
+)
 
 class EditProfileViewModel(
     private val getUserRoleUseCase: GetUserRoleUseCase,
@@ -36,88 +44,46 @@ class EditProfileViewModel(
     private val changeAdminDataUseCase: ChangeAdminDataUseCase
 ) : ViewModel() {
 
-    private val _screenState = MutableLiveData<ScreenEditProfileState>()
-    val screenState: LiveData<ScreenEditProfileState> = _screenState
-
-    private val _userInfo = MutableLiveData<UserDataResponse>()
-    val userInfo: LiveData<UserDataResponse> = _userInfo
+    private val _screenState = MutableStateFlow<EditProfileState>(
+        EditProfileState()
+    )
+    val screenState: StateFlow<EditProfileState> = _screenState
 
     fun getUserRole() = getUserRoleUseCase.execute()
 
-
-
     fun loadUserData() {
-        _screenState.postValue(ScreenEditProfileState.Loading)
+        _screenState.value = _screenState.value.copy(State.Loading)
         viewModelScope.launch {
-            try {
-                val userType: UserType? = getUserRole()
-                if (userType == UserType.Admin) {
-                    val adminDataResponse = getAdminDataUseCase.execute()
-                    if (adminDataResponse.isSuccessful) {
-                        var responseBody = adminDataResponse.body()
-
-                        if (responseBody != null) {
-                            val body = UserDataResponse(
-                                id = 0,//TODO
-                                name = responseBody.name,
-                                image = responseBody.image,
-                                weight = -100F,
-                                phone = responseBody.phone,
-                                birthday = responseBody.birthday.toString()
+            val userType: UserType? = getUserRole()
+            if(userType is UserType.Admin) {
+                val adminDataResponse = getAdminDataUseCase.execute()
+                if (adminDataResponse is Response.Success) {
+                    val data = adminDataResponse.value
+                    _screenState.value = _screenState.value.copy(
+                        State.Success(
+                            UserData(
+                                id = 0,
+                                name = data.name,
+                                image = data.image,
+                                weight = -1F,
+                                phone = data.phone,
+                                birthday = data.birthday
                             )
-                            _userInfo.postValue(body)
-                            _screenState.postValue(ScreenEditProfileState.LoadingSuccess)
-                        }
-                        else _screenState.postValue(ScreenEditProfileState.LoadingError)
-                    } else {
-                        _screenState.postValue(ScreenEditProfileState.LoadingError)
-                    }
+                        )
+                    )
                 }
                 else {
-                    val userDataResponse = getUserDataUseCase.execute()
-                    if (userDataResponse.isSuccessful) {
-                        var responseBody = userDataResponse.body()
-
-                        if (responseBody != null) {
-                            _userInfo.postValue(responseBody!!)
-                            _screenState.postValue(ScreenEditProfileState.LoadingSuccess)
-                        }
-                        else {
-                            val userData = getUserDataLocallyUseCase.execute()
-                            if (userData != null) {
-                                _userInfo.postValue(userData!!)
-                                _screenState.postValue(ScreenEditProfileState.LoadingSuccessLocal)
-                            }
-                            else _screenState.postValue(ScreenEditProfileState.LoadingError)
-                        }
-
-                    } else {
-                        val error = userDataResponse.errorBody()?.source()?.let { source ->
-                            Buffer().use { buffer ->
-                                source.readAll(buffer)
-                                buffer.readUtf8()
-                            }
-                        }
-                        error?.let { Log.e("GET USER DATA REMOTE ERROR", it) }
-
-                        val userData = getUserDataLocallyUseCase.execute()
-                        if (userData != null) {
-                            _userInfo.postValue(userData!!)
-                            _screenState.postValue(ScreenEditProfileState.LoadingSuccessLocal)
-                        }
-                        else {
-                            error?.let { Log.e("GET USER DATA LOCAL ERROR", it) }
-                            _screenState.postValue(ScreenEditProfileState.LoadingError)
-                        }
-                    }
+                    _screenState.value = _screenState.value.copy(State.Error((adminDataResponse as Response.Failure).error))
                 }
-
-            } catch (httpException: HttpException) {
-                Log.e("GET_USER_DATA_HTTP_EXCEPTION", httpException.toString())
-                _screenState.postValue(ScreenEditProfileState.LoadingError)
-            } catch (exception: Exception) {
-                Log.e("GET_USER_DATA_EXCEPTION", exception.toString())
-                _screenState.postValue(ScreenEditProfileState.LoadingError)
+            }
+            else {
+                val userDataResponse = getUserDataUseCase.execute()
+                if (userDataResponse is Response.Success) {
+                    _screenState.value = _screenState.value.copy(State.Success(userDataResponse.value))
+                }
+                else {
+                    _screenState.value = _screenState.value.copy(State.Error((userDataResponse as Response.Failure).error))
+                }
             }
         }
     }
@@ -129,54 +95,38 @@ class EditProfileViewModel(
         phone: String,
         birthday: String
     ) {
+        _screenState.value = _screenState.value.copy(State.Loading)
         viewModelScope.launch {
-            try {
+            val userType: UserType? = getUserRole()
+            val convertedBirthday = convertDateFormat(birthday)
 
+            val response = if(userType is UserType.Admin) changeAdminDataUseCase.execute(
+                name = name,
+                image = image,
+                phone = phone,
+                birthday = convertedBirthday
+            )
+            else changeUserDataUseCase.execute(
+                name = name,
+                image = image,
+                weight = weight!!.toInt(), //TODO
+                phone = phone,
+                birthday = convertedBirthday
+            )
 
-                val convertedBirthday = convertDateFormat(birthday)
-
-                val saveResponse = if (getUserRole() == UserType.Admin) {
-                    changeAdminDataUseCase.execute(
-                        ChangeAdminDataRequest(
-                            name = name,
-                            image = image,
-                            phone = phone,
-                            birthday = convertedBirthday
-                        )
-                    )
-                }
-                else {
-                    changeUserDataUseCase.execute(
-                        ChangeDataUserRequest(
-                            name = name,
-                            image = image,
-                            weight = weight!!.toInt(), //TODO
-                            phone = phone,
-                            birthday = convertedBirthday
-                        )
-                    )
-                }
-
-                if (saveResponse.isSuccessful) {
-                    _screenState.postValue(ScreenEditProfileState.Success)
-                } else {
-                    var error = saveResponse.errorBody()?.source()?.let { source ->
-                        Buffer().use { buffer ->
-                            source.readAll(buffer)
-                            buffer.readUtf8()
-                        }
-                    }
-                    error?.let { Log.e("CHANGE_USER_DATA", it) }
-                    _screenState.postValue(ScreenEditProfileState.Error)
-                }
-            } catch (httpException: HttpException) {
-                Log.e("CHANGE_USER_DATA_HTTP_EXCEPTION", httpException.toString())
-                _screenState.postValue(ScreenEditProfileState.Error)
-            } catch (exception: Exception) {
-                Log.e("CHANGE_USER_DATA_EXCEPTION", exception.toString())
-                _screenState.postValue(ScreenEditProfileState.Error)
+            if(response is Response.Success) {
+                _screenState.value = _screenState.value.copy(
+                    changeDataState = State.Success(Unit)
+                )
+            }
+            else {
+                _screenState.value = _screenState.value.copy(changeDataState =  State.Error((response as Response.Failure).error))
             }
         }
+    }
+
+    fun loadImage(image: String?) {
+        _screenState.value = _screenState.value.copy(image = image)
     }
 
     fun isInputNameValid(text: String?): Boolean {

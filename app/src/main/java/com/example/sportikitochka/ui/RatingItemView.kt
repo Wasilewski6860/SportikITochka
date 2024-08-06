@@ -9,22 +9,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
-import com.example.sportikitochka.data.network.EndPoints.BASE_URL
-import com.example.sportikitochka.domain.models.Achievement
-import com.example.sportikitochka.domain.models.User
+import com.example.data.models.response.auth.UserType
+import com.example.data.network.EndPoints.BASE_URL
+import com.example.domain.models.Achievement
+import com.example.domain.models.User
 import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.roundFloat
-import com.example.sportikitochka.other.TrackingUtility.showSnackbar
 import com.example.sportikitochka.presentation.main.rating.AchievementAdapter
 import com.example.sportikitochka.presentation.main.rating.RatingAdapter
 
@@ -123,15 +119,15 @@ class RatingItemView @JvmOverloads constructor(
         totalTimeTv.text = TrackingUtility.getFormattedStopWatchTime(time.toLong())
         avTimeTv.text = TrackingUtility.getFormattedStopWatchTime(averageTime.toLong())
 
-        val role: UserType = if(isPremium) UserType.Premium else if (isButtonsVisible) UserType.Admin else UserType.Normal
+        val role: com.example.data.models.response.auth.UserType = if(isPremium) com.example.data.models.response.auth.UserType.Premium else if (isButtonsVisible) com.example.data.models.response.auth.UserType.Admin else com.example.data.models.response.auth.UserType.Normal
         when(role) {
-            is UserType.Normal -> {
+            is com.example.data.models.response.auth.UserType.Normal -> {
                 premiumIcon.visibility = View.GONE
                 increaseDecreaseButton.visibility = View.GONE
                 deleteButton.visibility = View.GONE
                 increaseDecreaseButton.setBackgroundResource(R.drawable.ic_update_user)
             }
-            is UserType.Premium -> {
+            is com.example.data.models.response.auth.UserType.Premium -> {
                 premiumIcon.visibility = View.VISIBLE
                 increaseDecreaseButton.visibility = View.GONE
                 deleteButton.visibility = View.GONE
@@ -177,7 +173,7 @@ class RatingItemView @JvmOverloads constructor(
 
         adapter = AchievementAdapter(
             object : AchievementAdapter.ActionListener {
-                override fun onClickItem(item: Achievement) {
+                override fun onClickItem(item: com.example.domain.models.Achievement) {
                     Toast.makeText(context, item.achievementName+": "+item.achievementDistance.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -201,7 +197,7 @@ class RatingItemView @JvmOverloads constructor(
 //        setMeasuredDimension(contentWidth, cardHeight)
 //    }
 
-    fun setData(item: User, isAdmin: Boolean, premiumActionListener: RatingAdapter.UserPremiumActionListener, blockActionListener: RatingAdapter.UserBlockActionListener
+    fun setData(item: com.example.domain.models.User, isAdmin: Boolean, premiumActionListener: RatingAdapter.UserPremiumActionListener, blockActionListener: RatingAdapter.UserBlockActionListener
                 ) {
 //        profileImageRatingItem.setImageResource(R.drawable.profile_image_2)
 
@@ -233,13 +229,13 @@ class RatingItemView @JvmOverloads constructor(
             blockActionListener.onClickItem(item)
         }
         when(item.role) {
-            is UserType.Normal -> {
+            is com.example.data.models.response.auth.UserType.Normal -> {
                 premiumIcon.visibility = View.GONE
                 increaseDecreaseButton.visibility = View.GONE
                 deleteButton.visibility = View.GONE
                 increaseDecreaseButton.setBackgroundResource(R.drawable.ic_update_user)
             }
-            is UserType.Premium -> {
+            is com.example.data.models.response.auth.UserType.Premium -> {
                 premiumIcon.visibility = View.VISIBLE
                 increaseDecreaseButton.visibility = View.GONE
                 deleteButton.visibility = View.GONE

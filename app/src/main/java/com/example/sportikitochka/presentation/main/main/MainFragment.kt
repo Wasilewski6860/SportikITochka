@@ -1,23 +1,36 @@
 package com.example.sportikitochka.presentation.main.main
 
-import android.graphics.BitmapFactory
-import androidx.lifecycle.ViewModelProvider
+import android.content.Intent
 import android.os.Bundle
-import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.network.EndPoints.BASE_URL
+import com.example.data.network.EndPoints.BASE_URL
+import com.example.data.network.error.ForbiddenException
+import com.example.data.network.error.IncorrectInputException
+import com.example.data.network.error.IncorrectPasswordException
+import com.example.data.network.error.IncorrectTokenException
+import com.example.data.network.error.NotFoundException
+import com.example.data.network.error.UnknownException
+import com.example.data.network.error.UserBlockedException
+import com.example.domain.coroutines.Response
+import com.example.sportikitochka.common.State
 import com.example.sportikitochka.databinding.FragmentMainBinding
 import com.example.sportikitochka.other.ConnectionLiveData
+import com.example.sportikitochka.other.TrackingUtility
 import com.example.sportikitochka.other.TrackingUtility.showSnackbar
+import com.example.sportikitochka.presentation.main.MainActivity
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainFragment : Fragment() {
@@ -49,181 +62,31 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        connectionLiveData.observe(viewLifecycleOwner) {
+        connectionLiveData.observe(viewLifecycleOwner)  {
             isOnline = it
-            viewModel.fetchActivities()
-
-            if (!it) {
-                binding.tvStartNewActivity.text = "Нет интернет-соединения, начать новую активность невозможно"
-                binding.startNewActivityButton.visibility = View.GONE
-                binding.newActivityCard.setOnClickListener{}
-            }
-            else {
-                binding.tvStartNewActivity.text = "Начать новую активность"
-                binding.startNewActivityButton.visibility = View.VISIBLE
-                binding.newActivityCard.setOnClickListener {
-                    findNavController().navigate(
-                        R.id.action_mainFragment_to_selectActivityTypeFragment,
-                        savedInstanceState
-                    )
+            with(binding) {
+                if (!it) {
+                    tvStartNewActivity.text = "Нет интернет-соединения, начать новую активность невозможно"
+                    startNewActivityButton.visibility = View.GONE
+                    newActivityCard.setOnClickListener{}
                 }
-            }
-        }
-        viewModel.loadUserProfile()
-        viewModel.screenState.observe(viewLifecycleOwner) {
-            when(it) {
-                ScreenMainState.Loading -> {
-                    binding.loadingLayout.visibility = View.VISIBLE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                    binding.emptyLayout.visibility = View.GONE
-                }
-                ScreenMainState.ProfileLoaded -> {
-                    binding.loadingLayout.visibility = View.VISIBLE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                    binding.emptyLayout.visibility = View.GONE
-                }
-                ScreenMainState.ActivitiesLoadedRemote -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-                    binding.emptyLayout.visibility = View.GONE
-                }
-                ScreenMainState.ActivitiesLoadedLocal -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.VISIBLE
-                    binding.errorLayout.visibility = View.GONE
-                    binding.emptyLayout.visibility = View.GONE
-                    showSnackbar("Произошла ошибка при интернет-соединении", requireActivity().findViewById(R.id.rootViewMain))
-                }
-                ScreenMainState.ErrorActivities -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.VISIBLE
-                    binding.emptyLayout.visibility = View.GONE
-                    binding.errorLayoutTv.text = "К сожалению, загрузить ваши активности не получилось. Пожалуйста, попробуйте позже"
-
-                    binding.errorLayoutButton.setOnClickListener {
-                        viewModel.fetchActivities()
+                else {
+                    tvStartNewActivity.text = "Начать новую активность"
+                    startNewActivityButton.visibility = View.VISIBLE
+                    newActivityCard.setOnClickListener {
+                        findNavController().navigate(
+                            R.id.action_mainFragment_to_selectActivityTypeFragment,
+                            savedInstanceState
+                        )
                     }
                 }
-                ScreenMainState.ProfileLoadingError -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.VISIBLE
-                    binding.emptyLayout.visibility = View.GONE
-                    binding.errorLayoutTv.text = "К сожалению, загрузить ваш профиль. Пожалуйста, попробуйте позже"
-
-                    binding.errorLayoutButton.setOnClickListener {
-                        viewModel.loadUserProfile()
-                    }
-                }
-                ScreenMainState.Empty -> {
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.contentLayout.visibility = View.GONE
-                    binding.errorLayout.visibility = View.GONE
-                    binding.emptyLayout.visibility = View.VISIBLE
-
-                }
             }
         }
-
-        binding.emptyLayoutButton.setOnClickListener {
-            if (isOnline) {
-                findNavController().navigate(
-                    R.id.action_mainFragment_to_selectActivityTypeFragment,
-                    savedInstanceState
-                )
-            }
-            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
-        }
-
-        viewModel.userProfile.observe(viewLifecycleOwner) {
-            binding.profileName.text = it.name
-
-            Glide.with(this@MainFragment)
-                .load(BASE_URL+it.image)
-                .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
-                .circleCrop()
-                .into(binding.profileImage)
-        }
-
-        binding.profileHello.text = "Привет, "
-        binding.tvStartNewActivity.text = "Начать новую активность"
-        binding.recentActivity.text = "Последние активности"
-        binding.allActivities.text = "Все"
-
-
-        binding.startNewActivityButton.setOnClickListener {
-            if (isOnline) {
-                binding.newActivityCard.setOnClickListener{
-                    findNavController().navigate(
-                        R.id.action_mainFragment_to_selectActivityTypeFragment,
-                        savedInstanceState
-                    )
-                }
-            }
-            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
-        }
-        binding.allActivities.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_mainFragment_to_allActivitiesFragment,
-                savedInstanceState
-            )
-        }
+        viewModel.fetchActivities()
+        viewModel.loadUserData()
         setupRecyclerView()
-
-
-
-//        val activities: List<SportActivity> = listOf(
-//            SportActivity(
-//                id = 0,
-//                img = "",
-//                timestamp = Calendar.getInstance().timeInMillis,
-//                avgSpeedInKMH = 14.4F,
-//                distanceInMeters = 10321,
-//                timeInMillis = (212141L)*20,
-//                caloriesBurned = 101,
-//                activityType = ActivityType.RUNNING
-//            ),
-//            SportActivity(
-//                id = 0,
-//                img = "",
-//                timestamp = Calendar.getInstance().timeInMillis - 10000000000,
-//                avgSpeedInKMH = 13.4F,
-//                distanceInMeters = 10380,
-//                timeInMillis = 212141L*20,
-//                caloriesBurned = 100,
-//                activityType = ActivityType.BYCICLE
-//            ),
-//            SportActivity(
-//                id = 1,
-//                img = "",
-//                timestamp = Calendar.getInstance().timeInMillis-14000000000,
-//                avgSpeedInKMH = 15.4F,
-//                distanceInMeters = 9321,
-//                timeInMillis = 112141L*20,
-//                caloriesBurned = 120,
-//                activityType = ActivityType.SWIMMING
-//            ),
-//            SportActivity(
-//                id = 1,
-//                img = "",
-//                timestamp = Calendar.getInstance().timeInMillis - 19000000000,
-//                avgSpeedInKMH = 15.4F,
-//                distanceInMeters = 8354,
-//                timeInMillis = 112141L*20,
-//                caloriesBurned = 132,
-//                activityType = ActivityType.SWIMMING
-//            ),
-//        )
-
-        viewModel.activities.observe(viewLifecycleOwner) {
-            if (it.size<4)mainAdapter.submitList(it.subList(0,it.size))
-            else mainAdapter.submitList(it.subList(0,4))
-        }
+        initListeners()
+        setupObservers()
     }
 
 
@@ -238,4 +101,127 @@ class MainFragment : Fragment() {
         layoutManager = LinearLayoutManager(requireContext())
     }
 
+    private fun initListeners() = with(binding) {
+        allActivities.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_mainFragment_to_allActivitiesFragment
+            )
+        }
+        startNewActivityButton.setOnClickListener {
+            if (isOnline) {
+                newActivityCard.setOnClickListener{
+                    findNavController().navigate(
+                        R.id.action_mainFragment_to_selectActivityTypeFragment
+                    )
+                }
+            }
+            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
+        }
+        emptyLayoutButton.setOnClickListener {
+            if (isOnline) {
+                findNavController().navigate(
+                    R.id.action_mainFragment_to_selectActivityTypeFragment
+                )
+            }
+            else showSnackbar("Нет интернет-соединения", requireActivity().findViewById(R.id.rootViewMain))
+        }
+    }
+
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenState.collect {
+                    with(binding) {
+                        when(it.userProfileState) {
+                            is State.Error -> {
+                                loadingLayout.visibility = View.GONE
+                                contentLayout.visibility = View.GONE
+                                errorLayout.visibility = View.VISIBLE
+                                emptyLayout.visibility = View.GONE
+
+                                errorLayoutButton.setOnClickListener {
+                                    viewModel.loadUserData()
+                                }
+
+                                when(it.userProfileState.error) {
+                                    is IncorrectTokenException -> {
+                                        errorLayoutTv.text = "Время сессии истекло, пожалуйста, перезайдите в приложение"
+                                    }
+                                    is ForbiddenException-> {
+                                        errorLayoutTv.text = "Нет доступа"
+                                    }
+                                    is NotFoundException-> {
+                                        errorLayoutTv.text = "Пользователь не найден"
+                                    }
+                                    else -> {
+                                        errorLayoutTv.text = "К сожалению, загрузить ваш профиль. Пожалуйста, попробуйте позже"
+                                    }
+                                }
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                contentLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                                emptyLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                contentLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                                emptyLayout.visibility = View.GONE
+
+                                profileName.text = it.userProfileState.value.name
+
+                                Glide.with(this@MainFragment)
+                                    .load(BASE_URL+it.userProfileState.value.image)
+                                    .apply(RequestOptions().signature(ObjectKey(System.currentTimeMillis())))
+                                    .circleCrop()
+                                    .into(profileImage)
+                            }
+                        }
+                        when(it.activitiesState) {
+                            is State.Error -> {
+                                loadingLayout.visibility = View.GONE
+                                contentLayout.visibility = View.GONE
+                                errorLayout.visibility = View.VISIBLE
+                                emptyLayout.visibility = View.GONE
+                                errorLayoutTv.text = "К сожалению, загрузить ваши активности не получилось. Пожалуйста, попробуйте позже"
+
+                                errorLayoutButton.setOnClickListener {
+                                    viewModel.fetchActivities()
+                                }
+
+                            }
+                            State.Loading -> {
+                                loadingLayout.visibility = View.VISIBLE
+                                contentLayout.visibility = View.GONE
+                                errorLayout.visibility = View.GONE
+                                emptyLayout.visibility = View.GONE
+                            }
+                            State.NotStarted -> Unit
+                            is State.Success -> {
+
+                                loadingLayout.visibility = View.GONE
+                                contentLayout.visibility = View.VISIBLE
+                                errorLayout.visibility = View.GONE
+                                emptyLayout.visibility = View.GONE
+
+                                val data = it.activitiesState.value
+                                if (data.isEmpty()) {
+                                    loadingLayout.visibility = View.GONE
+                                    contentLayout.visibility = View.GONE
+                                    errorLayout.visibility = View.GONE
+                                    emptyLayout.visibility = View.VISIBLE
+                                }
+                                else
+                                if (data.size<4)mainAdapter.submitList(data.subList(0,data.size))
+                                else mainAdapter.submitList(data.subList(0,4))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.sportikitochka.databinding.ActivityTypeListItemBinding
-import com.example.sportikitochka.other.ActivityType
+import com.example.domain.models.ActivityType
 
 class SelectActivityTypeVerticalAdapter(
     private val actionListener: ActivityTypeActionListener
-) : ListAdapter<ActivityType, SelectActivityTypeVerticalAdapter.ActivityTypeViewHolder>(DiffCallBack), View.OnClickListener {
+) : ListAdapter<com.example.domain.models.ActivityType, SelectActivityTypeVerticalAdapter.ActivityTypeViewHolder>(DiffCallBack), View.OnClickListener {
 
     class ActivityTypeViewHolder(val binding: ActivityTypeListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -54,23 +54,23 @@ class SelectActivityTypeVerticalAdapter(
     }
 
     interface ActivityTypeActionListener {
-        fun onClickItem(activityType: ActivityType)
+        fun onClickItem(activityType: com.example.domain.models.ActivityType)
     }
 
 
-    fun getActivityItem(position: Int): ActivityType {
+    fun getActivityItem(position: Int): com.example.domain.models.ActivityType {
         // Возвращение данных элемента по позиции
         return getItem(position)
     }
 
     companion object {
-        val DiffCallBack = object : DiffUtil.ItemCallback<ActivityType>() {
+        val DiffCallBack = object : DiffUtil.ItemCallback<com.example.domain.models.ActivityType>() {
 
-            override fun areItemsTheSame(oldItem: ActivityType, newItem: ActivityType): Boolean {
+            override fun areItemsTheSame(oldItem: com.example.domain.models.ActivityType, newItem: com.example.domain.models.ActivityType): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: ActivityType, newItem: ActivityType): Boolean {
+            override fun areContentsTheSame(oldItem: com.example.domain.models.ActivityType, newItem: com.example.domain.models.ActivityType): Boolean {
                 return oldItem == newItem
             }
         }

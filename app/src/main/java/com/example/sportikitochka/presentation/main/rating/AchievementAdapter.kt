@@ -1,23 +1,18 @@
 package com.example.sportikitochka.presentation.main.rating
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.auth.UserType
 import com.example.sportikitochka.databinding.AchievementItemBinding
-import com.example.sportikitochka.databinding.RatingItemBinding
-import com.example.sportikitochka.domain.models.Achievement
-import com.example.sportikitochka.domain.models.User
-import com.example.sportikitochka.other.TrackingUtility
+import com.example.domain.models.Achievement
 import java.text.DecimalFormat
 
 class AchievementAdapter(
     private val actionListener: ActionListener
-) : ListAdapter<Achievement, AchievementAdapter.AchievementViewHolder>(DiffCallBack) {
+) : ListAdapter<com.example.domain.models.Achievement, AchievementAdapter.AchievementViewHolder>(DiffCallBack) {
 
     class AchievementViewHolder(val binding: AchievementItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -51,17 +46,17 @@ class AchievementAdapter(
 
 
     interface ActionListener {
-        fun onClickItem(item: Achievement)
+        fun onClickItem(item: com.example.domain.models.Achievement)
     }
 
     companion object {
-        val DiffCallBack = object : DiffUtil.ItemCallback<Achievement>() {
+        val DiffCallBack = object : DiffUtil.ItemCallback<com.example.domain.models.Achievement>() {
 
-            override fun areItemsTheSame(oldItem: Achievement, newItem: Achievement): Boolean {
+            override fun areItemsTheSame(oldItem: com.example.domain.models.Achievement, newItem: com.example.domain.models.Achievement): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: Achievement, newItem: Achievement): Boolean {
+            override fun areContentsTheSame(oldItem: com.example.domain.models.Achievement, newItem: com.example.domain.models.Achievement): Boolean {
                 return oldItem == newItem
             }
         }

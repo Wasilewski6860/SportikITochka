@@ -2,8 +2,8 @@ package com.example.sportikitochka.ui
 
 import android.content.Context
 import android.widget.TextView
+import com.example.domain.models.SportActivityStatistic
 import com.example.sportikitochka.R
-import com.example.sportikitochka.data.models.response.statistic.SportActivityStatistic
 import com.example.sportikitochka.databinding.MarkerViewBinding
 import com.example.sportikitochka.other.TrackingUtility
 import com.github.mikephil.charting.components.MarkerView

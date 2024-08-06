@@ -4,21 +4,17 @@ import android.Manifest
 import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
-import com.example.sportikitochka.R
 import com.example.sportikitochka.databinding.FragmentSelectActivityTypeBinding
-import com.example.sportikitochka.other.ActivityType
+import com.example.domain.models.ActivityType
 import com.example.sportikitochka.other.Constants.REQUEST_CODE_LOCATION_PERMISSION
 import com.example.sportikitochka.other.TrackingUtility
 import pub.devrel.easypermissions.AppSettingsDialog
@@ -38,7 +34,7 @@ class SelectActivityTypeFragment : Fragment(), EasyPermissions.PermissionCallbac
     private val binding get() = _binding!!
     val snapHelper: SnapHelper = LinearSnapHelper()
 
-    var activityType: String = ActivityType.RUNNING.toString()
+    var activityType: String = com.example.domain.models.ActivityType.RUNNING.toString()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,10 +58,10 @@ class SelectActivityTypeFragment : Fragment(), EasyPermissions.PermissionCallbac
         setupRecyclerViewHorizontal()
         setupRecyclerViewVertical()
 
-        val types = listOf<ActivityType>(
-            ActivityType.RUNNING,
-            ActivityType.SWIMMING,
-            ActivityType.BYCICLE
+        val types = listOf<com.example.domain.models.ActivityType>(
+            com.example.domain.models.ActivityType.RUNNING,
+            com.example.domain.models.ActivityType.SWIMMING,
+            com.example.domain.models.ActivityType.BYCICLE
         )
 
         binding.rightArrow.setOnClickListener {
@@ -105,7 +101,7 @@ class SelectActivityTypeFragment : Fragment(), EasyPermissions.PermissionCallbac
                     val centerPosition: Int = centerView?.let { layoutManager?.getPosition(it) } ?: 0
 
                     // Получаем данные элемента из адаптера
-                    val currentItem: ActivityType = typeAdapterHorizontal.getActivityItem(centerPosition)
+                    val currentItem: com.example.domain.models.ActivityType = typeAdapterHorizontal.getActivityItem(centerPosition)
                     activityType = currentItem.activityName
                     binding.selectedActivityTypeValueTv.text = currentItem.activityName
                 }
@@ -117,7 +113,7 @@ class SelectActivityTypeFragment : Fragment(), EasyPermissions.PermissionCallbac
         typeAdapterVertical = SelectActivityTypeVerticalAdapter(
             object : SelectActivityTypeVerticalAdapter.ActivityTypeActionListener {
 
-                override fun onClickItem(activityType: ActivityType) {
+                override fun onClickItem(activityType: com.example.domain.models.ActivityType) {
                     binding.recyclerHorizontalContainer.visibility = View.VISIBLE
                     binding.recyclerVerticalContainer.visibility = View.GONE
 
