@@ -5,15 +5,19 @@
     <tr>
       <td align="center">
         <b>Main</b><br>
-        <img src="screenshots/gif/main.gif" width="90%">
+        <img src="https://sun9-8.userapi.com/impf/rKAke_5WEDEg_vSoPEAqot3AVnOx8-y9oCQjaA/s55serdo9cM.jpg?size=997x2160&quality=96&sign=e43ba53ab2c984a26a2350e2b898b23f&type=album" width="90%">
       </td>
       <td align="center">
-        <b>Create reminder</b><br>
-        <img src="screenshots/gif/creating_reminder.gif" width="90%">
+        <b>Rating</b><br>
+        <img src="https://sun9-33.userapi.com/impf/6yswiFOG7KIf3QSkzQKJ5PVMY1RPBf0e4w0oEA/w2-zOlydN9U.jpg?size=997x2160&quality=96&sign=02f40257e6111ca18d308a759392c2e2&type=album" width="90%">
       </td>
       <td align="center">
-        <b>Working with notifications</b><br>
-        <img src="screenshots/gif/notifications.gif" width="90%">
+        <b>Premium statistic</b><br>
+        <img src="https://sun9-5.userapi.com/impf/FyTPifDEpKmMYzHNRgkohlyaUrpo1r2kNEL5uQ/qtOqTrK-bE0.jpg?size=997x2160&quality=96&sign=9c6cdcb00f5cd6a9c7fd24bc1e37d799&type=album" width="90%">
+      </td>
+      <td align="center">
+        <b>Premium profile</b><br>
+        <img src="https://sun9-29.userapi.com/impg/2t6u3fF5KZdXBeCFuJyoEAxa6kTvWqpF4__8Tg/5zwunUPToMA.jpg?size=997x2160&quality=96&sign=6a7908860fe17a174ac04803b17a067b&type=album" width="90%">
       </td>
     </tr>
   </table>
@@ -41,5 +45,5 @@
 * [Gson](https://github.com/google/gson) for serialization and deserialization
 * [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) for async
 * [Room](https://developer.android.com/jetpack/androidx/releases/room) for local database
-* [Retrofit 2]([https://developer.android.com/jetpack/androidx/releases/room](https://square.github.io/retrofit/)) for network
+* [Retrofit 2](https://square.github.io/retrofit/) for network
 
